@@ -13,14 +13,18 @@
         android:theme="@style/Theme.Nutriapp"
         tools:targetApi="31">
         <activity
-            android:name=".noVerificado"
-            android:exported="false"
+            android:name=".ProcesoVerificacion"
+            android:exported="true"
+            android:label="@string/title_activity_proceso_verificacion"
+            android:theme="@style/Theme.Nutriapp" />
+        <activity
+            android:name=".NoVerificado"
+            android:exported="true"
             android:label="@string/title_activity_no_verificado"
             android:theme="@style/Theme.Nutriapp" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Nutriapp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

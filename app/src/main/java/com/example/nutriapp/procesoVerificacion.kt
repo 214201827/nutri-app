@@ -24,22 +24,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nutriapp.ui.theme.NutriappTheme
 
-class NoVerificado : ComponentActivity() {
+class ProcesoVerificacion : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             NutriappTheme {
-                NoAutorizado()
+                ProcesoVerificacionScreen()
             }
         }
     }
 }
 
-
-
 @Composable
-fun NoAutorizado(){
+fun ProcesoVerificacionScreen(){
     Column(
         modifier = Modifier.fillMaxSize().padding(48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,15 +48,15 @@ fun NoAutorizado(){
             Modifier.size(200.dp)
         )
         Spacer(Modifier.height(16.dp))
-        Text("Usted no es un nutriólogo verificado",
+        Text("Su cuenta está en proceso de verificación.",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 24.sp,
             textAlign = TextAlign.Center
-            )
+        )
         Spacer(Modifier.height(16.dp))
-        Text("Para poder utilizar nuestra plataforma como nutriólogo debe pasar" +
-                " por un proceso de verificación, en caso de ser un usuario, " +
-                "favor de seleccionar la opción “Cliente” en la ventana anterior",
+        Text("Su cuenta está en proceso de verificación aún, tenga paciencia. " +
+                "En un máximo de 3 días aproximadamente se le notificará el estatus " +
+                "de su peticiíon.",
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
             textAlign = TextAlign.Center
@@ -69,8 +67,8 @@ fun NoAutorizado(){
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun GreetingPreview2() {
     NutriappTheme {
-        NoAutorizado()
+        ProcesoVerificacionScreen()
     }
 }

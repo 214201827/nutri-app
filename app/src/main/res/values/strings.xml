@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">nutriapp</string>
     <string name="title_activity_no_verificado">noVerificado</string>
+    <string name="title_activity_proceso_verificacion">procesoVerificacion</string>
 </resources>
