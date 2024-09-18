@@ -21,3 +21,7 @@ https://www.figma.com/design/REIA5eD0vxpE7iH7cUuyM0/Nutri-App?node-id=0-1&node-t
 Kanban
 
 https://app.diagrams.net/#G19Ckxm92_YwL0wWl92Jzr8-ikCNaOFQPl#%7B%22pageId%22%3A%22wFE0QG_FPsp0jaGvCLVb%22%7D
+
+Cronograma
+
+https://unisonmx.sharepoint.com/:x:/s/pds3712/EeUMxL5jMt1EstKq-7hPo0cBUcq09PTmwhauMIfNOpy4jA?e=JUruKH
