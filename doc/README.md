@@ -17,10 +17,9 @@ https://app.diagrams.net/#G1ybw_DGYpRwuvacrk6pAPoGnXNGsIQEHU#%7B%22pageId%22%3A%
 https://www.figma.com/design/REIA5eD0vxpE7iH7cUuyM0/Nutri-App?node-id=0-1&node-type=CANVAS&t=Wo6qtMjn8nr5wIVx-0
 
 
-
 Kanban
 
-https://app.diagrams.net/#G19Ckxm92_YwL0wWl92Jzr8-ikCNaOFQPl#%7B%22pageId%22%3A%22wFE0QG_FPsp0jaGvCLVb%22%7D
+https://www.figma.com/board/PJm77r0FSLObwcig01vOaW/kanban?node-id=0-1&node-type=canvas&t=HN7NVSkWDACgldcB-0
 
 Cronograma
 
