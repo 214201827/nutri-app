@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">nutriapp</string>
+    <string name="app_name">Prueba3</string>
+    <string name="tres_claras">
+        Tres claras y un huevo\nDos jamones (80 gr)\n1/2 taza de espinacas
+    </string>
 </resources>
