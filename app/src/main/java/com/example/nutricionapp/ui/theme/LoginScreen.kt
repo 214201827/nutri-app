@@ -112,7 +112,7 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             Button(
-                onClick = { },
+                onClick = {navController.navigate("HomeNutritionist") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -121,7 +121,7 @@ fun LoginScreen(navController: NavHostController) {
                     containerColor = Color.White
                 )
             ) {
-                Text(text = "Iniciar sesión", color = Color(0xFF6200EE), fontSize = 16.sp)
+                Text(text = "Iniciar sesión", color = Color(0xFF4B3D6E), fontSize = 16.sp)
             }
 
             TextButton(onClick = { navController.navigate("RegisterOptions")}) {
