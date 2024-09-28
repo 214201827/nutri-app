@@ -1,9 +1,9 @@
 package com.example.nutricionapp
 
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,17 +13,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 data class Reminder(val patientName: String, val message: String)
 data class Patient(val name: String, val age: Int, val diet: String)
+data class Notification(val title: String, val message: String)
 
 @Composable
 fun HomeNutritionist(navController: NavHostController) {
@@ -33,6 +31,14 @@ fun HomeNutritionist(navController: NavHostController) {
             Reminder("María López", "Cita el 30 de septiembre"),
             Reminder("Carlos García", "Enviar resultados de análisis"),
             Reminder("Laura Martínez", "Cita el 5 de octubre")
+        )
+    }
+
+    val notifications = remember {
+        listOf(
+            Notification("Mensaje de Maria", "xxxxxxx."),
+            Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada."),
+            Notification("Resultados de Análisis", "Los resultados de análisis de Carlos García están disponibles.")
         )
     }
 
@@ -73,12 +79,14 @@ fun HomeNutritionist(navController: NavHostController) {
                 "patients" -> {
                     PatientListScreen(onBackClick = { currentScreen = "home" })
                 }
+                "notifications" -> {
+                    NotificationScreen(notifications, onBackClick = { currentScreen = "home" })
+                }
             }
         }
 
-        // Barra de navegación en la parte inferior
         NavigationBar(
-            containerColor = Color(0xFF4B3D6E) // Color de la barra
+            containerColor = Color(0xFF4B3D6E)
         ) {
             NavigationBarItem(
                 icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
@@ -86,7 +94,7 @@ fun HomeNutritionist(navController: NavHostController) {
                 selected = selectedItem == 0,
                 onClick = {
                     selectedItem = 0
-                    currentScreen = "home" // Volver a la vista de inicio
+                    currentScreen = "home"
                 }
             )
             NavigationBarItem(
@@ -104,7 +112,7 @@ fun HomeNutritionist(navController: NavHostController) {
                 selected = selectedItem == 2,
                 onClick = {
                     selectedItem = 2
-                    // Manejar clic en Notificaciones
+                    currentScreen = "notifications" // Mostrar la pantalla de notificaciones
                 }
             )
         }
@@ -121,19 +129,12 @@ fun PatientListScreen(onBackClick: () -> Unit) {
             Patient("Laura Martínez", 28, "Dieta mediterránea")
         )
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF65558F)),
-    )
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF65558F)),
-
-
-
+            .background(Color(0xFF65558F))
+            .padding(16.dp),
     ) {
 
         Text(
@@ -147,6 +148,30 @@ fun PatientListScreen(onBackClick: () -> Unit) {
         LazyColumn {
             items(patients.size) { index ->
                 PatientItem(patient = patients[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun NotificationScreen(notifications: List<Notification>, onBackClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF65558F))
+            .padding(16.dp),
+    ) {
+        Text(
+            text = "Notificaciones",
+            fontSize = 24.sp,
+            color = Color.White,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Lista de notificaciones
+        LazyColumn {
+            items(notifications.size) { index ->
+                NotificationItem(notification = notifications[index])
             }
         }
     }
@@ -211,6 +236,33 @@ fun PatientItem(patient: Patient) {
     }
 }
 
+@Composable
+fun NotificationItem(notification: Notification) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF4B3D6E))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = notification.title,
+                fontSize = 18.sp,
+                color = Color.White
+            )
+            Text(
+                text = notification.message,
+                fontSize = 14.sp,
+                color = Color.LightGray
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun HomeNutritionistPreview() {
@@ -224,5 +276,19 @@ fun HomeNutritionistPreview() {
 fun PatientListScreenPreview() {
     NutricionAppTheme {
         PatientListScreen(onBackClick = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationScreenPreview() {
+    NutricionAppTheme {
+        NotificationScreen(
+            notifications = listOf(
+                Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
+                Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
+            ),
+            onBackClick = {}
+        )
     }
 }
