@@ -112,7 +112,7 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             Button(
-                onClick = { },
+                onClick = {navController.navigate("HomeNutritionist") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),

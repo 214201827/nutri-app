@@ -31,6 +31,7 @@ fun AppNavHost(navController: NavHostController) {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController)  }
+        composable("HomeNutritionist") { HomeNutritionist(navController)  }
         composable("login") { LoginScreen(navController) }
     }
 }
