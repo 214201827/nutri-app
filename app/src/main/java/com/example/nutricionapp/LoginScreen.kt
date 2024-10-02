@@ -1,4 +1,4 @@
-package com.example.nutricionapp.ui.theme
+package com.example.nutricionapp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.example.nutricionapp.R
+import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -59,7 +59,7 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             Text(
-                text = "NUTI",
+                text = "NUTRI",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -136,6 +136,8 @@ fun LoginScreen(navController: NavHostController) {
     }
 }
 
+
+// Preview del Login, solamente
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {

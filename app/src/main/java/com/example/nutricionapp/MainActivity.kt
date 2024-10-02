@@ -10,10 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
-import com.example.nutricionapp.ui.theme.LoginScreen
-import com.example.nutricionapp.ui.theme.RegisterNutScreen
-import com.example.nutricionapp.ui.theme.RegisterOptionsScreen
-import com.example.nutricionapp.ui.theme.RegisterPatientScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,9 +32,11 @@ fun AppNavHost(navController: NavHostController) {
     }
 }
 
+
+// Preview de la aplicación
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun MainActivityPreview() {
     NutricionAppTheme { LoginScreen(navController = rememberNavController()) }
 
 

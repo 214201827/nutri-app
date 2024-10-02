@@ -1,4 +1,4 @@
-package com.example.nutricionapp.ui.theme
+package com.example.nutricionapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
