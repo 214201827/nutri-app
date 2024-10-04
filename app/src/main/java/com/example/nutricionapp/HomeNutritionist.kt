@@ -1,5 +1,6 @@
 package com.example.nutricionapp
 
+import android.util.Log
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.clickable
 
 data class Reminder(val patientName: String, val message: String)
 data class Patient(val name: String, val age: Int, val diet: String)
@@ -77,10 +79,10 @@ fun HomeNutritionist(navController: NavHostController) {
                     }
                 }
                 "patients" -> {
-                    PatientListScreen(onBackClick = { currentScreen = "home" })
+                    PatientListScreen(navController,onBackClick = { currentScreen = "home" })
                 }
                 "notifications" -> {
-                    NotificationScreen(notifications, onBackClick = { currentScreen = "home" })
+                    NotificationScreen(navController = rememberNavController(),notifications, onBackClick = { currentScreen = "home" })
                 }
             }
         }
@@ -120,7 +122,7 @@ fun HomeNutritionist(navController: NavHostController) {
 }
 
 @Composable
-fun PatientListScreen(onBackClick: () -> Unit) {
+fun PatientListScreen(navController: NavHostController, onBackClick: () -> Unit) {
     val patients = remember {
         listOf(
             Patient("Juan Pérez", 30, "Dieta balanceada"),
@@ -136,7 +138,6 @@ fun PatientListScreen(onBackClick: () -> Unit) {
             .background(Color(0xFF65558F))
             .padding(16.dp),
     ) {
-
         Text(
             text = "Lista de Pacientes",
             fontSize = 24.sp,
@@ -144,17 +145,53 @@ fun PatientListScreen(onBackClick: () -> Unit) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Lista de pacientes
         LazyColumn {
             items(patients.size) { index ->
-                PatientItem(patient = patients[index])
+                PatientItem(patient = patients[index]) {
+                    // Navegar a la pantalla de detalles del paciente con los parámetros
+                    navController.navigate("patient_detail/${patients[index].name}/${patients[index].age}/${patients[index].diet}")
+                }
             }
         }
     }
 }
 
 @Composable
-fun NotificationScreen(notifications: List<Notification>, onBackClick: () -> Unit) {
+fun PatientItem(patient: Patient, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable { onClick() }, // Llamada a la acción de clic
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF4B3D6E))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = patient.name,
+                fontSize = 18.sp,
+                color = Color.White
+            )
+            Text(
+                text = "Edad: ${patient.age}",
+                fontSize = 14.sp,
+                color = Color.LightGray
+            )
+            Text(
+                text = "Dieta: ${patient.diet}",
+                fontSize = 14.sp,
+                color = Color.LightGray
+            )
+        }
+    }
+}
+
+
+@Composable
+fun NotificationScreen(navController: NavHostController,notifications: List<Notification>, onBackClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -205,38 +242,6 @@ fun ReminderItem(reminder: Reminder) {
 }
 
 @Composable
-fun PatientItem(patient: Patient) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF4B3D6E))
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = patient.name,
-                fontSize = 18.sp,
-                color = Color.White
-            )
-            Text(
-                text = "Edad: ${patient.age}",
-                fontSize = 14.sp,
-                color = Color.LightGray
-            )
-            Text(
-                text = "Dieta: ${patient.diet}",
-                fontSize = 14.sp,
-                color = Color.LightGray
-            )
-        }
-    }
-}
-
-@Composable
 fun NotificationItem(notification: Notification) {
     Card(
         modifier = Modifier
@@ -265,25 +270,10 @@ fun NotificationItem(notification: Notification) {
 
 @Preview(showBackground = true)
 @Composable
-fun HomeNutritionistPreview() {
-    NutricionAppTheme {
-        HomeNutritionist(navController = rememberNavController())
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PatientListScreenPreview() {
-    NutricionAppTheme {
-        PatientListScreen(onBackClick = {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
 fun NotificationScreenPreview() {
     NutricionAppTheme {
         NotificationScreen(
+            navController = rememberNavController(),
             notifications = listOf(
                 Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
                 Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
@@ -292,3 +282,18 @@ fun NotificationScreenPreview() {
         )
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun HomeNutritionistPreview() {
+    NutricionAppTheme {
+        HomeNutritionist(navController = rememberNavController())
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun PatientListScreen() {
+    NutricionAppTheme {
+        PatientListScreen(navController = rememberNavController(), onBackClick = {})
+    }
+}
+
