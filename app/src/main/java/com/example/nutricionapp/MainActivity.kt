@@ -10,6 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+import com.example.nutricionapp.CreateAppointmentScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +31,26 @@ fun AppNavHost(navController: NavHostController) {
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController)  }
         composable("HomeNutritionist") { HomeNutritionist(navController)  }
+        composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
+//        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }
+//        composable("NotificationScreen") { NotificationScreen(navController = navController,
+//            notifications = listOf(
+//                Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
+//                Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
+//            ),
+//            onBackClick = {}
+//        )  }
         composable("login") { LoginScreen(navController) }
+        composable("patient_detail/{name}/{age}/{diet}") { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val age = backStackEntry.arguments?.getString("age")?.toInt() ?: 0
+            val diet = backStackEntry.arguments?.getString("diet") ?: ""
+            PatientDetailScreen(
+                navController,
+                Patient(name, age, diet),
+                onBackClick = { navController.popBackStack() }
+            )
+        }
     }
 }
 

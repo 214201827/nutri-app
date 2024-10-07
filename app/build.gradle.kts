@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     // FIrebase
     //id("com.android.application")
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") version "4.4.2" apply false
 
 }
 
@@ -76,6 +76,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("androidx.compose.material3:material3:1.0.0")
 
 
 
