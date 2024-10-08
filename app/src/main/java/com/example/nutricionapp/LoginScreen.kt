@@ -1,5 +1,7 @@
 package com.example.nutricionapp
 
+
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,12 +25,21 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.navigation.NavController
+import androidx.navigation.NavHost
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
+import com.example.nutricionapp.ProviderType
+import com.example.nutricionapp.HomeNutritionist
+import com.example.nutricionapp.UserTypeSelectorScreen
+import com.google.firebase.auth.FirebaseAuth
+
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showErrorLoginDialog by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier
@@ -112,7 +123,23 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             Button(
-                onClick = {navController.navigate("HomeNutritionist") },
+                //onClick = {navController.navigate("HomeNutritionist") },
+                onClick = {
+
+                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                        FirebaseAuth.getInstance()
+                            .signInWithEmailAndPassword(email.toString(), password.toString()).addOnCompleteListener(){
+                                if(it.isSuccessful){
+                                    navController.navigate("UserTypeSelector")
+                                }
+                                else {
+                                    showErrorLoginDialog = true
+                                }
+                            }
+                    }
+
+
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -134,6 +161,23 @@ fun LoginScreen(navController: NavHostController) {
             }
         }
     }
+
+    // Diálogo que se muestra en caso de error
+    if (showErrorLoginDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorLoginDialog = false },
+            confirmButton = {
+                Button(
+                    onClick = { showErrorLoginDialog = false } // Cerrar el diálogo
+                ) {
+                    Text("Aceptar")
+                }
+            },
+            title = { Text("Error") },
+            text = { Text("Error al iniciar sesión. Verifica tus credenciales e inténtalo de nuevo.") }
+        )
+    }
+
 }
 
 

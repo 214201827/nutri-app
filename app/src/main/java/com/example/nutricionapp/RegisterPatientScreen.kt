@@ -174,6 +174,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                 // Implementar dialogo de exito aqui
                                 dialogText.value = "Registro exitoso."
                                 showDialog.value = true
+                                navController.navigate("Login")
 
                             }else {
                                 // Implementar dialogo de error aqui

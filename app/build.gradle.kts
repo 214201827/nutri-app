@@ -3,8 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     // FIrebase
     //id("com.android.application")
-    id("com.google.gms.google-services") version "4.4.2" apply false
-
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -70,13 +69,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.navigation:navigation-compose:2.8.2")
     // Dependencias de Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("androidx.compose.material3:material3:1.0.0")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+
 
 
 
