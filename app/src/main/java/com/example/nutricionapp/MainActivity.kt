@@ -31,6 +31,7 @@ fun AppNavHost(navController: NavHostController) {
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController)  }
         composable("HomeNutritionist") { HomeNutritionist(navController)  }
+        composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
 //        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }
 //        composable("NotificationScreen") { NotificationScreen(navController = navController,

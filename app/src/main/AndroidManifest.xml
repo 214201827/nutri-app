@@ -13,6 +13,11 @@
         android:theme="@style/Theme.NutricionApp"
         tools:targetApi="31">
         <activity
+            android:name=".UserTypeSelector"
+            android:exported="false"
+            android:label="@string/title_activity_user_type_selector"
+            android:theme="@style/Theme.NutricionApp" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
