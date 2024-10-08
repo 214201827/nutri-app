@@ -36,6 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.filled.AddCircle
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 @Composable
@@ -69,21 +74,35 @@ fun PatientDetailScreen(navController: NavHostController, patient: Patient, onBa
                 )
 
                 // Datos del paciente
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(text = patient.name, fontSize = 20.sp, color = Color.White)
                     Text(text = "Edad: ${patient.age}", fontSize = 16.sp, color = Color.LightGray)
                     Text(text = "Dieta: ${patient.diet}", fontSize = 16.sp, color = Color.LightGray)
                 }
                 Button(
                     onClick = {
-                        navController.navigate("CreateAppoitment") // Regresar a la pantalla principal
+                        navController.navigate("CreateAppoitment")
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
-                ){
-                    Text("Crear cita",color = Color.White)
+                        .wrapContentSize()
+                        .padding(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Crear cita",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        "Cita",
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
                 }
             }
         }
