@@ -150,6 +150,7 @@ fun LoginScreen(navController: NavHostController) {
             ) {
                 Text(text = "Iniciar sesión", color = Color(0xFF4B3D6E), fontSize = 16.sp)
             }
+            
 
             TextButton(onClick = { navController.navigate("RegisterOptions")}) {
                 Text(

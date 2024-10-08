@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -72,6 +74,17 @@ fun PatientDetailScreen(navController: NavHostController, patient: Patient, onBa
                     Text(text = "Edad: ${patient.age}", fontSize = 16.sp, color = Color.LightGray)
                     Text(text = "Dieta: ${patient.diet}", fontSize = 16.sp, color = Color.LightGray)
                 }
+                Button(
+                    onClick = {
+                        navController.navigate("CreateAppoitment") // Regresar a la pantalla principal
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
+                ){
+                    Text("Crear cita",color = Color.White)
+                }
             }
         }
 
@@ -99,7 +112,7 @@ fun PatientDetailScreen(navController: NavHostController, patient: Patient, onBa
 
         // Mostrar contenido según la pestaña seleccionada
         when (selectedTab) {
-            "Dieta" -> DietContent()
+            "Dieta" -> DietContent(navController = rememberNavController())
             "Progreso" -> ProgressContent()
             "Historial" -> HistoryContent()
         }
@@ -117,7 +130,7 @@ fun PatientDetailScreen(navController: NavHostController, patient: Patient, onBa
     }
 }
 @Composable
-fun DietContent() {
+fun DietContent(navController: NavHostController) {
     // Aquí va el contenido relacionado con la dieta del paciente
     Column(
         modifier = Modifier
@@ -126,7 +139,9 @@ fun DietContent() {
     ) {
         Text("Dieta del paciente", fontSize = 18.sp, color = Color.White)
         // Añade aquí más detalles sobre la dieta
+
     }
+
 }
 
 @Composable
