@@ -22,15 +22,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nutriapp.R
-import com.example.nutriapp.ui.theme.NutriappTheme
+import com.example.nutricionapp.R
+import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 class NoVerificado : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NutriappTheme {
+            NutricionAppTheme  {
                 NoAutorizado()
             }
         }
@@ -71,7 +71,7 @@ fun NoAutorizado(){
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    NutriappTheme {
+    NutricionAppTheme {
         NoAutorizado()
     }
 }

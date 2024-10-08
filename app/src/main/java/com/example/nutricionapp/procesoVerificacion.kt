@@ -22,15 +22,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nutriapp.R
-import com.example.nutriapp.ui.theme.NutriappTheme
+import com.example.nutricionapp.R
+import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 class ProcesoVerificacion : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NutriappTheme {
+            NutricionAppTheme {
                 ProcesoVerificacionScreen()
             }
         }
@@ -69,7 +69,7 @@ fun ProcesoVerificacionScreen(){
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview2() {
-    NutriappTheme {
+    NutricionAppTheme {
         ProcesoVerificacionScreen()
     }
 }
