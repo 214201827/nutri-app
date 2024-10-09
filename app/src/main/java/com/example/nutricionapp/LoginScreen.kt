@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
@@ -44,12 +45,8 @@ fun LoginScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFF5A4A8A), Color(0xFF65558F)),
-                    startY = 0f,
-                    endY = 1000f
-                )
+            .background(Color(0xFF65558F)
+
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -84,10 +81,11 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
+                maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -96,7 +94,7 @@ fun LoginScreen(navController: NavHostController) {
                     focusedLabelColor = Color.White,
                     unfocusedLabelColor = Color.White
                 ),
-                shape = RoundedCornerShape(16.dp)
+                //shape = RoundedCornerShape(16.dp)
             )
 
             TextField(
@@ -106,7 +104,7 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
@@ -148,7 +146,7 @@ fun LoginScreen(navController: NavHostController) {
                     containerColor = Color.White
                 )
             ) {
-                Text(text = "Iniciar sesión", color = Color(0xFF4B3D6E), fontSize = 16.sp)
+                Text(text = "Iniciar sesión", color = Color(0xFF65558F), fontSize = 16.sp)
             }
             Button(
                 onClick = {navController.navigate("HomeNutritionist") },

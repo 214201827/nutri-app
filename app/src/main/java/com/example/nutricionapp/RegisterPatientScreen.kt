@@ -3,8 +3,11 @@ package com.example.nutricionapp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,12 +16,15 @@ import androidx.navigation.NavHostController
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
@@ -40,7 +46,8 @@ fun DatePickerDocked() {
 
     Box(
         modifier = Modifier.fillMaxWidth()
-    ) {
+    )
+    {
         OutlinedTextField(
             value = selectedDate,
             onValueChange = { },
@@ -57,7 +64,18 @@ fun DatePickerDocked() {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
+                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                .background(Color(0xFF4B3D6E)),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
         )
 
         if (showDatePicker) {
@@ -98,6 +116,14 @@ fun RegisterPatientScreen(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
+    //combo box
+    var selectedDay by remember { mutableStateOf("") }
+    var selectedMonth by remember { mutableStateOf("") }
+    var selectedYear by remember { mutableStateOf("") }
+
+    val days = (1..31).map { it.toString() }
+    val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+    val years = (1900..2024).map { it.toString() }
 
 // Diálogo
     if (showDialog.value) {
@@ -107,15 +133,23 @@ fun RegisterPatientScreen(navController: NavHostController) {
         )
     }
 
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF65558F)
+
+            ),
+        contentAlignment = Alignment.Center
+    ){}
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp).background(Color(0xFF65558F)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Registro de Paciente",fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall)
+        Text(text = "Registro de Paciente",fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall,color= Color.White)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -124,6 +158,19 @@ fun RegisterPatientScreen(navController: NavHostController) {
             onValueChange = { fullName = it },
             label = { Text("Nombre Completo") },
             modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 8.dp)
+                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                .background(Color(0xFF4B3D6E)),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -136,17 +183,61 @@ fun RegisterPatientScreen(navController: NavHostController) {
             label = { Text("Fecha de Nacimiento (DD/MM/AAAA)") },
             modifier = Modifier.fillMaxWidth()
         )*/
+        Row(
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            horizontalArrangement = Arrangement.SpaceBetween, // Espacio entre cada ComboBox
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ComboBox(
+                label = "Día",
+                items = days,
+                selectedItem = selectedDay,
+                onItemSelected = { selectedDay = it },
+                //modifier = Modifier.weight(1f)
+            )
 
-        DatePickerDocked()
+
+            ComboBox(
+                label = "Mes",
+                items = months,
+                selectedItem = selectedMonth,
+                onItemSelected = { selectedMonth = it },
+               // modifier = Modifier.padding(4.dp)
+            )
+
+
+
+            ComboBox(
+                label = "Año",
+                items = years,
+                selectedItem = selectedYear,
+                onItemSelected = { selectedYear = it },
+                //modifier = Modifier.weight(1f)
+            )
+        }
+        //DatePickerDocked()
+        //Text(text = "Fecha seleccionada: $selectedDay de $selectedMonth del $selectedYear",color = Color.White)
 
         Spacer(modifier = Modifier.height(16.dp))
-
 
         TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo Electrónico") },
             modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 8.dp)
+                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                .background(Color(0xFF4B3D6E)),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -156,7 +247,20 @@ fun RegisterPatientScreen(navController: NavHostController) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                //.padding(vertical = 8.dp)
+                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                .background(Color(0xFF4B3D6E)),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            ),
             visualTransformation = PasswordVisualTransformation()
         )
 
@@ -185,32 +289,94 @@ fun RegisterPatientScreen(navController: NavHostController) {
                 }
 
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.width(220.dp)
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White
+            )
 
         ) {
-            Text("Registrarse")
+            Text("Registrarse",color = Color(0xFF65558F), fontSize = 16.sp)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        //Spacer(modifier = Modifier.height(8.dp))
 
 
         Button(
             onClick = { /* Aquí hacer registro con Google */ },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary) // Cambia a containerColor
+            modifier = Modifier
+                .width(220.dp)
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White
+            )
         ) {
-            Text("Registrarse con Google", color = MaterialTheme.colorScheme.onPrimary) // Cambia a colorScheme
+            Text("Registrarse con Google",color = Color(0xFF65558F), fontSize = 16.sp) // Cambia a colorScheme
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        //Spacer(modifier = Modifier.height(.dp))
 
 
         TextButton(onClick = { navController.navigate("login") }) {
-            Text("Ya tienes cuanta? Inicia sesion")
+            Text("Ya tienes cuanta? Inicia sesion", color = Color.White)
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ComboBox(label: String, items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
 
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        TextField(
+            value = selectedItem,
+            onValueChange = { },
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon( // Custom trailing icon
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Toggle Dropdown",
+                    tint = Color.White 
+                )
+            },
+            modifier = modifier
+                .menuAnchor()
+                .background(Color(0xFF4B3D6E))
+                .width(110.dp) // Establecer un ancho fijo
+                .height(56.dp), // Establecer una altura fija
+            maxLines = 1, // Asegúrate de que no expanda a más de una línea
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+        )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = {
+                        onItemSelected(item)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun DialogoRegistroPaciente(onDismissRequest: () -> Unit, dialogText: String) {

@@ -9,7 +9,6 @@ plugins {
 android {
     namespace = "com.example.nutricionapp"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "com.example.nutricionapp"
         minSdk = 24

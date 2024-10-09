@@ -222,7 +222,7 @@ fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () ->
 }
 
 
-@Preview(showBackground = true) // Anotación de vista previa
+@Preview(showBackground = true)
 @Composable
 fun CreateAppointmentScreenPreview() {
     // Si tu pantalla requiere el navController, puedes usar un dummy o un controlador de navegación vacío para la vista previa
