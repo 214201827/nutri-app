@@ -97,16 +97,28 @@ fun HomeNutritionist(navController: NavHostController) {
                 onClick = {
                     selectedItem = 0
                     currentScreen = "home"
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
             )
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") },
-                label = { Text("Pacientes") },
+                icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") }, // Ícono en blanco
+                label = { Text("Pacientes") }, // Label en blanco
                 selected = selectedItem == 1,
                 onClick = {
                     selectedItem = 1
                     currentScreen = "patients" // Mostrar la lista de pacientes
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
             )
             NavigationBarItem(
                 icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
@@ -115,7 +127,13 @@ fun HomeNutritionist(navController: NavHostController) {
                 onClick = {
                     selectedItem = 2
                     currentScreen = "notifications" // Mostrar la pantalla de notificaciones
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
             )
         }
     }

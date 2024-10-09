@@ -22,18 +22,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.platform.LocalContext
 import java.util.*
+import org.threeten.bp.LocalTime
+import org.threeten.bp.format.DateTimeFormatter
 
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+
+
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.toSize
+
 
 import androidx.navigation.NavHostController
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,67 +56,17 @@ fun DatePickerAppoiment() {
         convertMillisToDate(it)
     } ?: ""
 
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        OutlinedTextField(
-            value = selectedDate,
-            onValueChange = { },
-            label = { Text("Fecha de cita") },
-            //colors = TextFieldDefaults(NutricionAppTheme { R.color }),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { showDatePicker = !showDatePicker }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date"
-                    )
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedLabelColor = Color.White
-            )
-        )
+    //Fecha
 
-        if (showDatePicker) {
-            Popup(
-                onDismissRequest = { showDatePicker = false },
-                alignment = Alignment.TopStart
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = 64.dp)
-                        .shadow(elevation = 4.dp)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp)
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        showModeToggle = false
-                    )
-                }
-            }
-        }
+
     }
-}
+
 @Composable
 fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () -> Unit) {
     var patientName by remember { mutableStateOf("") }
     var appointmentDate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
-    // Lista de horas disponibles desde las 8 AM hasta las 8 PM
-    val hours = (8..20).flatMap { hour ->
-        listOf("${hour}:00", "${hour}:30").map {
-            if (hour < 12) "$it AM" else if (hour == 12) "$it PM" else "${hour - 12}:00 PM"
-        }
-    }
 
     var selectedTime by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) } // Estado para mostrar el DropdownMenu
@@ -124,6 +85,9 @@ fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () ->
             appointmentDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
         }, year, month, day
     )
+    //combo box hora
+    val hours = generateHourList()
+    var selectedHour by remember { mutableStateOf(hours.first()) }
 
 
     Column(
@@ -140,85 +104,197 @@ fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () ->
         )
 
         // Campo para el nombre del paciente
-        OutlinedTextField(
+        TextField(
             value = patientName,
             onValueChange = { patientName = it },
             label = { Text("Nombre del Paciente") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedLabelColor = Color.White
+               // .padding(vertical = 8.dp)
+            .background(Color(0xFF4B3D6E)),
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedLabelColor = Color.White,
+            unfocusedLabelColor = Color.White
             )
         )
+        HourComboBox(
+            label = "Hora",
+            hours = hours,
+            selectedHour = selectedHour,
+            onHourSelected = { selectedHour = it }
+        )
 
-
-        // DropdownMenu para seleccionar la hora
-        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-            OutlinedTextField(
-                value = if (selectedTime.isNotEmpty()) selectedTime else "Seleccionar Hora",
-                onValueChange = {},
-                readOnly = true, // Evita que el campo sea editable
-               // label = { Text("Hora de la Cita") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedLabelColor = Color.White
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            hours.forEach { hour ->
+                DropdownMenuItem(
+                    text = { Text(text = hour) },
+                    onClick = {
+                        selectedTime = hour
+                        expanded = false
+                    }
                 )
-                )
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                hours.forEach { hour ->
-                    DropdownMenuItem(
-                        text = { Text(text = hour) },
-                        onClick = {
-                            selectedTime = hour
-                            expanded = false
-                        }
-                    )
-                }
             }
         }
-        DatePickerAppoiment()
 
-        // Campo para notas adicionales
-        OutlinedTextField(
+        //combo para fecha
+        //DatePickerAppoiment()
+        var selectedDay by remember { mutableStateOf("") }
+        var selectedMonth by remember { mutableStateOf("") }
+        var selectedYear by remember { mutableStateOf("") }
+
+        val days = (1..31).map { it.toString() }
+        val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+        val years = (1900..2024).map { it.toString() }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            horizontalArrangement = Arrangement.SpaceBetween, // Espacio entre cada ComboBox
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ComboBox(
+                label = "Día",
+                items = days,
+                selectedItem = selectedDay,
+                onItemSelected = { selectedDay = it },
+            )
+
+
+            ComboBox(
+                label = "Mes",
+                items = months,
+                selectedItem = selectedMonth,
+                onItemSelected = { selectedMonth = it },
+            )
+
+
+
+            ComboBox(
+                label = "Año",
+                items = years,
+                selectedItem = selectedYear,
+                onItemSelected = { selectedYear = it },
+            )
+        }
+
+
+        TextField(
             value = notes,
             onValueChange = { notes = it },
             label = { Text("Notas adicionales") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedLabelColor = Color.White
+                .padding(vertical = 8.dp).background(Color(0xFF4B3D6E)),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
             )
         )
 
 
-        // Botón para guardar la cita
+
         Button(
             onClick = {
-                navController.navigate("HomeNutritionist") // Regresar a la pantalla principal
+                navController.navigate("HomeNutritionist")
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White
+            )
         ) {
-            Text("Guardar Cita", color = Color.White)
+            Text("Guardar Cita", color = Color(0xFF65558F))
         }
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HourComboBox(
+    label: String,
+    hours: List<String>,
+    selectedHour: String,
+    onHourSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        TextField(
+            value = selectedHour,
+            onValueChange = { },
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Toggle Dropdown",
+                    tint = Color.White // Cambiar color del icono a blanco
+                )
+            },
+            modifier = modifier
+                .menuAnchor()
+                .padding(vertical = 8.dp)
+                .background(Color(0xFF4B3D6E))
+                .width(110.dp)
+                .height(56.dp),
+            maxLines = 1,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
+        )
+
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false } // Cierra el menú si se hace clic fuera
+        ) {
+            hours.forEach { hour -> // Recorrer la lista de horas
+                DropdownMenuItem(
+                    text = { Text(hour) }, // Mostrar cada hora
+                    onClick = {
+                        onHourSelected(hour) // Actualizar la hora seleccionada
+                        expanded = false // Cerrar el menú después de la selección
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+// Función que genera la lista de horas desde las 8:00 AM hasta las 6:00 PM cada media hora
+fun generateHourList(): List<String> {
+    val hours = mutableListOf<String>()
+    var currentTime = LocalTime.of(8, 0)
+    val endTime = LocalTime.of(18, 0)
+
+    while (currentTime <= endTime) {
+        val formattedTime = currentTime.format(DateTimeFormatter.ofPattern("hh:mm a"))
+        hours.add(formattedTime)
+        currentTime = currentTime.plusMinutes(30)
+    }
+    return hours
 }
 
 

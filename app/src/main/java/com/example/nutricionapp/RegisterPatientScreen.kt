@@ -342,7 +342,7 @@ fun ComboBox(label: String, items: List<String>, selectedItem: String, onItemSel
                 Icon( // Custom trailing icon
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = "Toggle Dropdown",
-                    tint = Color.White 
+                    tint = Color.White
                 )
             },
             modifier = modifier
