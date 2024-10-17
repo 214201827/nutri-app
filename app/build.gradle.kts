@@ -81,7 +81,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     // These
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation(libs.play.services.auth)
 
     val credentialsManagerVersion = "1.5.0-alpha05"
     implementation("androidx.credentials:credentials:$credentialsManagerVersion")
