@@ -2,6 +2,7 @@ package com.example.nutricionapp
 
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,7 @@ import com.example.nutricionapp.ProviderType
 import com.example.nutricionapp.HomeNutritionist
 import com.example.nutricionapp.UserTypeSelectorScreen
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -42,6 +44,7 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
     var password by remember { mutableStateOf("") }
     var showErrorLoginDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     // Estado para manejar las respuestas de los flujos de autenticación
     var loginResponse by remember { mutableStateOf<AuthResponse?>(null) }
@@ -161,18 +164,24 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
                 Text(text = "Iniciar sesión", color = Color(0xFF65558F), fontSize = 16.sp)
             }
 
-            Button(
-                onClick = {
-                    // Iniciar sesión con Google
-                    authenticationManager.signInWithGoogle()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) {
-                Text(text = "Iniciar sesión con Google", color = Color(0xFF65558F), fontSize = 16.sp)
+            Button(onClick = {
+                Log.d("WARN", "Iniciando sesión con Google")
+
+                // Lanzar una coroutine para llamar a la función suspendida
+                coroutineScope.launch {
+                    val result = authenticationManager.signInWithGoogle() // Llamada suspendida
+
+                    // Manejo del resultado
+                    if (result.isSuccess) {
+                        navController.navigate("UserTypeSelector") // Navegar si es exitoso
+                    } else {
+                        val errorMessage = result.exceptionOrNull()?.message ?: "Error desconocido"
+                        Log.d("ERROR", errorMessage)
+                        // Mostrar mensaje de error o manejar el fallo
+                    }
+                }
+            }) {
+                Text("Iniciar sesión con Google")
             }
 
             TextButton(onClick = { navController.navigate("RegisterOptions") }) {

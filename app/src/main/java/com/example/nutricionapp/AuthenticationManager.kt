@@ -1,6 +1,7 @@
 package com.example.nutricionapp
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -16,6 +17,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.security.MessageDigest
 import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class AuthenticationManager(
     private val context: Context
@@ -50,55 +53,54 @@ class AuthenticationManager(
         awaitClose()
     }
 
-    fun signInWithGoogle(): Flow<AuthResponse> = callbackFlow {
-        val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            // Pass web client ID
-            .setServerClientId(context.getString(R.string.web_client_id))
-            .setAutoSelectEnabled(false)
-            .setNonce(createNonce())
-            .build()
+    suspend fun signInWithGoogle(): Result<AuthResponse> {
+        return try {
+            Log.d("WARN", "Iniciando sesión con Google")
 
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+            val googleIdOption = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(false)
+                .setServerClientId(context.getString(R.string.web_client_id))
+                .setAutoSelectEnabled(false)
+                .setNonce(createNonce())
+                .build()
 
-        try {
-            val credentialManager = CredentialManager.create((context))
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
+
+            val credentialManager = CredentialManager.create(context)
             val result = credentialManager.getCredential(
                 context = context,
                 request = request
             )
 
             val credential = result.credential
-            if(credential is CustomCredential){
-                if(credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
-                    try {
-                        val googleIdTokenCredential = GoogleIdTokenCredential
-                            .createFrom(credential.data)
+            if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-                        val firebaseCredential = GoogleAuthProvider
-                            .getCredential(
-                                googleIdTokenCredential.idToken,
-                                null
-                            )
+                val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
 
-                        auth.signInWithCredential(firebaseCredential)
-                            .addOnCompleteListener {
-                                if(it.isSuccessful){
-                                    trySendBlocking(AuthResponse.Success)
-                                } else{
-                                    trySendBlocking(AuthResponse.Error(message = it.exception?.message ?: ""))                                }
+                // Usar `suspendCoroutine` para manejar el callback de Firebase y suspender la ejecución hasta obtener el resultado
+                suspendCoroutine<Result<AuthResponse>> { continuation ->
+                    auth.signInWithCredential(firebaseCredential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                continuation.resume(Result.success(AuthResponse.Success))
+                            } else {
+                                continuation.resume(
+                                    Result.failure(Exception(task.exception?.message ?: "Error al iniciar sesión con Firebase"))
+                                )
                             }
-
-                    }catch (e: GoogleIdTokenParsingException){
-                        trySendBlocking(AuthResponse.Error(message = e.message ?: ""))                    }
+                        }
                 }
+            } else {
+                Result.failure(Exception("Error al obtener las credenciales de Google"))
             }
         } catch (e: Exception) {
-            trySendBlocking(AuthResponse.Error(message = e.message ?: ""))        }
-        awaitClose()
+            Result.failure(e)
+        }
     }
+
 
 
 }
