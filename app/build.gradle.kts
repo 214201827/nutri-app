@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.nutricionapp"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.example.nutricionapp"
         minSdk = 24
@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -75,6 +76,17 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.0.0")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation("com.google.firebase:firebase-auth")
+
+    // These
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    val credentialsManagerVersion = "1.5.0-alpha05"
+    implementation("androidx.credentials:credentials:$credentialsManagerVersion")
+    implementation("androidx.credentials:credentials-play-services-auth:$credentialsManagerVersion")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
 
 

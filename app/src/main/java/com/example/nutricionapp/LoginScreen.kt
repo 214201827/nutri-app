@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
@@ -36,18 +37,47 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController, authenticationManager: AuthenticationManager) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showErrorLoginDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    // Estado para manejar las respuestas de los flujos de autenticación
+    var loginResponse by remember { mutableStateOf<AuthResponse?>(null) }
+    var googleSignInResponse by remember { mutableStateOf<AuthResponse?>(null) }
+
+    // Efecto lanzado cuando cambia el estado de la respuesta de login
+    LaunchedEffect(loginResponse, googleSignInResponse) {
+        when (loginResponse) {
+            is AuthResponse.Success -> {
+                navController.navigate("UserTypeSelector")
+            }
+            is AuthResponse.Error -> {
+                errorMessage = (loginResponse as AuthResponse.Error).message
+                showErrorLoginDialog = true
+            }
+
+            null -> {}
+        }
+
+        when (googleSignInResponse) {
+            is AuthResponse.Success -> {
+                navController.navigate("UserTypeSelector")
+            }
+            is AuthResponse.Error -> {
+                errorMessage = (googleSignInResponse as AuthResponse.Error).message
+                showErrorLoginDialog = true
+            }
+
+            null -> {}}
+        }
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF65558F)
-
-            ),
+            .background(Color(0xFF65558F)),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -81,11 +111,9 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
-                maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -93,8 +121,7 @@ fun LoginScreen(navController: NavHostController) {
                     unfocusedTextColor = Color.White,
                     focusedLabelColor = Color.White,
                     unfocusedLabelColor = Color.White
-                ),
-                //shape = RoundedCornerShape(16.dp)
+                )
             )
 
             TextField(
@@ -104,7 +131,6 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
@@ -116,52 +142,40 @@ fun LoginScreen(navController: NavHostController) {
                     unfocusedTextColor = Color.White,
                     focusedLabelColor = Color.White,
                     unfocusedLabelColor = Color.White
-                ),
-                shape = RoundedCornerShape(16.dp)
+                )
             )
 
             Button(
-                //onClick = {navController.navigate("HomeNutritionist") },
                 onClick = {
-
                     if (email.isNotEmpty() && password.isNotEmpty()) {
-                        FirebaseAuth.getInstance()
-                            .signInWithEmailAndPassword(email.toString(), password.toString()).addOnCompleteListener(){
-                                if(it.isSuccessful){
-                                    navController.navigate("UserTypeSelector")
-                                }
-                                else {
-                                    showErrorLoginDialog = true
-                                }
-                            }
+                        // Iniciar sesión con email y contraseña
+                        authenticationManager.loginWithEmail(email, password)
                     }
-
-
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Text(text = "Iniciar sesión", color = Color(0xFF65558F), fontSize = 16.sp)
             }
+
             Button(
-                onClick = {navController.navigate("HomeNutritionist") },
+                onClick = {
+                    // Iniciar sesión con Google
+                    authenticationManager.signInWithGoogle()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
-                Text(text = "Iniciar sesión nut", color = Color(0xFF4B3D6E), fontSize = 16.sp)
+                Text(text = "Iniciar sesión con Google", color = Color(0xFF65558F), fontSize = 16.sp)
             }
 
-            TextButton(onClick = { navController.navigate("RegisterOptions")}) {
+            TextButton(onClick = { navController.navigate("RegisterOptions") }) {
                 Text(
                     text = "¿No tienes cuenta? Regístrate",
                     color = Color.White,
@@ -177,25 +191,21 @@ fun LoginScreen(navController: NavHostController) {
         AlertDialog(
             onDismissRequest = { showErrorLoginDialog = false },
             confirmButton = {
-                Button(
-                    onClick = { showErrorLoginDialog = false } // Cerrar el diálogo
-                ) {
+                Button(onClick = { showErrorLoginDialog = false }) {
                     Text("Aceptar")
                 }
             },
             title = { Text("Error") },
-            text = { Text("Error al iniciar sesión. Verifica tus credenciales e inténtalo de nuevo.") }
+            text = { Text(errorMessage) }
         )
     }
-
 }
-
-
-// Preview del Login, solamente
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     NutricionAppTheme {
-        LoginScreen(navController = rememberNavController())
+        val navController = rememberNavController()
+        val authenticationManager = AuthenticationManager(context = LocalContext.current)
+        LoginScreen(navController = navController, authenticationManager = authenticationManager)
     }
 }

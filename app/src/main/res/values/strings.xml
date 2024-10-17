@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NutricionApp</string>
     <string name="title_activity_user_type_selector">UserTypeSelector</string>
+    <string name="web_client_id">859740912040-sb688h836dg2rpnfs0gcj9mfoqiiniof.apps.googleusercontent.com</string>
 </resources>

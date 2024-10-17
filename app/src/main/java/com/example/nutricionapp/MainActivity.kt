@@ -13,35 +13,37 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.example.nutricionapp.CreateAppointmentScreen
+import com.example.nutricionapp.AuthenticationManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Crear instancia de AuthenticationManager
+        val authenticationManager = AuthenticationManager(context = this)
+
         setContent {
             val navController = rememberNavController()
-            AppNavHost(navController = navController)
+            AppNavHost(navController = navController, authenticationManager = authenticationManager)
         }
     }
 }
 
 @Composable
-fun AppNavHost(navController: NavHostController) {
+fun AppNavHost(navController: NavHostController, authenticationManager: AuthenticationManager) {
     NavHost(navController = navController, startDestination = "login") {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
-        composable("registerNutritionist") { RegisterNutScreen(navController)  }
-        composable("HomeNutritionist") { HomeNutritionist(navController)  }
+        composable("registerNutritionist") { RegisterNutScreen(navController) }
+        composable("HomeNutritionist") { HomeNutritionist(navController) }
         composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
-        composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
-//        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }
-//        composable("NotificationScreen") { NotificationScreen(navController = navController,
-//            notifications = listOf(
-//                Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
-//                Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
-//            ),
-//            onBackClick = {}
-//        )  }
-        composable("login") { LoginScreen(navController) }
+        composable("CreateAppoitment") {
+            CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack() })
+        }
+        composable("login") {
+            // Pasa el authenticationManager al LoginScreen
+            LoginScreen(navController = navController, authenticationManager = authenticationManager)
+        }
         composable("patient_detail/{name}/{age}/{diet}") { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val age = backStackEntry.arguments?.getString("age")?.toInt() ?: 0
@@ -60,7 +62,7 @@ fun AppNavHost(navController: NavHostController) {
 @Preview(showBackground = true)
 @Composable
 fun MainActivityPreview() {
-    NutricionAppTheme { LoginScreen(navController = rememberNavController()) }
+   // NutricionAppTheme { LoginScreen(navController = rememberNavController()) }
 
 
 }
