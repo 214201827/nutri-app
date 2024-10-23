@@ -7,6 +7,7 @@ import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -35,7 +36,8 @@ class AuthenticationManager(
     }
 
     fun loginWithEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow {
-        auth.signInWithEmailAndPassword(email, password)
+        FirebaseAuth.getInstance()
+            .signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // Sign in success
@@ -83,7 +85,7 @@ class AuthenticationManager(
                                 null
                             )
 
-                        auth.signInWithCredential(firebaseCredential)
+                        FirebaseAuth.getInstance().signInWithCredential(firebaseCredential)
                             .addOnCompleteListener {
                                 if(it.isSuccessful){
                                     trySendBlocking(AuthResponse.Success)

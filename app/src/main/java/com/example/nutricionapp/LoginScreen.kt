@@ -2,6 +2,7 @@ package com.example.nutricionapp
 
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,9 @@ import com.example.nutricionapp.ProviderType
 import com.example.nutricionapp.HomeNutritionist
 import com.example.nutricionapp.UserTypeSelectorScreen
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -42,13 +46,14 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
     var password by remember { mutableStateOf("") }
     var showErrorLoginDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     // Estado para manejar las respuestas de los flujos de autenticación
     var loginResponse by remember { mutableStateOf<AuthResponse?>(null) }
     var googleSignInResponse by remember { mutableStateOf<AuthResponse?>(null) }
 
     // Efecto lanzado cuando cambia el estado de la respuesta de login
-    LaunchedEffect(loginResponse, googleSignInResponse) {
+    LaunchedEffect(loginResponse) {
         when (loginResponse) {
             is AuthResponse.Success -> {
                 navController.navigate("UserTypeSelector")
@@ -57,21 +62,9 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
                 errorMessage = (loginResponse as AuthResponse.Error).message
                 showErrorLoginDialog = true
             }
-
             null -> {}
         }
-
-        when (googleSignInResponse) {
-            is AuthResponse.Success -> {
-                navController.navigate("UserTypeSelector")
-            }
-            is AuthResponse.Error -> {
-                errorMessage = (googleSignInResponse as AuthResponse.Error).message
-                showErrorLoginDialog = true
-            }
-
-            null -> {}}
-        }
+    }
 
 
     Box(
@@ -148,8 +141,15 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
             Button(
                 onClick = {
                     if (email.isNotEmpty() && password.isNotEmpty()) {
-                        // Iniciar sesión con email y contraseña
-                        authenticationManager.loginWithEmail(email, password)
+                        if (email.isNotEmpty() && password.isNotEmpty()) {
+                            // Iniciar sesión con email y contraseña dentro de una corutina
+                            coroutineScope.launch {
+                                authenticationManager.loginWithEmail(email, password)
+                                    .collect { response ->
+                                        loginResponse = response
+                                    }
+                            }
+                        }
                     }
                 },
                 modifier = Modifier
