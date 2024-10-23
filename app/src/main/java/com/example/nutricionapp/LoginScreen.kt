@@ -160,7 +160,18 @@ fun LoginScreen(navController: NavHostController, authenticationManager: Authent
             ) {
                 Text(text = "Iniciar sesión", color = Color(0xFF65558F), fontSize = 16.sp)
             }
-
+            Button(
+                onClick = {navController.navigate("HomeNutritionist") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Text(text = "Iniciar sesión nut", color = Color(0xFF4B3D6E), fontSize = 16.sp)
+            }
             Button(
                 onClick = {
                     // Iniciar sesión con Google
