@@ -30,8 +30,12 @@ import androidx.compose.ui.window.Popup
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.GregorianCalendar
 import java.util.Locale
 
 
@@ -110,6 +114,7 @@ fun convertMillisToDate(millis: Long): String {
 
 @Composable
 fun RegisterPatientScreen(navController: NavHostController) {
+    var dbPatient = Firebase.firestore
     var fullName by remember { mutableStateOf("") }
     //var birthDate by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -123,7 +128,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
     val days = (1..31).map { it.toString() }
     val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
-    val years = (1900..2024).map { it.toString() }
+    val years = (1930..2010).map { it.toString() }
 
 // Diálogo
     if (showDialog.value) {
@@ -176,13 +181,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
 
-        /*TextField(
-            value = birthDate,
-            singleLine = true,
-            onValueChange = { birthDate = it },
-            label = { Text("Fecha de Nacimiento (DD/MM/AAAA)") },
-            modifier = Modifier.fillMaxWidth()
-        )*/
+
         Row(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             horizontalArrangement = Arrangement.SpaceBetween, // Espacio entre cada ComboBox
@@ -271,10 +270,36 @@ fun RegisterPatientScreen(navController: NavHostController) {
             onClick = {
             /* Aquí hacer registro */
 
-                if(email.isNotEmpty() && password.isNotEmpty()){
+                if(email.isNotEmpty() && password.isNotEmpty() && selectedDay.isNotEmpty() && selectedMonth.isNotEmpty() && selectedYear.isNotEmpty()){
+
+
+                // Formatear fecha ingresada
+                    val calendar = GregorianCalendar(
+                        selectedYear.toInt(),
+                        months.indexOf(selectedMonth), // El índice correcto del mes (0-11)
+                        selectedDay.toInt()
+                    )
+
+                    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+                    val formattedDate = formatter.format(calendar.time) // Esto devuelve un String compatible con ISO 8601
+
+
                     FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.toString(),
                         password.toString()).addOnCompleteListener(){
                             if(it.isSuccessful){
+
+                                dbPatient.collection("/usuarios").document(email.toString()).set(
+                                    hashMapOf(
+                                        "historial" to listOf<DocumentReference>(),
+                                        "medidas" to listOf<DocumentReference>(),
+                                        "fullName" to fullName.toString(),
+                                        "nutriAsign" to null,
+                                        "fechaNacimiento" to formattedDate
+                                    )
+                                )
+
+
+                                
                                 // Implementar dialogo de exito aqui
                                 dialogText.value = "Registro exitoso."
                                 showDialog.value = true
