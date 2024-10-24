@@ -21,16 +21,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.input.pointer.pointerInput
 
 @Composable
 fun RegisterNutScreen(navController: NavHostController) {
@@ -40,25 +41,22 @@ fun RegisterNutScreen(navController: NavHostController) {
     val storage = FirebaseStorage.getInstance("gs://nutri-app-a90ca.appspot.com")
 
 
-    // Estados para manejar la carga
+    // Estados para manejar la carga y el diálogo de éxito
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
     var name by remember { mutableStateOf("") }
     var licenseNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
-    // State variables to hold the selected URIs
+    // Variables de estado para los URIs seleccionados
     var photoIneUri by remember { mutableStateOf<Uri?>(null) }
     var professionalLicenseUri by remember { mutableStateOf<Uri?>(null) }
 
-    var showSuccessDialog by remember { mutableStateOf(false) }
-
-
-
-
-    // Launcher for selecting PDF files (Cédula profesional)
+    // Launcher para seleccionar archivos PDF (Cédula profesional)
     val pickPdfLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -67,7 +65,7 @@ fun RegisterNutScreen(navController: NavHostController) {
         }
     }
 
-    // Launcher for selecting images or PDFs (Foto INE)
+    // Launcher para seleccionar imágenes o PDFs (Foto INE)
     val pickImageOrPdfLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -87,254 +85,306 @@ fun RegisterNutScreen(navController: NavHostController) {
                 )
             ),
         //contentAlignment = Alignment.Center
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Registro de Nutriologo",
-            color = Color.White,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nombre completo") },
+        // Contenido principal
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF4B3D6E)),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                .fillMaxSize()
+                .padding(16.dp)
+                .alpha(if (isLoading) 0.5f else 1f), // Cambia la opacidad si está cargando
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Registro de Nutriólogo",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
             )
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = licenseNumber,
-            onValueChange = { licenseNumber = it },
-            label = { Text("Número de cédula") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre completo") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF4B3D6E)),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
             )
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo electrónico") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+            TextField(
+                value = licenseNumber,
+                onValueChange = { licenseNumber = it },
+                label = { Text("Número de cédula") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                    .background(Color(0xFF4B3D6E)),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
             )
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Toggle password visibility"
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Correo electrónico") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                    .background(Color(0xFF4B3D6E)),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { showPassword = !showPassword }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Toggle password visibility"
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+                    .background(Color(0xFF4B3D6E)),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón para "Agregar Foto del INE"
+            Button(
+                onClick = {
+                    // Lanzar selector de archivos para imágenes o PDFs
+                    pickImageOrPdfLauncher.launch(arrayOf("application/pdf", "image/*"))
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Text(
+                    text = if (photoIneUri == null) "Agregar Foto del INE" else "Archivo Agregado",
+                    color = Color(0xFF4B3D6E)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Botón para "Agregar cédula profesional"
+            Button(
+                onClick = {
+                    // Lanzar selector de archivos para PDFs solamente
+                    pickPdfLauncher.launch(arrayOf("application/pdf"))
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Text(
+                    text = if (professionalLicenseUri == null) "Agregar cédula profesional" else "Archivo Agregado",
+                    color = Color(0xFF4B3D6E)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // Botón de registro
+            Button(
+                onClick = {
+
+                    isLoading = true
+                    errorMessage = null
+
+                    // Validar campos requeridos
+                    if (email.isBlank() || password.isBlank() || name.isBlank() || licenseNumber.isBlank() || photoIneUri == null || professionalLicenseUri == null) {
+                        errorMessage = "Por favor, completa todos los campos y agrega los archivos requeridos."
+                        isLoading = false
+                        return@Button
+                    }
+
+                    // Crear usuario en Firebase Auth
+                    auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { authTask ->
+                        if (authTask.isSuccessful) {
+                            val userId = auth.currentUser?.uid ?: ""
+
+                            // Subir archivos a Firebase Storage
+                            val ineRef = storage.reference.child("nutriologos/$userId/ine/${UUID.randomUUID()}")
+                            val licenseRef = storage.reference.child("nutriologos/$userId/cedula/${UUID.randomUUID()}")
+
+                            val ineUploadTask = ineRef.putFile(photoIneUri!!)
+                            val licenseUploadTask = licenseRef.putFile(professionalLicenseUri!!)
+
+                            // Subir la foto del INE
+                            ineUploadTask.continueWithTask { ineTask ->
+                                if (!ineTask.isSuccessful) {
+                                    throw ineTask.exception ?: Exception("Error al subir la foto del INE")
+                                }
+                                ineRef.downloadUrl
+                            }.addOnCompleteListener { ineUrlTask ->
+                                if (ineUrlTask.isSuccessful) {
+                                    val ineDownloadUrl = ineUrlTask.result.toString()
+
+                                    // Subir la cédula profesional
+                                    licenseUploadTask.continueWithTask { licenseTask ->
+                                        if (!licenseTask.isSuccessful) {
+                                            throw licenseTask.exception ?: Exception("Error al subir la cédula profesional")
+                                        }
+                                        licenseRef.downloadUrl
+                                    }.addOnCompleteListener { licenseUrlTask ->
+                                        if (licenseUrlTask.isSuccessful) {
+                                            val licenseDownloadUrl = licenseUrlTask.result.toString()
+
+                                            // Guardar datos en Firestore
+                                            val nutriologoData = hashMapOf(
+                                                "fullName" to name,
+                                                "licenseNumber" to licenseNumber,
+                                                "email" to email,
+                                                "ineUrl" to ineDownloadUrl,
+                                                "licenseUrl" to licenseDownloadUrl,
+                                                // Agrega otros campos si es necesario
+                                            )
+
+                                            firestore.collection("/nutriologos").document(email)
+                                                .set(nutriologoData)
+                                                .addOnSuccessListener {
+                                                    isLoading = false
+                                                    // Mostrar el diálogo de éxito
+                                                    showSuccessDialog = true
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    isLoading = false
+                                                    errorMessage = "Error al guardar datos: ${e.message}"
+                                                }
+                                        } else {
+                                            isLoading = false
+                                            errorMessage = "Error al obtener URL de la cédula profesional: ${licenseUrlTask.exception?.message}"
+                                        }
+                                    }
+                                } else {
+                                    isLoading = false
+                                    errorMessage = "Error al obtener URL del INE: ${ineUrlTask.exception?.message}"
+                                }
+                            }
+                        } else {
+                            isLoading = false
+                            errorMessage = "Error al crear usuario: ${authTask.exception?.message}"
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
+                enabled = !isLoading // Deshabilita el botón mientras está cargando
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color(0xFF4B3D6E))
+                } else {
+                    Text(
+                        text = "Registrarse",
+                        color = Color(0xFF4B3D6E)
                     )
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
-            )
-        )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Button for "Agregar Foto del INE"
-        Button(
-            onClick = {
-                // Launch file picker for images or PDFs
-                pickImageOrPdfLauncher.launch(arrayOf("application/pdf", "image/*"))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            )
-        ) {
-            Text(
-                text = if (photoIneUri == null) "Agregar Foto del INE" else "Archivo Agregado",
-                color = Color(0xFF4B3D6E)
-            )
+            // Mostrar mensaje de error si existe
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Button for "Agregar cédula profesional"
-        Button(
-            onClick = {
-                // Launch file picker for PDFs only
-                pickPdfLauncher.launch(arrayOf("application/pdf"))
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            )
-        ) {
-            Text(
-                text = if (professionalLicenseUri == null) "Agregar cédula profesional" else "Archivo Agregado",
-                color = Color(0xFF4B3D6E)
-            )
+        // Mostrar indicador de carga en el centro de la pantalla
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {},
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
         }
 
-        Spacer(modifier = Modifier.height(64.dp))
-
-        // Botón de registro
-        Button(
-            onClick = { /*onRegister(name, licenseNumber, email, password)*/
-
-                isLoading = true
-                errorMessage = null
-
-                // Validar campos requeridos
-                if (email.isBlank() || password.isBlank() || name.isBlank() || licenseNumber.isBlank() || photoIneUri == null || professionalLicenseUri == null) {
-                    errorMessage = "Por favor, completa todos los campos y agrega los archivos requeridos."
-                    isLoading = false
-                    return@Button
-                }
-
-                // Crear usuario en Firebase Auth
-                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { authTask ->
-                    if (authTask.isSuccessful) {
-                        val userId = auth.currentUser?.uid ?: ""
-
-                        // Subir archivos a Firebase Storage
-                        val ineRef = storage.reference.child("nutriologos/$userId/ine/${UUID.randomUUID()}")
-                        val licenseRef = storage.reference.child("nutriologos/$userId/cedula/${UUID.randomUUID()}")
-
-                        val ineUploadTask = ineRef.putFile(photoIneUri!!)
-                        val licenseUploadTask = licenseRef.putFile(professionalLicenseUri!!)
-
-                        // Esperar a que ambos archivos se suban
-                        ineUploadTask.continueWithTask { ineTask ->
-                            if (!ineTask.isSuccessful) {
-                                throw ineTask.exception ?: Exception("Error al subir la foto del INE")
-                            }
-                            ineRef.downloadUrl
-                        }.addOnCompleteListener { ineUrlTask ->
-                            if (ineUrlTask.isSuccessful) {
-                                val ineDownloadUrl = ineUrlTask.result.toString()
-
-                                licenseUploadTask.continueWithTask { licenseTask ->
-                                    if (!licenseTask.isSuccessful) {
-                                        throw licenseTask.exception ?: Exception("Error al subir la cédula profesional")
-                                    }
-                                    licenseRef.downloadUrl
-                                }.addOnCompleteListener { licenseUrlTask ->
-                                    if (licenseUrlTask.isSuccessful) {
-                                        val licenseDownloadUrl = licenseUrlTask.result.toString()
-
-                                        // Guardar datos en Firestore
-                                        val nutriologoData = hashMapOf(
-                                            "fullName" to name,
-                                            "licenseNumber" to licenseNumber,
-                                            "email" to email,
-                                            "ineUrl" to ineDownloadUrl,
-                                            "licenseUrl" to licenseDownloadUrl,
-                                            // Agrega otros campos si es necesario
-                                        )
-
-                                        firestore.collection("/usuarios/nutriologos").document(email)
-                                            .set(nutriologoData)
-                                            .addOnSuccessListener {
-                                                isLoading = false
-                                                // Navegar a otra pantalla o mostrar un mensaje de éxito
-                                            }
-                                            .addOnFailureListener { e ->
-                                                isLoading = false
-                                                errorMessage = "Error al guardar datos: ${e.message}"
-                                            }
-                                    } else {
-                                        isLoading = false
-                                        errorMessage = "Error al obtener URL de la cédula profesional: ${licenseUrlTask.exception?.message}"
-                                    }
-                                }
-                            } else {
-                                isLoading = false
-                                errorMessage = "Error al obtener URL del INE: ${ineUrlTask.exception?.message}"
+        // Diálogo de éxito
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = { /* No hacer nada para obligar al usuario a interactuar */ },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showSuccessDialog = false
+                            // Navegar a otra pantalla si es necesario
+                            navController.navigate("LoginScreen") {
+                                popUpTo("RegisterNutScreen") { inclusive = true }
                             }
                         }
-                    } else {
-                        isLoading = false
-                        errorMessage = "Error al crear usuario: ${authTask.exception?.message}"
+                    ) {
+                        Text("Aceptar", color = Color(0xFF4B3D6E))
                     }
-                }
-
-
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            )
-        ) {
-            Text(
-                text = "Registrarse",
-                color = Color(0xFF4B3D6E)
+                },
+                title = { Text("Registro Exitoso") },
+                text = { Text("Tu registro ha sido completado con éxito.") },
+                properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
             )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
