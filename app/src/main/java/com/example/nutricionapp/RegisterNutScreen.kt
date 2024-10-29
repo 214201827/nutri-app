@@ -291,7 +291,8 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "licenseNumber" to licenseNumber,
                                                 "email" to email,
                                                 "ineUrl" to ineDownloadUrl,
-                                                "licenseUrl" to licenseDownloadUrl,
+                                                "procesoVerificacion" to "En proceso",
+                                                "licenseUrl" to licenseDownloadUrl
                                                 // Agrega otros campos si es necesario
                                             )
 
