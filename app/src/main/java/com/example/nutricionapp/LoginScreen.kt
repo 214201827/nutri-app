@@ -32,9 +32,17 @@ import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.example.nutricionapp.ProviderType
 import com.example.nutricionapp.HomeNutritionist
 import com.example.nutricionapp.UserTypeSelectorScreen
+import com.example.nutricionapp.ui.theme.PatientData
 import com.google.firebase.auth.FirebaseAuth
 
-
+val carlosRamirez = PatientData(
+    name = "Carlos Ramírez",
+    email = "carlos.ramirez@example.com",
+    phone = "555-1234-567",
+    address = "Av. Ejemplo 123, Ciudad",
+    assignedNutritionist = "Dra. Martínez",
+    nextAppointment = "5 de Noviembre, 10:00 AM"
+)
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
@@ -160,8 +168,27 @@ fun LoginScreen(navController: NavHostController) {
             ) {
                 Text(text = "Iniciar sesión nut", color = Color(0xFF4B3D6E), fontSize = 16.sp)
             }
+            //prueba home nutrition
+            val patientData = PatientData(
+                name = "Carlos Ramírez",
+                email = "carlos.ramirez@example.com",
+                phone = "555-1234-567",
+                address = "Av. Ejemplo 123, Ciudad",
+                assignedNutritionist = "Dra. Martínez",
+                nextAppointment = "5 de Noviembre, 10:00 AM")
+            Button(
+                onClick = {
+                    // Construir la ruta
+                    navController.navigate("HomePatient")
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Ir a HomePatient")
+            }
 
-            TextButton(onClick = { navController.navigate("RegisterOptions")}) {
+
+            TextButton(onClick = {  navController.navigate("registerOptions")
+            }) {
                 Text(
                     text = "¿No tienes cuenta? Regístrate",
                     color = Color.White,

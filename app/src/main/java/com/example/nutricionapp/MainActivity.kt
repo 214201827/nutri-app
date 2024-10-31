@@ -13,6 +13,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.example.nutricionapp.CreateAppointmentScreen
+import com.example.nutricionapp.ui.theme.HomePatient
+import com.example.nutricionapp.ui.theme.PatientData
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +54,12 @@ fun AppNavHost(navController: NavHostController) {
                 onBackClick = { navController.popBackStack() }
             )
         }
+        composable("HomePatient") { HomePatient(navController) }
+
+
+
     }
+
 }
 
 
