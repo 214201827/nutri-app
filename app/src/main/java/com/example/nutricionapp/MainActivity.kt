@@ -14,7 +14,29 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.example.nutricionapp.CreateAppointmentScreen
 
+data class PatientData(
+    val name: String,
+    val email: String,
+    val phone: String,
+    val address: String,
+    val assignedNutritionist: String,
+    val nextAppointment: String? = null
+)
+
+val patientData = PatientData(
+    name = "Carlos Ramírez",
+    email = "carlos.ramirez@example.com",
+    phone = "555-1234-567",
+    address = "Av. Ejemplo 123, Ciudad",
+    assignedNutritionist = "Dra. Martínez",
+    nextAppointment = "5 de Noviembre, 10:00 AM"
+)
+
+
 class MainActivity : ComponentActivity() {
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,6 +53,9 @@ fun AppNavHost(navController: NavHostController) {
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController)  }
         composable("HomeNutritionist") { HomeNutritionist(navController)  }
+        composable("NoVerificado") { NoAutorizado(navController) }
+        composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
+        composable("PatientHomeScreen") { PatientHomeScreen(navController, patient = patientData) }
         composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
 //        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }

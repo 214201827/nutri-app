@@ -1,10 +1,12 @@
 package com.example.nutricionapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +18,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,23 +32,43 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun UserTypeSelectorScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center // Centrar todo el contenido en el centro del Box
+        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, // Centrar horizontalmente
-            verticalArrangement = Arrangement.Center // Centrar verticalmente
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // Primera opción de usuario (Paciente)
+            // Paciente Option (unchanged)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(bottom = 96.dp) // Separación entre las opciones
+                modifier = Modifier
+                    .padding(bottom = 96.dp)
+                    .clickable {
+                        navController.navigate("PatientHomeScreen")
+                    }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -59,9 +84,56 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                 )
             }
 
-            // Segunda opción de usuario (Nutriólogo)
+            // Nutriólogo Option with Validation
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    if (userEmail != null) {
+                        scope.launch {
+                            try {
+                                val db = FirebaseFirestore.getInstance()
+                                val documentSnapshot = db.collection("/nutriologos")
+                                    .document(userEmail.toString())
+                                    .get()
+                                    .await()
+
+                                if (documentSnapshot.exists()) {
+                                    val procesoVerificacion = documentSnapshot.getString("procesoVerificacion")
+                                    when (procesoVerificacion) {
+                                        "No verificado" -> navController.navigate("NoVerificado")
+                                        "En proceso" -> navController.navigate("ProcesoVerificacion")
+                                        "Verificado" -> navController.navigate("HomeNutritionist")
+                                        else -> {
+                                            Toast.makeText(
+                                                context,
+                                                "Estado de verificación desconocido.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Documento no encontrado.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    context,
+                                    "Error al obtener datos: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Usuario no autenticado.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -80,10 +152,14 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true)
+
+
+
+
+/*@Preview(showBackground = true)
 @Composable
 fun GreetingPreview3() {
     NutricionAppTheme {
-        UserTypeSelectorScreen(navController = rememberNavController())
+        UserTypeSelectorScreen(navController = rememberNavController(), email = "fdsfasdf")
     }
-}
+}*/

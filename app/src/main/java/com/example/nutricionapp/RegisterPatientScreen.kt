@@ -288,7 +288,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
                         password.toString()).addOnCompleteListener(){
                             if(it.isSuccessful){
 
-                                dbPatient.collection("/usuarios").document(email.toString()).set(
+                                dbPatient.collection("/usuarios/pacientes").document(email.toString()).set(
                                     hashMapOf(
                                         "historial" to listOf<DocumentReference>(),
                                         "medidas" to listOf<DocumentReference>(),
