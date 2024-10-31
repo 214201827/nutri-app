@@ -1,4 +1,4 @@
-package com.example.nutricionapp.ui.theme
+package com.example.nutricionapp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,17 +19,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.draw.clip
-import com.example.nutricionapp.R
+import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 
-data class PatientData(
-    val name: String,
-    val email: String,
-    val phone: String,
-    val address: String,
-    val assignedNutritionist: String,
-    val nextAppointment: String? = null
-)
+
 
 @Composable
 fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {

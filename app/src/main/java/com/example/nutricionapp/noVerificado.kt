@@ -22,25 +22,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.nutricionapp.R
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
-class NoVerificado : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            NutricionAppTheme  {
-                NoAutorizado()
-            }
-        }
-    }
-}
 
 
 
 @Composable
-fun NoAutorizado(){
+fun NoAutorizado(navController: NavController){
     Column(
         modifier = Modifier.fillMaxSize().padding(48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -72,6 +63,6 @@ fun NoAutorizado(){
 @Composable
 fun GreetingPreview() {
     NutricionAppTheme {
-        NoAutorizado()
+        NoAutorizado(navController = rememberNavController())
     }
 }
