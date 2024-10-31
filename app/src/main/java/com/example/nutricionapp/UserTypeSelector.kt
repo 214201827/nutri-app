@@ -2,7 +2,6 @@ package com.example.nutricionapp
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,15 +35,22 @@ import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun UserTypeSelectorScreen(navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -82,19 +88,17 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable {
-                    val userEmail = FirebaseAuth.getInstance().currentUser?.email
                     if (userEmail != null) {
                         scope.launch {
                             try {
                                 val db = FirebaseFirestore.getInstance()
                                 val documentSnapshot = db.collection("/nutriologos")
-                                    .document(userEmail)
+                                    .document(userEmail.toString())
                                     .get()
+                                    .await()
 
-
-                                if (documentSnapshot.result != null) {
-                                    val procesoVerificacion = documentSnapshot.result.get("procesoVerificacion")
-                                    Log.d("DEBUG", procesoVerificacion.toString())
+                                if (documentSnapshot.exists()) {
+                                    val procesoVerificacion = documentSnapshot.getString("procesoVerificacion")
                                     when (procesoVerificacion) {
                                         "No verificado" -> navController.navigate("NoVerificado")
                                         "En proceso" -> navController.navigate("ProcesoVerificacion")
@@ -147,6 +151,7 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
         }
     }
 }
+
 
 
 
