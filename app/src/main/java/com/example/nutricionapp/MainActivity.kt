@@ -12,9 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
-import com.example.nutricionapp.CreateAppointmentScreen
-import com.example.nutricionapp.ui.theme.HomePatient
-import com.example.nutricionapp.ui.theme.PatientData
+import com.example.myapplication000.NotificationListScreen
+import com.example.myapplication000.NotificationListScreenpac
+import com.example.myapplication000.PatientDetailScreenP
+import com.example.myapplication000.RecordatorioScreen
+import com.example.myapplication000.RecordatorioScreenpac
 
 data class PatientData(
     val name: String,
@@ -50,16 +52,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(navController = navController, startDestination = "reminders") {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController)  }
-        composable("HomeNutritionist") { HomeNutritionist(navController)  }
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
         composable("PatientHomeScreen") { PatientHomeScreen(navController, patient = patientData) }
         composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
+        composable("pacien") { com.example.myapplication000.PatientListScreen(navController) }
+        composable("patientDetail/{patientId}") { backStackEntry ->
+            com.example.myapplication000.PatientDetailScreen(
+                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
+                navController = navController
+            )
+        }
+        composable("reminders") { RecordatorioScreen(navController) }
+        composable("Pnotifications") { NotificationListScreenpac(navController) }
+        composable("Pmenu") { RecordatorioScreenpac(navController) }
+        composable("Pperfil") { PatientDetailScreenP(navController) }
+        composable("notifications") { NotificationListScreen(navController) }
 //        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }
 //        composable("NotificationScreen") { NotificationScreen(navController = navController,
 //            notifications = listOf(
@@ -69,17 +82,6 @@ fun AppNavHost(navController: NavHostController) {
 //            onBackClick = {}
 //        )  }
         composable("login") { LoginScreen(navController) }
-        composable("patient_detail/{name}/{age}/{diet}") { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name") ?: ""
-            val age = backStackEntry.arguments?.getString("age")?.toInt() ?: 0
-            val diet = backStackEntry.arguments?.getString("diet") ?: ""
-            PatientDetailScreen(
-                navController,
-                Patient(name, age, diet),
-                onBackClick = { navController.popBackStack() }
-            )
-        }
-        composable("HomePatient") { HomePatient(navController) }
 
 
 
