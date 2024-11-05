@@ -87,35 +87,80 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Nombre: ${request.name}", fontWeight = FontWeight.Bold, color = Color.White)
-            Text(text = "Email: ${request.email}", color = Color.White)
-            Text(text = "Estado actual: ${request.status}", color = Color.White)
+            Text(
+                text = "Nombre: ${request.name}",
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize // Tamaño de fuente adaptado
+            )
+            Text(
+                text = "Email: ${request.email}",
+                color = Color.White,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            )
+            Text(
+                text = "Estado actual: ${request.status}",
+                color = Color.White,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            )
 
             Row(
-                modifier = Modifier.padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Botón para "En Proceso"
                 Button(
                     onClick = { onStatusChange("en proceso") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)) // Button color
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                    contentPadding = PaddingValues(horizontal = 4.dp) // Margen interno reducido
                 ) {
-                    Text(text = "En Proceso")
+                    Text(
+                        text = "En Proceso",
+                        color = Color.White,
+                        maxLines = 1,
+                        fontSize = 10.sp, // Tamaño de texto reducido aún más
+                        modifier = Modifier.wrapContentWidth()
+                    )
                 }
+                // Botón para "Verificado"
                 Button(
                     onClick = { onStatusChange("verificado") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)) // Button color
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
-                    Text(text = "Verificado")
+                    Text(
+                        text = "Verificado",
+                        color = Color.White,
+                        maxLines = 1,
+                        fontSize = 10.sp,
+                        modifier = Modifier.wrapContentWidth()
+                    )
                 }
+                // Botón para "Denegado"
                 Button(
                     onClick = { onStatusChange("denegado") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)) // Button color
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
-                    Text(text = "Denegado")
+                    Text(
+                        text = "Denegado",
+                        color = Color.White,
+                        maxLines = 1,
+                        fontSize = 10.sp,
+                        modifier = Modifier.wrapContentWidth()
+                    )
                 }
             }
         }
     }
+
+
+
 }
 
 // Vista previa de la pantalla de solicitudes de nutriólogos

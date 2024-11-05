@@ -25,14 +25,7 @@ data class PatientData(
     val nextAppointment: String? = null
 )
 
-val patientData = PatientData(
-    name = "Carlos Ramírez",
-    email = "carlos.ramirez@example.com",
-    phone = "555-1234-567",
-    address = "Av. Ejemplo 123, Ciudad",
-    assignedNutritionist = "Dra. Martínez",
-    nextAppointment = "5 de Noviembre, 10:00 AM"
-)
+
 
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +50,7 @@ fun AppNavHost(navController: NavHostController) {
         composable("HomeNutritionist") { HomeNutritionist(navController)  }
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
-        composable("PatientHomeScreen") { PatientHomeScreen(navController, patient = patientData) }
+        composable("PatientHomeScreen") { HomePatient(navController) }
         composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
 //        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }

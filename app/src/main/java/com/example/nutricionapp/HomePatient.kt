@@ -3,8 +3,14 @@ package com.example.nutricionapp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +29,100 @@ import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 
 
+@Composable
+fun HomePatient(navController: NavHostController) {
+
+    val patientData = PatientData(
+        name = "Carlos Ramírez",
+        email = "carlos.ramirez@example.com",
+        phone = "555-1234-567",
+        address = "Av. Ejemplo 123, Ciudad",
+        assignedNutritionist = "Dra. Martínez",
+        nextAppointment = "5 de Noviembre, 10:00 AM"
+    )
+    val notifications = remember {
+        listOf(
+            Notification("Mensaje de Maria", "xxxxxxx."),
+            Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada."),
+            Notification("Resultados de Análisis", "Los resultados de análisis de Carlos García están disponibles.")
+        )
+    }
+
+    var selectedItem by remember { mutableStateOf(0) } // Mantener el ítem seleccionado
+    var currentScreen by remember { mutableStateOf("home") } // Controlar qué pantalla mostrar
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f) // Permite que la Box tome el espacio disponible
+                .background(Color(0xFF65558F))
+        ) {
+            when (currentScreen) {
+                "home" -> {
+                    PatientHomeScreen(navController,patient = patientData)
+                }
+                "Diet" -> {
+                    PatientListScreen(navController,onBackClick = { currentScreen = "home" })
+                }
+                "notifications" -> {
+                    NotificationScreenPatient(navController = rememberNavController(),notifications, onBackClick = { currentScreen = "home" })
+                }
+            }
+        }
+
+        NavigationBar(
+            containerColor = Color(0xFF4B3D6E)
+        ) {
+            NavigationBarItem(
+                icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                label = { Text("Inicio") },
+                selected = selectedItem == 0,
+                onClick = {
+                    selectedItem = 0
+                    currentScreen = "home"
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Filled.Person, contentDescription = "Dietas") }, // Ícono en blanco
+                label = { Text("Pacientes") }, // Label en blanco
+                selected = selectedItem == 1,
+                onClick = {
+                    selectedItem = 1
+                    currentScreen = "patients" // Mostrar la lista de pacientes
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
+                label = { Text("Notificaciones") },
+                selected = selectedItem == 2,
+                onClick = {
+                    selectedItem = 2
+                    currentScreen = "notifications" // Mostrar la pantalla de notificaciones
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Black,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.Gray
+                )
+            )
+        }
+    }
+}
 
 @Composable
 fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {
@@ -104,8 +204,202 @@ fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {
             }
         }
     }
+
+}
+@Composable
+fun NotificationScreenPatient(navController: NavHostController,notifications: List<Notification>, onBackClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF65558F))
+            .padding(16.dp),
+    ) {
+        Text(
+            text = "Notificaciones",
+            fontSize = 24.sp,
+            color = Color.White,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Lista de notificaciones
+        LazyColumn {
+            items(notifications.size) { index ->
+                NotificationItem(notification = notifications[index])
+            }
+        }
+    }
+}
+@Composable
+fun DietScreen(navController: NavHostController, patient: PatientData, onBackClick: () -> Unit) {
+    var selectedTab by remember { mutableStateOf("Dieta") }
+    val meals = remember { mutableStateListOf("Desayuno", "Comida", "Cena") } // Lista de comidas, modificable
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF65558F))
+    ) {
+        // Información del paciente con foto
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // (Info del paciente aquí, como ya está en tu código original)
+        }
+
+        // Barra de navegación de pestañas
+        NavigationBar(
+            containerColor = Color(0xFF4B3D6E),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            NavigationBarItem(
+                icon = { Text("Dieta", color = Color.White) },
+                selected = selectedTab == "Dieta",
+                onClick = { selectedTab = "Dieta" }
+            )
+            // Otras opciones de pestañas
+        }
+
+        // Mostrar contenido según la pestaña seleccionada
+        if (selectedTab == "Dieta") {
+            DietContent(
+                meals = meals,
+                onAddSnack = { /* Código para agregar meriendas */ },
+                onReorderMeals = { /* Código para cambiar el orden de comidas */ }
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
 }
 
+@Composable
+fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () -> Unit) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        meals.forEach { meal ->
+            MealCard(mealName = meal, onAddSnack = onAddSnack)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Button(onClick = onReorderMeals) {
+            Text("Reordenar Comidas")
+        }
+    }
+}
+
+@Composable
+fun MealCard(mealName: String, onAddSnack: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = mealName,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = Color.White
+            )
+
+            Button(
+                onClick = onAddSnack,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(text = "Agregar Merienda", color = Color.White)
+            }
+        }
+    }
+}
+
+//@Composable
+//fun DietScreen(navController: NavHostController,patient: PatientData, onBackClick: () -> Unit) {
+//    var selectedTab by remember { mutableStateOf("Dieta") }
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color(0xFF65558F))
+//    ) {
+//        // Información del paciente con foto
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                // Foto del paciente
+//                Icon(
+//                    imageVector = Icons.Filled.Person,
+//                    contentDescription = "Foto del paciente",
+//                    modifier = Modifier
+//                        .size(64.dp)
+//                        .padding(end = 16.dp),
+//                    tint = Color.White
+//                )
+//
+//                // Datos del paciente
+//                Column(
+//                    modifier = Modifier.weight(1f)
+//                ) {
+//                    Text(text = patient.name, fontSize = 20.sp, color = Color.White)
+//                    //Text(text = "Edad: ${patient.age}", fontSize = 16.sp, color = Color.LightGray)
+//                    //Text(text = "Dieta: ${patient.diet}", fontSize = 16.sp, color = Color.LightGray)
+//                }
+//
+//            }
+//        }
+//
+//        // Barra de navegación de pestañas
+//        NavigationBar(
+//            containerColor = Color(0xFF4B3D6E),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            NavigationBarItem(
+//                icon = { Text("Dieta", color = Color.White) },
+//                selected = selectedTab == "Dieta",
+//                onClick = { selectedTab = "Dieta" }
+//            )
+//            NavigationBarItem(
+//                icon = { Text("Progreso", color = Color.White) },
+//                selected = selectedTab == "Progreso",
+//                onClick = { selectedTab = "Progreso" }
+//            )
+//            NavigationBarItem(
+//                icon = { Text("Historial", color = Color.White) },
+//                selected = selectedTab == "Historial",
+//                onClick = { selectedTab = "Historial" }
+//            )
+//        }
+//
+//        // Mostrar contenido según la pestaña seleccionada
+//        when (selectedTab) {
+//            "Dieta" -> DietContent(navController = rememberNavController())
+//            "Progreso" -> ProgressContent()
+//            "Historial" -> HistoryContent()
+//        }
+//
+//
+//        // Este Spacer empuja la barra de navegación inferior hacia el fondo
+//        Spacer(modifier = Modifier.weight(1f))
+//
+//        // Barra de navegación inferior
+//
+//
+//
+//
+//
+//    }
+//}
 @Composable
 fun PatientInfoRow(label: String, info: String) {
     Row(
@@ -125,6 +419,20 @@ fun PatientInfoRow(label: String, info: String) {
 
 @Preview(showBackground = true)
 @Composable
+fun NotificationScreenPreviewPatient() {
+    NutricionAppTheme {
+        NotificationScreen(
+            navController = rememberNavController(),
+            notifications = listOf(
+                Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
+                Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
+            ),
+            onBackClick = {}
+        )
+    }
+}
+@Preview(showBackground = true)
+@Composable
 fun PatientHomeScreenPreview() {
     val patientData = PatientData(
         name = "Carlos Ramírez",
@@ -138,3 +446,24 @@ fun PatientHomeScreenPreview() {
         PatientHomeScreen(navController = rememberNavController(), patient = patientData)
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun DietScreenPreview() {
+    val patientData = PatientData(
+        name = "Carlos Ramírez",
+        email = "carlos.ramirez@example.com",
+        phone = "555-1234-567",
+        address = "Av. Ejemplo 123, Ciudad",
+        assignedNutritionist = "Dra. Martínez",
+        nextAppointment = "5 de Noviembre, 10:00 AM"
+    )
+
+    NutricionAppTheme {
+        DietScreen(
+            navController = rememberNavController(),
+            patient = patientData,
+            onBackClick = {}
+        )
+    }
+}
+
