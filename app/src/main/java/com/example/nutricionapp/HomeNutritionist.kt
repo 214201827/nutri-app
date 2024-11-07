@@ -273,7 +273,7 @@ fun NotificationScreen(navController: NavHostController, notifications: List<Not
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF65558F))
-            .padding(16.dp),
+            .padding(16.dp)
     ) {
         Text(
             text = "Notificaciones",

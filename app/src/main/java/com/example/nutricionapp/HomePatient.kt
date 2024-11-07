@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -106,12 +107,12 @@ fun HomePatient(navController: NavHostController) {
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") },
-                    label = { Text("Pacientes") },
+                    icon = { Icon(Icons.Filled.Person, contentDescription = "Dietas") },
+                    label = { Text("Dietas") },
                     selected = selectedItem == 1,
                     onClick = {
                         selectedItem = 1
-                        currentScreen = "patients"
+                        currentScreen = "diet"
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
@@ -149,8 +150,8 @@ fun HomePatient(navController: NavHostController) {
                 "home" -> {
                     PatientHomeScreen(navController, patient = patientData)
                 }
-                "Diet" -> {
-                    PatientListScreen(navController, onBackClick = { currentScreen = "home" })
+                "diet" -> {
+                    DietScreen(navController, patient = patientData,onBackClick = { currentScreen = "home" })
                 }
                 "notifications" -> {
                     NotificationScreenPatient(
@@ -285,6 +286,12 @@ fun DietScreen(navController: NavHostController, patient: PatientData, onBackCli
             .fillMaxSize()
             .background(Color(0xFF65558F))
     ) {
+        Text(
+            text = "Dietas",
+            fontSize = 24.sp,
+            color = Color.White,
+            modifier = Modifier.padding(bottom = 16.dp).padding(16.dp)
+        )
         // Información del paciente con foto
         Box(
             modifier = Modifier
@@ -295,24 +302,25 @@ fun DietScreen(navController: NavHostController, patient: PatientData, onBackCli
         }
 
         // Barra de navegación de pestañas
-        NavigationBar(
-            containerColor = Color(0xFF4B3D6E),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            NavigationBarItem(
-                icon = { Text("Dieta", color = Color.White) },
-                selected = selectedTab == "Dieta",
-                onClick = { selectedTab = "Dieta" }
-            )
-            // Otras opciones de pestañas
-        }
+//        NavigationBar(
+//            containerColor = Color(0xFF4B3D6E),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            NavigationBarItem(
+//                icon = { Text("Dieta", color = Color.White) },
+//                selected = selectedTab == "Dieta",
+//                onClick = { selectedTab = "Dieta" }
+//            )
+//            // Otras opciones de pestañas
+//        }
 
         // Mostrar contenido según la pestaña seleccionada
         if (selectedTab == "Dieta") {
             DietContent(
                 meals = meals,
                 onAddSnack = { /* Código para agregar meriendas */ },
-                onReorderMeals = { /* Código para cambiar el orden de comidas */ }
+                onReorderMeals = { /* Código para cambiar el orden de comidas */ },
+                onCommentClick= {/* Código para comentar comidas */  }
             )
         }
 
@@ -321,10 +329,11 @@ fun DietScreen(navController: NavHostController, patient: PatientData, onBackCli
 }
 
 @Composable
-fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () -> Unit) {
+fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () -> Unit, onCommentClick: () -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         meals.forEach { meal ->
-            MealCard(mealName = meal, onAddSnack = onAddSnack)
+            MealCard(mealName = meal, onCommentClick = onCommentClick)
+
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -335,7 +344,7 @@ fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () 
 }
 
 @Composable
-fun MealCard(mealName: String, onAddSnack: () -> Unit) {
+fun MealCard(mealName: String, onCommentClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -353,17 +362,31 @@ fun MealCard(mealName: String, onAddSnack: () -> Unit) {
                 fontSize = 20.sp,
                 color = Color.White
             )
+            Text(
+                text = "2 Huevos con jamon ",
+                fontSize = 14.sp,
+                color = Color.LightGray
+            )
 
-            Button(
-                onClick = onAddSnack,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                modifier = Modifier.padding(top = 8.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
             ) {
-                Text(text = "Agregar Merienda", color = Color.White)
+
+                IconButton(onClick = onCommentClick) {
+                    Icon(
+                        imageVector = Icons.Default.Email, // Icono de comentario
+                        contentDescription = "Agregar comentario",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
 }
+
 
 //@Composable
 //fun DietScreen(navController: NavHostController,patient: PatientData, onBackClick: () -> Unit) {
@@ -467,7 +490,7 @@ fun PatientInfoRow(label: String, info: String) {
 @Composable
 fun NotificationScreenPreviewPatient() {
     NutricionAppTheme {
-        NotificationScreen(
+        NotificationScreenPatient(
             navController = rememberNavController(),
             notifications = listOf(
                 Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
@@ -479,7 +502,7 @@ fun NotificationScreenPreviewPatient() {
 }
 @Preview(showBackground = true)
 @Composable
-fun PatientHomeScreenPreview() {
+fun PatientHomeScreenPatientPreview() {
     val patientData = PatientData(
         name = "Carlos Ramírez",
         email = "carlos.ramirez@example.com",
