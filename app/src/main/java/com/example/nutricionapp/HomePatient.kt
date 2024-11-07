@@ -25,13 +25,52 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 
 
 @Composable
 fun HomePatient(navController: NavHostController) {
+    // Acceder al ConnectivityObserver
+    val context = LocalContext.current
+    val connectivityObserver = (context.applicationContext as NutricionApp).connectivityObserver
 
+    // Coleccionar el estado de conectividad
+    val isConnected by connectivityObserver.isConnected.collectAsState(initial = true)
+
+    // Crear SnackbarHostState
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Estado para rastrear si ya se ha recibido la primera emisión
+    var isFirstEmission by remember { mutableStateOf(true) }
+
+    // Mostrar Snackbar cuando cambie la conectividad, ignorando la primera emisión
+    LaunchedEffect(isConnected) {
+        if (isFirstEmission) {
+            isFirstEmission = false
+            return@LaunchedEffect // Ignorar la primera emisión
+        }
+
+        if (!isConnected) {
+            val result = snackbarHostState.showSnackbar(
+                message = "Desconectado de la red",
+                actionLabel = "Reintentar",
+                duration = SnackbarDuration.Indefinite
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                // Lógica para reintentar la conexión
+                // Por ejemplo, podrías intentar reconectar o refrescar datos
+            }
+        } else {
+            snackbarHostState.showSnackbar(
+                message = "Conexión restablecida",
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+
+    // Datos del paciente (puedes mantener tu implementación existente)
     val patientData = PatientData(
         name = "Carlos Ramírez",
         email = "carlos.ramirez@example.com",
@@ -40,89 +79,96 @@ fun HomePatient(navController: NavHostController) {
         assignedNutritionist = "Dra. Martínez",
         nextAppointment = "5 de Noviembre, 10:00 AM"
     )
-    val notifications = remember {
-        listOf(
-            Notification("Mensaje de Maria", "xxxxxxx."),
-            Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada."),
-            Notification("Resultados de Análisis", "Los resultados de análisis de Carlos García están disponibles.")
-        )
-    }
 
-    var selectedItem by remember { mutableStateOf(0) } // Mantener el ítem seleccionado
-    var currentScreen by remember { mutableStateOf("home") } // Controlar qué pantalla mostrar
+    var selectedItem by remember { mutableStateOf(0) }
+    var currentScreen by remember { mutableStateOf("home") }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    // Utilizar Scaffold para integrar SnackbarHost y BottomBar
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            NavigationBar(
+                containerColor = Color(0xFF4B3D6E)
+            ) {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                    label = { Text("Inicio") },
+                    selected = selectedItem == 0,
+                    onClick = {
+                        selectedItem = 0
+                        currentScreen = "home"
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.Black,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = Color.White,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") },
+                    label = { Text("Pacientes") },
+                    selected = selectedItem == 1,
+                    onClick = {
+                        selectedItem = 1
+                        currentScreen = "patients"
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.Black,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = Color.White,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
+                    label = { Text("Notificaciones") },
+                    selected = selectedItem == 2,
+                    onClick = {
+                        selectedItem = 2
+                        currentScreen = "notifications"
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.Black,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = Color.White,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+            }
+        }
+    ) { innerPadding ->
+        // Contenido principal
         Box(
             modifier = Modifier
-                .weight(1f) // Permite que la Box tome el espacio disponible
+                .padding(innerPadding)
+                .fillMaxSize()
                 .background(Color(0xFF65558F))
         ) {
             when (currentScreen) {
                 "home" -> {
-                    PatientHomeScreen(navController,patient = patientData)
+                    PatientHomeScreen(navController, patient = patientData)
                 }
                 "Diet" -> {
-                    PatientListScreen(navController,onBackClick = { currentScreen = "home" })
+                    PatientListScreen(navController, onBackClick = { currentScreen = "home" })
                 }
                 "notifications" -> {
-                    NotificationScreenPatient(navController = rememberNavController(),notifications, onBackClick = { currentScreen = "home" })
+                    NotificationScreenPatient(
+                        navController = rememberNavController(),
+                        notifications = listOf(
+                            Notification("Mensaje de Maria", "xxxxxxx."),
+                            Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada."),
+                            Notification("Resultados de Análisis", "Los resultados de análisis de Carlos García están disponibles.")
+                        ),
+                        onBackClick = { currentScreen = "home" }
+                    )
                 }
+                // Otras pantallas...
             }
-        }
-
-        NavigationBar(
-            containerColor = Color(0xFF4B3D6E)
-        ) {
-            NavigationBarItem(
-                icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
-                label = { Text("Inicio") },
-                selected = selectedItem == 0,
-                onClick = {
-                    selectedItem = 0
-                    currentScreen = "home"
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    unselectedIconColor = Color.Gray,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = Color.Gray
-                )
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Filled.Person, contentDescription = "Dietas") }, // Ícono en blanco
-                label = { Text("Pacientes") }, // Label en blanco
-                selected = selectedItem == 1,
-                onClick = {
-                    selectedItem = 1
-                    currentScreen = "patients" // Mostrar la lista de pacientes
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    unselectedIconColor = Color.Gray,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = Color.Gray
-                )
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
-                label = { Text("Notificaciones") },
-                selected = selectedItem == 2,
-                onClick = {
-                    selectedItem = 2
-                    currentScreen = "notifications" // Mostrar la pantalla de notificaciones
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    unselectedIconColor = Color.Gray,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = Color.Gray
-                )
-            )
         }
     }
 }
+
 
 @Composable
 fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {

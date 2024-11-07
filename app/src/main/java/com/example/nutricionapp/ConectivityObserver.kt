@@ -1,4 +1,6 @@
+// ConnectivityObserver.kt
 package com.example.nutricionapp
+
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -8,7 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class ConnectivityObserver(context: Context) {
 
-    private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val _isConnected = MutableStateFlow(true)
 
     // Exponer el estado de conectividad como StateFlow
