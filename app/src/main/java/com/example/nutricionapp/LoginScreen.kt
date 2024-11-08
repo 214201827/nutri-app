@@ -74,6 +74,7 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            var email by remember { mutableStateOf("davidyeaah@gmail.com") }
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -97,7 +98,9 @@ fun LoginScreen(navController: NavHostController) {
                 //shape = RoundedCornerShape(16.dp)
             )
 
+            var password by remember { mutableStateOf("hola123") }
             TextField(
+
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Contraseña") },

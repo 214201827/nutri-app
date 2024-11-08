@@ -37,6 +37,22 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 @Composable
+fun PatientInfoRow(label: String, info: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Text(
+            text = "$label:",
+            color = Color(0xFF4B3D6E),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(120.dp)
+        )
+        Text(text = info, color = Color(0xFF616161))
+    }
+}
+@Composable
 fun HomePatient(navController: NavHostController) {
     // Acceder al ConnectivityObserver
     val context = LocalContext.current
@@ -150,7 +166,11 @@ fun HomePatient(navController: NavHostController) {
                     PatientHomeScreen(navController)
                 }
                 "diet" -> {
-                    DietScreen(navController,onBackClick = { currentScreen = "home" })
+                    DietScreen(
+                        navController = navController,
+                        onBackClick = { currentScreen = "home" }, // Navega a "home"
+                        patientId = "101",
+                        day = "domingo")
                 }
                 "notifications" -> {
                     NotificationScreenPatient(
@@ -312,10 +332,50 @@ fun NotificationScreenPatient(navController: NavHostController,notifications: Li
         }
     }
 }
+// Modelo de datos para las comidas
+data class MealData(val comida: String, val descr: String, val hora: String)
+
+// Función para cargar datos desde Firestore
+suspend fun loadDietData(patientId: String, day: String, mealsData: MutableList<MealData>) {
+    val db = FirebaseFirestore.getInstance()
+    val dayRef = db.collection("diets").document(patientId).collection(day)
+
+    // Lista de nombres de comidas (subcolecciones) que queremos consultar
+    val mealNames = listOf("desayuno", "comida", "cena")
+
+    try {
+        for (mealName in mealNames) {
+            // Referencia de cada comida específica (ej. "desayuno", "comida", "cena")
+            val mealDocRef = dayRef.document(mealName)
+
+            // Obtiene los datos de cada comida
+            val mealSnapshot = mealDocRef.get().await()
+            if (mealSnapshot.exists()) {
+                val mealData = MealData(
+                    comida = mealSnapshot.getString("comida") ?: "Sin comida asignada",
+                    descr = mealSnapshot.getString("descr") ?: "Sin descripción",
+                    hora = mealSnapshot.getString("hora") ?: "Sin hora"
+                )
+                mealsData.add(mealData)
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("DietScreen", "Error al cargar los datos de la dieta", e)
+    }
+}
+
+
 @Composable
-fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
+fun DietScreen(navController: NavHostController, onBackClick: () -> Unit, patientId: String, day: String) {
     var selectedTab by remember { mutableStateOf("Dieta") }
-    val meals = remember { mutableStateListOf("Desayuno", "Comida", "Cena") } // Lista de comidas, modificable
+    val mealsData = remember { mutableStateListOf<MealData>() }
+    var isLoading by remember { mutableStateOf(true) }
+
+    // Llama a la función loadDietData al iniciar la pantalla
+    LaunchedEffect(Unit) {
+        loadDietData(patientId, day, mealsData)
+        isLoading = false // Marcar como cargado una vez completada la carga
+    }
 
     Column(
         modifier = Modifier
@@ -328,15 +388,6 @@ fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
             color = Color.White,
             modifier = Modifier.padding(bottom = 16.dp).padding(16.dp)
         )
-        // Información del paciente con foto
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // (Info del paciente aquí, como ya está en tu código original)
-        }
-
 
         NavigationBar(
             containerColor = Color(0xFF4B3D6E),
@@ -357,17 +408,28 @@ fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
                 selected = selectedTab == "Historial",
                 onClick = { selectedTab = "Historial" }
             )
-            // Otras opciones de pestañas
         }
 
-        // Mostrar contenido según la pestaña seleccionada
         if (selectedTab == "Dieta") {
-            DietContent(
-                meals = meals,
-                onAddSnack = { /* Código para agregar meriendas */ },
-                onReorderMeals = { /* Código para cambiar el orden de comidas */ },
-                onCommentClick= {/* Código para comentar comidas */  }
-            )
+            when {
+                isLoading -> {
+                    Text(
+                        text = "Cargando datos de la dieta...",
+                        color = Color.White,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                mealsData.isEmpty() -> {
+                    Text(
+                        text = "No se ha agregado ninguna comida aún.",
+                        color = Color.White,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+                else -> {
+                    DietContent(mealsData)
+                }
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -375,22 +437,17 @@ fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
 }
 
 @Composable
-fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () -> Unit, onCommentClick: () -> Unit) {
+fun DietContent(mealsData: List<MealData>) {
     Column(modifier = Modifier.padding(16.dp)) {
-        meals.forEach { meal ->
-            MealCard(mealName = meal, onCommentClick = onCommentClick)
-
+        mealsData.forEach { meal ->
+            MealCard(meal)
             Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        Button(onClick = onReorderMeals) {
-            Text("Reordenar Comidas")
         }
     }
 }
 
 @Composable
-fun MealCard(mealName: String, onCommentClick: () -> Unit) {
+fun MealCard(meal: MealData) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -403,51 +460,184 @@ fun MealCard(mealName: String, onCommentClick: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = mealName,
+                text = meal.comida,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.White
             )
             Text(
-                text = "2 Huevos con jamon ",
+                text = meal.descr,
                 fontSize = 14.sp,
                 color = Color.LightGray
             )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-
-                IconButton(onClick = onCommentClick) {
-                    Icon(
-                        imageVector = Icons.Default.Email, // Icono de comentario
-                        contentDescription = "Agregar comentario",
-                        tint = Color.White
-                    )
-                }
-            }
+            Text(
+                text = meal.hora,
+                fontSize = 14.sp,
+                color = Color.LightGray
+            )
         }
     }
 }
-@Composable
-fun PatientInfoRow(label: String, info: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = "$label:",
-            color = Color(0xFF4B3D6E),
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(120.dp)
-        )
-        Text(text = info, color = Color(0xFF616161))
-    }
-}
+//@Composable
+//fun MealCard(mealName: String, description: String, time: String) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(vertical = 4.dp),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
+//    ) {
+//        Column(
+//            modifier = Modifier.padding(16.dp),
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            Text(
+//                text = mealName,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 20.sp,
+//                color = Color.White
+//            )
+//            Text(
+//                text = description,
+//                fontSize = 14.sp,
+//                color = Color.LightGray
+//            )
+//            Text(
+//                text = time,
+//                fontSize = 14.sp,
+//                color = Color.LightGray
+//            )
+//        }
+//    }
+//}
+
+
+
+
+//@Composable
+//fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
+//    var selectedTab by remember { mutableStateOf("Dieta") }
+//    val meals = remember { mutableStateListOf("Desayuno", "Comida", "Cena") } // Lista de comidas, modificable
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color(0xFF65558F))
+//    ) {
+//        Text(
+//            text = "Dietas",
+//            fontSize = 24.sp,
+//            color = Color.White,
+//            modifier = Modifier.padding(bottom = 16.dp).padding(16.dp)
+//        )
+//        // Información del paciente con foto
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            // (Info del paciente aquí, como ya está en tu código original)
+//        }
+//
+//
+//        NavigationBar(
+//            containerColor = Color(0xFF4B3D6E),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            NavigationBarItem(
+//                icon = { Text("Dieta", color = Color.White) },
+//                selected = selectedTab == "Dieta",
+//                onClick = { selectedTab = "Dieta" }
+//            )
+//            NavigationBarItem(
+//                icon = { Text("Progreso", color = Color.White) },
+//                selected = selectedTab == "Progreso",
+//                onClick = { selectedTab = "Progreso" }
+//            )
+//            NavigationBarItem(
+//                icon = { Text("Historial", color = Color.White) },
+//                selected = selectedTab == "Historial",
+//                onClick = { selectedTab = "Historial" }
+//            )
+//            // Otras opciones de pestañas
+//        }
+//
+//        // Mostrar contenido según la pestaña seleccionada
+//        if (selectedTab == "Dieta") {
+//            DietContent(
+//                meals = meals,
+//                onAddSnack = { /* Código para agregar meriendas */ },
+//                onReorderMeals = { /* Código para cambiar el orden de comidas */ },
+//                onCommentClick= {/* Código para comentar comidas */  }
+//            )
+//        }
+//
+//        Spacer(modifier = Modifier.weight(1f))
+//    }
+//}
+//
+//@Composable
+//fun DietContent(meals: List<String>, onAddSnack: () -> Unit, onReorderMeals: () -> Unit, onCommentClick: () -> Unit) {
+//    Column(modifier = Modifier.padding(16.dp)) {
+//        meals.forEach { meal ->
+//            MealCard(mealName = meal, onCommentClick = onCommentClick)
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//        }
+//
+//        Button(onClick = onReorderMeals) {
+//            Text("Reordenar Comidas")
+//        }
+//    }
+//}
+//
+//@Composable
+//fun MealCard(mealName: String, onCommentClick: () -> Unit) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(vertical = 4.dp),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
+//    ) {
+//        Column(
+//            modifier = Modifier.padding(16.dp),
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            Text(
+//                text = mealName,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 20.sp,
+//                color = Color.White
+//            )
+//            Text(
+//                text = "2 Huevos con jamon ",
+//                fontSize = 14.sp,
+//                color = Color.LightGray
+//            )
+//
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 8.dp),
+//                horizontalArrangement = Arrangement.End
+//            ) {
+//
+//                IconButton(onClick = onCommentClick) {
+//                    Icon(
+//                        imageVector = Icons.Default.Email, // Icono de comentario
+//                        contentDescription = "Agregar comentario",
+//                        tint = Color.White
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
+
+
+//Division arriba es interfaz de dieta
+
 
 //@Composable
 //fun DietScreen(navController: NavHostController,patient: PatientData, onBackClick: () -> Unit) {
@@ -547,21 +737,22 @@ fun NotificationScreenPreviewPatient() {
         )
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun PreviewDietScreen() {
-    val navController = rememberNavController() // Crear un NavController simulado
-    DietScreen(
-        navController = navController,
-        onBackClick = { /* Simular acción de volver */ }
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewDietScreen() {
+//    val navController = rememberNavController() // Crear un NavController simulado
+//    DietScreen(
+//        navController = navController,
+//        onBackClick = { currentScreen = "home" }, // Navega a "home"
+//        patientId = "101",
+//        day = "domingo")
+//}
 @Preview
 @Composable
 fun PreviewPatientHomeScreen() {
     val navController = rememberNavController()
     // Aquí se añade un tamaño explícito
-    PatientHomeScreen(navController = navController)
+    HomePatient(navController = navController)
 }
 
 
