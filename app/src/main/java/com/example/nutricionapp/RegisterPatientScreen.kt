@@ -1,5 +1,6 @@
 package com.example.nutricionapp
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -288,7 +289,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
                         password.toString()).addOnCompleteListener(){
                             if(it.isSuccessful){
 
-                                dbPatient.collection("/usuarios/pacientes").document(email.toString()).set(
+                                dbPatient.collection("/pacientes").document(email.toString()).set(
                                     hashMapOf(
                                         "historial" to listOf<DocumentReference>(),
                                         "medidas" to listOf<DocumentReference>(),
@@ -296,17 +297,25 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                         "nutriAsign" to null,
                                         "fechaNacimiento" to formattedDate
                                     )
-                                )
+                                ).addOnCompleteListener {
+                                    if(it.isSuccessful) {
+                                        // Implementar dialogo de exito aqui
+                                        dialogText.value = "Registro e init data exitoso."
+                                        showDialog.value = true
+                                        navController.navigate("Login")
+                                    } else {
+                                        // Implementar dialogo de error aqui
+                                        dialogText.value = "Error de registro."
+                                        showDialog.value = true
+                                    }
+
+                                }
 
 
                                 
-                                // Implementar dialogo de exito aqui
-                                dialogText.value = "Registro exitoso."
-                                showDialog.value = true
-                                navController.navigate("Login")
 
-                            }else {
-                                // Implementar dialogo de error aqui
+
+                            } else {// Implementar dialogo de error aqui
                                 dialogText.value = "Error de registro."
                                 showDialog.value = true
                             }
