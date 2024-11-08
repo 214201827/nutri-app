@@ -1,11 +1,14 @@
 package com.example.nutricionapp
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Email
@@ -28,8 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
-
-
+import androidx.compose.runtime.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun HomePatient(navController: NavHostController) {
@@ -72,14 +77,8 @@ fun HomePatient(navController: NavHostController) {
     }
 
     // Datos del paciente (puedes mantener tu implementación existente)
-    val patientData = PatientData(
-        name = "Carlos Ramírez",
-        email = "carlos.ramirez@example.com",
-        phone = "555-1234-567",
-        address = "Av. Ejemplo 123, Ciudad",
-        assignedNutritionist = "Dra. Martínez",
-        nextAppointment = "5 de Noviembre, 10:00 AM"
-    )
+
+
 
     var selectedItem by remember { mutableStateOf(0) }
     var currentScreen by remember { mutableStateOf("home") }
@@ -148,10 +147,10 @@ fun HomePatient(navController: NavHostController) {
         ) {
             when (currentScreen) {
                 "home" -> {
-                    PatientHomeScreen(navController, patient = patientData)
+                    PatientHomeScreen(navController)
                 }
                 "diet" -> {
-                    DietScreen(navController, patient = patientData,onBackClick = { currentScreen = "home" })
+                    DietScreen(navController,onBackClick = { currentScreen = "home" })
                 }
                 "notifications" -> {
                     NotificationScreenPatient(
@@ -172,7 +171,47 @@ fun HomePatient(navController: NavHostController) {
 
 
 @Composable
-fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {
+fun PatientHomeScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
+    // State para almacenar los datos del paciente obtenidos de Firestore
+    var patientData by remember { mutableStateOf<PatientData?>(null) }
+
+    // Obtener los datos del paciente desde Firestore
+    LaunchedEffect(userEmail) {
+        try {
+        userEmail?.let { email ->
+            val db = FirebaseFirestore.getInstance()
+            val userRef = db.collection("usuarios").document(email)
+            userRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        patientData = document.toObject(PatientData::class.java)
+                    } else {
+                        // Manejo de caso donde el documento no existe
+                        Toast.makeText(
+                            context,
+                            "No se encontraron datos para el paciente.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        context,
+                        "Error al obtener los datos del paciente.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+        } catch (e: Exception) {
+            // Registrar el error
+            Log.e("PatientHomeScreen", "Error al cargar datos: ${e.localizedMessage}")
+        }
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -182,7 +221,7 @@ fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {
         verticalArrangement = Arrangement.Top
     ) {
         Text(
-            text = "Bienvenido, ${patient.name}",
+            text = "Bienvenido, ${patientData?.fullName ?: "Usuario"}",
             fontSize = 28.sp,
             color = Color.White,
             fontWeight = FontWeight.Bold,
@@ -222,37 +261,34 @@ fun PatientHomeScreen(navController: NavHostController, patient: PatientData) {
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                PatientInfoRow(label = "Nombre", info = patient.name)
-                PatientInfoRow(label = "Correo", info = patient.email)
-                PatientInfoRow(label = "Teléfono", info = patient.phone)
-                PatientInfoRow(label = "Dirección", info = patient.address)
+                // Muestra información con valores por defecto si es nula
+                PatientInfoRow(label = "Nombre", info = patientData?.fullName ?: "No disponible")
+                PatientInfoRow(label = "Correo", info = userEmail ?: "No disponible")
+                PatientInfoRow(label = "Teléfono", info = patientData?.phone ?: "No disponible")
+                PatientInfoRow(label = "Dirección", info = patientData?.address ?: "No disponible")
 
                 Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
 
-                PatientInfoRow(label = "Nutriólogo asignado", info = patient.assignedNutritionist)
+                PatientInfoRow(label = "Nutriólogo asignado", info = patientData?.assignedNutritionist ?: "No disponible")
 
-                if (patient.nextAppointment != null) {
-                    Text(
-                        text = "Próxima cita: ${patient.nextAppointment}",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 16.dp).
-                        align(Alignment.CenterHorizontally)
-                    )
-                } else {
-                    Text(
-                        text = "No tiene citas programadas",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 16.dp).
-                        align(Alignment.CenterHorizontally)
-                    )
-                }
+                val nextAppointment = patientData?.nextAppointment
+                Text(
+                    text = if (nextAppointment != null) {
+                        "Próxima cita: $nextAppointment"
+                    } else {
+                        "No tiene citas programadas"
+                    },
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
-
 }
+
 @Composable
 fun NotificationScreenPatient(navController: NavHostController,notifications: List<Notification>, onBackClick: () -> Unit) {
     Column(
@@ -277,7 +313,7 @@ fun NotificationScreenPatient(navController: NavHostController,notifications: Li
     }
 }
 @Composable
-fun DietScreen(navController: NavHostController, patient: PatientData, onBackClick: () -> Unit) {
+fun DietScreen(navController: NavHostController, onBackClick: () -> Unit) {
     var selectedTab by remember { mutableStateOf("Dieta") }
     val meals = remember { mutableStateListOf("Desayuno", "Comida", "Cena") } // Lista de comidas, modificable
 
@@ -301,18 +337,28 @@ fun DietScreen(navController: NavHostController, patient: PatientData, onBackCli
             // (Info del paciente aquí, como ya está en tu código original)
         }
 
-        // Barra de navegación de pestañas
-//        NavigationBar(
-//            containerColor = Color(0xFF4B3D6E),
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            NavigationBarItem(
-//                icon = { Text("Dieta", color = Color.White) },
-//                selected = selectedTab == "Dieta",
-//                onClick = { selectedTab = "Dieta" }
-//            )
-//            // Otras opciones de pestañas
-//        }
+
+        NavigationBar(
+            containerColor = Color(0xFF4B3D6E),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            NavigationBarItem(
+                icon = { Text("Dieta", color = Color.White) },
+                selected = selectedTab == "Dieta",
+                onClick = { selectedTab = "Dieta" }
+            )
+            NavigationBarItem(
+                icon = { Text("Progreso", color = Color.White) },
+                selected = selectedTab == "Progreso",
+                onClick = { selectedTab = "Progreso" }
+            )
+            NavigationBarItem(
+                icon = { Text("Historial", color = Color.White) },
+                selected = selectedTab == "Historial",
+                onClick = { selectedTab = "Historial" }
+            )
+            // Otras opciones de pestañas
+        }
 
         // Mostrar contenido según la pestaña seleccionada
         if (selectedTab == "Dieta") {
@@ -386,7 +432,22 @@ fun MealCard(mealName: String, onCommentClick: () -> Unit) {
         }
     }
 }
-
+@Composable
+fun PatientInfoRow(label: String, info: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Text(
+            text = "$label:",
+            color = Color(0xFF4B3D6E),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(120.dp)
+        )
+        Text(text = info, color = Color(0xFF616161))
+    }
+}
 
 //@Composable
 //fun DietScreen(navController: NavHostController,patient: PatientData, onBackClick: () -> Unit) {
@@ -469,22 +530,8 @@ fun MealCard(mealName: String, onCommentClick: () -> Unit) {
 //
 //    }
 //}
-@Composable
-fun PatientInfoRow(label: String, info: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = "$label:",
-            color = Color(0xFF4B3D6E),
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(120.dp)
-        )
-        Text(text = info, color = Color(0xFF616161))
-    }
-}
+
+
 
 @Preview(showBackground = true)
 @Composable
@@ -502,37 +549,20 @@ fun NotificationScreenPreviewPatient() {
 }
 @Preview(showBackground = true)
 @Composable
-fun PatientHomeScreenPatientPreview() {
-    val patientData = PatientData(
-        name = "Carlos Ramírez",
-        email = "carlos.ramirez@example.com",
-        phone = "555-1234-567",
-        address = "Av. Ejemplo 123, Ciudad",
-        assignedNutritionist = "Dra. Martínez",
-        nextAppointment = "5 de Noviembre, 10:00 AM"
+fun PreviewDietScreen() {
+    val navController = rememberNavController() // Crear un NavController simulado
+    DietScreen(
+        navController = navController,
+        onBackClick = { /* Simular acción de volver */ }
     )
-    NutricionAppTheme {
-        PatientHomeScreen(navController = rememberNavController(), patient = patientData)
-    }
 }
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun DietScreenPreview() {
-    val patientData = PatientData(
-        name = "Carlos Ramírez",
-        email = "carlos.ramirez@example.com",
-        phone = "555-1234-567",
-        address = "Av. Ejemplo 123, Ciudad",
-        assignedNutritionist = "Dra. Martínez",
-        nextAppointment = "5 de Noviembre, 10:00 AM"
-    )
-
-    NutricionAppTheme {
-        DietScreen(
-            navController = rememberNavController(),
-            patient = patientData,
-            onBackClick = {}
-        )
-    }
+fun PreviewPatientHomeScreen() {
+    val navController = rememberNavController()
+    // Aquí se añade un tamaño explícito
+    PatientHomeScreen(navController = navController)
 }
+
+
 

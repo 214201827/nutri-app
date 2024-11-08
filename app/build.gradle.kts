@@ -77,6 +77,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.0.0")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.0")
+    implementation("androidx.compose.material:material-icons-extended:1.0.0")
 
 
 

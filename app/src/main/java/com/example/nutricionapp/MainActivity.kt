@@ -17,13 +17,16 @@ import com.example.nutricionapp.CreateAppointmentScreen
 //import com.example.nutricionapp.ui.theme.PatientData
 
 data class PatientData(
-    val name: String,
-    val email: String,
-    val phone: String,
-    val address: String,
-    val assignedNutritionist: String,
-    val nextAppointment: String? = null
-)
+    var fullName: String? = null,
+    var phone: String? = null,
+    var address: String? = null,
+    var assignedNutritionist: String? = null,
+    var nextAppointment: String? = null
+    // Agrega los demás campos necesarios aquí
+) {
+    // Constructor sin argumentos requerido por Firebase
+    constructor() : this(null, null, null, null, null)
+}
 
 
 
