@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.nutriologo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,8 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.unit.sp
-import com.example.myapplication000.db.Dieta
+import com.example.nutricionapp.db.Dieta
 import androidx.navigation.NavController
+import com.example.nutricionapp.calcularEdad
+import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.upd
+import com.example.nutricionapp.db.FirestoreRepository.upd2
+import com.example.nutricionapp.db.PacienteDb
 import java.util.Calendar
 import java.util.Date
 
@@ -35,10 +40,18 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     var isEditing by remember { mutableStateOf(false) }
     var editedValues by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
-    val daysOfWeek = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+    val daysOfWeek = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
     var selectedDayIndex by remember { mutableStateOf(0) } // Índice del día seleccionado
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<Date?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+    var pesoInicial by remember { mutableStateOf(paciente?.pesoI?.toString() ?: "") }
+    var pesoActual by remember { mutableStateOf(paciente?.peso?.toString() ?: "") }
+    var pesoMeta by remember { mutableStateOf(paciente?.PesoMeta?.toString() ?: "") }
+    var imcInicial by remember { mutableStateOf(paciente?.imcI?.toString() ?: "") }
+    var imcActual by remember { mutableStateOf(paciente?.imc?.toString() ?: "") }
+    var immInicial by remember { mutableStateOf(paciente?.immI?.toString() ?: "") }
+    var immActual by remember { mutableStateOf(paciente?.imm?.toString() ?: "") }
 
     LaunchedEffect(patientId) {
         FirestoreRepository.getPatientData(patientId) { data ->
@@ -48,6 +61,23 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                     dieta = dietData
                 }
             }
+        }
+    }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Expresión regular para verificar solo números y un punto decimal
+    val validInputPattern = "^[0-9]*\\.?[0-9]+\$".toRegex()
+
+    fun isValidInput(input: String): Boolean {
+        return input.isEmpty() || validInputPattern.matches(input)
+    }
+
+    fun handleValueChange(value: String, updateState: (String) -> Unit) {
+        if (isValidInput(value)) {
+            updateState(value)
+            errorMessage = null
+        } else {
+            errorMessage = "Solo se permiten números y un punto decimal."
         }
     }
 
@@ -209,7 +239,6 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                         // Lógica para mostrar la dieta según el día seleccionado
                         dieta?.let { dietList ->
                             if (dietList.isNotEmpty()) {
-                                // Filtrar la dieta según el día seleccionado
                                 val selectedDay = daysOfWeek[selectedDayIndex]
                                 val dailyDiet = dietList.filter { it.dia == selectedDay }
 
@@ -217,59 +246,108 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                     dailyDiet.forEach { diet ->
                                         Column(modifier = Modifier.fillMaxWidth()) {
                                             // Card para Desayuno
-                                            DietCard(diet = diet, mealType = "Desayuno", isEditing = isEditing) { newValue ->
-                                                editedValues = editedValues + ("desayuno-${diet.Did}" to newValue)
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Desayuno",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.desayuno.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.desayuno.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
                                             }
 
                                             // Card para Comida
-                                            DietCard(diet = diet, mealType = "Comida", isEditing = isEditing) { newValue ->
-                                                editedValues = editedValues + ("comida-${diet.Did}" to newValue)
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Comida",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.comida.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.comida.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
                                             }
 
                                             // Card para Cena
-                                            DietCard(diet = diet, mealType = "Cena", isEditing = isEditing) { newValue ->
-                                                editedValues = editedValues + ("cena-${diet.Did}" to newValue)
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Cena",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.cena.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.cena.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
                                             }
+
+                                        }
+                                        Button(
+                                            onClick = {
+                                                navController.navigate("updDiet/$patientId")
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
+                                        ) {
+                                            Text("Modificar dieta", color = Color.White)
+
                                         }
                                     }
-                                } else {
-                                    Text("No hay dieta disponible para el día seleccionado", fontSize = 16.sp, color = Color.LightGray)
                                 }
-
-
-                                Button(
-                                    onClick = { isEditing = true },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
-                                ) {
-                                    Text("Editar Dieta", color = Color.White)
-
-                                }
-                            } else {
-                                Text("No hay dieta disponible para este paciente", fontSize = 16.sp, color = Color.LightGray)
                             }
-                        } ?: run {
-                            Text("No se encontraron datos de la dieta", fontSize = 16.sp, color = Color.LightGray)
                         }
                     }
+
                     //---------------------------------------------------------------------------------------------------
                     1 -> {
                         paciente?.let { paciente ->
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                // Card para mostrar el peso
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()                                        .background(Color(0xFFE0E0E0)), // Color de fondo de la Card
-                                    elevation = CardDefaults.elevatedCardElevation(4.dp)
-                                ) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(text = "Peso Inicial: ${paciente.pesoI}", fontSize = 16.sp, color = Color.Black)
-                                        Text(text = "Peso Actual: ${paciente.peso}", fontSize = 16.sp, color = Color.Black)
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(8.dp)) // Espacio entre Cards
-
-                                // Card para mostrar el IMC
+                            Column {
+                                // Mostrar la información del paciente en Cards
+                                // Card para el Peso
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -277,14 +355,22 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                     elevation = CardDefaults.elevatedCardElevation(4.dp)
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(text = "IMC Inicial: ${paciente.imcI}", fontSize = 16.sp, color = Color.Black)
-                                        Text(text = "IMC Actual: ${paciente.imc}", fontSize = 16.sp, color = Color.Black)
+                                        Text(
+                                            text = "Peso Inicial: ${paciente.pesoI}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Text(
+                                            text = "Peso Actual: ${paciente.peso}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(8.dp)) // Espacio entre Cards
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                                // Card para mostrar el IMM
+                                // Card para el IMC
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -292,13 +378,151 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                     elevation = CardDefaults.elevatedCardElevation(4.dp)
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(text = "IMM Inicial: ${paciente.immI}", fontSize = 16.sp, color = Color.Black)
-                                        Text(text = "IMM Actual: ${paciente.imm}", fontSize = 16.sp, color = Color.Black)
+                                        Text(
+                                            text = "IMC Inicial: ${paciente.imcI}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Text(
+                                            text = "IMC Actual: ${paciente.imc}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Card para el IMM
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFE0E0E0)),
+                                    elevation = CardDefaults.elevatedCardElevation(4.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(
+                                            text = "IMM Inicial: ${paciente.immI}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        Text(
+                                            text = "IMM Actual: ${paciente.imm}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
                                     }
                                 }
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = {
+                                pesoInicial = paciente?.pesoI?.toString() ?: ""  // Si paciente es nulo o pesoI es nulo, asigna ""
+                                pesoActual = paciente?.peso?.toString() ?: ""
+                                pesoMeta = paciente?.PesoMeta?.toString() ?: ""
+                                imcInicial = paciente?.imcI?.toString() ?: ""
+                                imcActual = paciente?.imc?.toString() ?: ""
+                                immInicial = paciente?.immI?.toString() ?: ""
+                                immActual = paciente?.imm?.toString() ?: ""
+                                showDialog = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
+                        ) {
+                            Text("Editar Dieta", color = Color.White)
+                        }
+
+                        if (showDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDialog = false },
+                                title = { Text("Actualizar datos") },
+                                text = {
+                                    Column {
+                                        OutlinedTextField(
+                                            value = pesoInicial,
+                                            onValueChange = { handleValueChange(it, { pesoInicial = it }) },
+                                            label = { Text("Peso Inicial") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = pesoActual,
+                                            onValueChange = { handleValueChange(it, { pesoActual = it }) },
+                                            label = { Text("Peso Actual") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = pesoMeta,
+                                            onValueChange = { handleValueChange(it, { pesoMeta = it }) },
+                                            label = { Text("Peso Meta") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = imcInicial,
+                                            onValueChange = { handleValueChange(it, { imcInicial = it }) },
+                                            label = { Text("IMC Inicial") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = imcActual,
+                                            onValueChange = { handleValueChange(it, { imcActual = it }) },
+                                            label = { Text("IMC Actual") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = immInicial,
+                                            onValueChange = { handleValueChange(it, { immInicial = it }) },
+                                            label = { Text("IMM Inicial") },
+                                            isError = errorMessage != null
+                                        )
+                                        OutlinedTextField(
+                                            value = immActual,
+                                            onValueChange = { handleValueChange(it, { immActual = it }) },
+                                            label = { Text("IMM Actual") },
+                                            isError = errorMessage != null
+                                        )
+
+                                        // Mostrar el mensaje de error debajo del campo si es necesario
+                                        errorMessage?.let {
+                                            Text(
+                                                text = it,
+                                                color = Color.Red,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                modifier = Modifier.padding(top = 8.dp)
+                                            )
+                                        }
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            upd2(
+                                                patientId.toInt(),
+                                                pesoInicial.toDoubleOrNull(),
+                                                pesoActual.toDoubleOrNull(),
+                                                pesoMeta.toDoubleOrNull(),
+                                                imcInicial.toDoubleOrNull(),
+                                                imcActual.toDoubleOrNull(),
+                                                immInicial.toDoubleOrNull(),
+                                                immActual.toDoubleOrNull()
+                                            )
+                                            showDialog = false
+                                        }
+                                    ) {
+                                        Text("Guardar")
+                                    }
+                                },
+                                dismissButton = {
+                                    Button(
+                                        onClick = { showDialog = false }
+                                    ) {
+                                        Text("Cancelar")
+                                    }
+                                }
+                            )
+                        }
                     }
+
                     //---------------------------------------------------------------------------------------------------
                     2 -> {
                         // Lógica para mostrar el historial del paciente
@@ -319,16 +543,7 @@ fun DietCard(
     isEditing: Boolean,
     onValueChange: (String) -> Unit
 ) {
-    var editedValue by remember { mutableStateOf("") }
 
-    LaunchedEffect(diet) {
-        editedValue = when (mealType) {
-            "Desayuno" -> diet.desayuno
-            "Comida" -> diet.comida
-            "Cena" -> diet.cena
-            else -> ""
-        }
-    }
 
     Card(
         modifier = Modifier
@@ -349,23 +564,6 @@ fun DietCard(
                 color = Color.White
             )
 
-            if (isEditing) {
-                TextField(
-                    value = editedValue,
-                    onValueChange = {
-                        editedValue = it
-                        onValueChange(it)
-                    },
-                    textStyle = LocalTextStyle.current.copy(color = Color.LightGray),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                Text(
-                    text = editedValue,
-                    fontSize = 16.sp,
-                    color = Color.LightGray
-                )
-            }
         }
     }
 }

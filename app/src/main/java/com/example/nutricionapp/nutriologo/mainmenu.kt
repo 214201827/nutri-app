@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.nutriologo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication000.FirestoreRepository.getRecords
-import com.example.myapplication000.db.Record
+import com.example.nutricionapp.db.FirestoreRepository.getRecords
+import com.example.nutricionapp.db.Record
 
 @Composable
 fun RecordatorioScreen(navController: NavController) {
@@ -28,7 +28,6 @@ fun RecordatorioScreen(navController: NavController) {
         records.clear()
         records.addAll(newRecords)
     }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -106,11 +105,11 @@ fun RecordCard(record: Record) {
         ) {
             Text(text = record.titulo, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = record.descripcion, style = MaterialTheme.typography.bodyMedium)
+            Text(text = record.descr, style = MaterialTheme.typography.bodyMedium)
             IconButton(onClick = {  }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar Paciente",
+                    contentDescription = "Eliminar notif",
                     tint = Color.Red
                 )
             }

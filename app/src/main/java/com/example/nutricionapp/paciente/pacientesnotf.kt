@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.paciente
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -16,14 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication000.FirestoreRepository.getnotfpac
-import com.example.myapplication000.db.notify
+//import com.example.nutricionapp.db.notify
 import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
 fun NotificationListScreenpac(navController: NavController) {
-    val notifications = remember { mutableStateListOf<notify>() }
+    /*val notifications = remember { mutableStateListOf<notify>() }
 
 
     // Llama a la función getnotf para obtener los datos de Firestore
@@ -157,7 +156,7 @@ fun NotificationItem1(notification: notify) {
                 }
             }
         }
-    }
+    }*/
 }
 // Función para eliminar la notificación en Firestore
 fun deleteNotificationFromFirestore(pid: Int) {

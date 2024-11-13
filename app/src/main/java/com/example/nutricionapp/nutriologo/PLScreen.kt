@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.nutriologo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.Paciented
 
 @Composable
 fun PatientListScreen(navController: NavController) {

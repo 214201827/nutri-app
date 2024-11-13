@@ -12,33 +12,28 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
-import com.example.myapplication000.NotificationListScreen
-import com.example.myapplication000.NotificationListScreenpac
-import com.example.myapplication000.PatientDetailScreenP
-import com.example.myapplication000.RecordatorioScreen
-import com.example.myapplication000.RecordatorioScreenpac
+import com.example.nutricionapp.CreateAppointmentScreen
+import com.example.nutricionapp.nutriologo.RecordatorioScreen
+import com.example.nutricionapp.paciente.PatientDetailScreenP
+import com.example.nutricionapp.paciente.RecordatorioScreenpac
+import com.example.nutricionapp.nutriologo.PatientListScreen
 
 data class PatientData(
-    val name: String,
-    val email: String,
-    val phone: String,
-    val address: String,
-    val assignedNutritionist: String,
-    val nextAppointment: String? = null
-)
+    var fullName: String? = null,
+    var phone: String? = null,
+    var address: String? = null,
+    var assignedNutritionist: String? = null,
+    var nextAppointment: String? = null
+    // Agrega los demás campos necesarios aquí
+) {
+    // Constructor sin argumentos requerido por Firebase
+    constructor() : this(null, null, null, null, null)
+}
 
-val patientData = PatientData(
-    name = "Carlos Ramírez",
-    email = "carlos.ramirez@example.com",
-    phone = "555-1234-567",
-    address = "Av. Ejemplo 123, Ciudad",
-    assignedNutritionist = "Dra. Martínez",
-    nextAppointment = "5 de Noviembre, 10:00 AM"
-)
+
 
 
 class MainActivity : ComponentActivity() {
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,41 +47,42 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "reminders") {
+    NavHost(navController = navController, startDestination = "login") {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
-        composable("registerNutritionist") { RegisterNutScreen(navController)  }
+        composable("registerNutritionist") { RegisterNutScreen(navController) }
+        composable("HomeNutritionist") { HomeNutritionist(navController) }
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
-        composable("PatientHomeScreen") { PatientHomeScreen(navController, patient = patientData) }
+        composable("PatientHomeScreen") { HomePatient(navController) }
         composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
-        composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack()}) }
-        composable("pacien") { com.example.myapplication000.PatientListScreen(navController) }
+        composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack() }) }
+
+        composable("pacien") { PatientListScreen(navController) }
+
+        // Detalle del paciente por `patientId`
         composable("patientDetail/{patientId}") { backStackEntry ->
-            com.example.myapplication000.PatientDetailScreen(
+            com.example.nutricionapp.nutriologo.PatientDetailScreen(
                 patientId = backStackEntry.arguments?.getString("patientId") ?: "",
                 navController = navController
             )
         }
+
+        composable("updDiet/{patientId}") { backStackEntry ->
+            com.example.nutricionapp.nutriologo.PatientDetailScreen3(
+                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
+                navController = navController
+            )
+        }
+
         composable("reminders") { RecordatorioScreen(navController) }
-        composable("Pnotifications") { NotificationListScreenpac(navController) }
-        composable("Pmenu") { RecordatorioScreenpac(navController) }
-        composable("Pperfil") { PatientDetailScreenP(navController) }
-        composable("notifications") { NotificationListScreen(navController) }
-//        composable("PatientListScreen") { PatientListScreen(navController,onBackClick = {})  }
-//        composable("NotificationScreen") { NotificationScreen(navController = navController,
-//            notifications = listOf(
-//                Notification("Recordatorio de Cita", "Juan Pérez tiene una cita el 30 de septiembre."),
-//                Notification("Dieta Actualizada", "La dieta de María López ha sido actualizada.")
-//            ),
-//            onBackClick = {}
-//        )  }
+
+        composable("patientDetailP") { PatientDetailScreenP(navController) }
+
+        composable("RecordatorioScreenpac") { RecordatorioScreenpac(navController) }
+
         composable("login") { LoginScreen(navController) }
-
-
-
     }
-
 }
 
 

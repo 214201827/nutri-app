@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.paciente
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -23,34 +23,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.unit.sp
-import com.example.myapplication000.db.Dieta
+import com.example.nutricionapp.db.Dieta2
 import androidx.navigation.NavController
-import com.example.myapplication000.FirestoreRepository.getmyData
-import com.example.myapplication000.FirestoreRepository.getmyDiet
+import com.example.nutricionapp.calcularEdad
+import com.example.nutricionapp.db.FirestoreRepository.addCommentToFirestore
+import com.example.nutricionapp.db.FirestoreRepository.getMyDiet
+import com.example.nutricionapp.db.FirestoreRepository.getmyData
+import com.example.nutricionapp.db.PacienteDb
 import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
-fun PatientDetailScreenP(navController: NavController) {
+fun PatientDetailScreenP(navController: NavController){
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
-    var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
+    var dieta by remember { mutableStateOf<List<Dieta2>?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val daysOfWeek = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+    val daysOfWeek = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
     var selectedDayIndex by remember { mutableStateOf(0) } // Índice del día seleccionado
     var showDialog by remember { mutableStateOf(false) }
     var subject by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var Nid: Int? = null
     var Pid: Int? = null
+    val patientId = paciente?.id
+    val patientNid = paciente?.Nid
 
     LaunchedEffect(Unit) {
-        getmyData { data ->
-            paciente = data
-            // Cargar dieta asociada al paciente (ya se filtra por Did en getmyDiet)
-            getmyDiet { dietData ->
-                dieta = dietData
+        // Convertir userId a Int
+
+            getmyData { data ->
+                paciente = data
+                getMyDiet { dietData ->
+                    dieta = dietData
+                }
             }
-        }
     }
 
     Scaffold(
@@ -61,7 +67,7 @@ fun PatientDetailScreenP(navController: NavController) {
                     icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
                     label = { Text("Inicio") },
                     selected = false,
-                    onClick = { navController.navigate("Pmenu") }, // Navegar a pantalla de inicio
+                    onClick = { navController.navigate("RecordatorioScreenpac") }, // Navegar a pantalla de inicio
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
                         unselectedIconColor = Color.Gray,
@@ -199,10 +205,9 @@ fun PatientDetailScreenP(navController: NavController) {
                             selectedDayIndex = selectedDayIndex,
                             onDayChange = { index -> selectedDayIndex = index }
                         )
-                        // Lógica para mostrar la dieta según el día seleccionado
+// Lógica para mostrar la dieta según el día seleccionado
                         dieta?.let { dietList ->
                             if (dietList.isNotEmpty()) {
-                                // Filtrar la dieta según el día seleccionado
                                 val selectedDay = daysOfWeek[selectedDayIndex]
                                 val dailyDiet = dietList.filter { it.dia == selectedDay }
 
@@ -210,13 +215,157 @@ fun PatientDetailScreenP(navController: NavController) {
                                     dailyDiet.forEach { diet ->
                                         Column(modifier = Modifier.fillMaxWidth()) {
                                             // Card para Desayuno
-                                            DietCard1(diet = diet, mealType = "Desayuno")
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Desayuno",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.desayuno.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.desayuno.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
+                                            }
 
                                             // Card para Comida
-                                            DietCard1(diet = diet, mealType = "Comida")
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Comida",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.comida.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.comida.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
+                                            }
 
                                             // Card para Cena
-                                            DietCard1(diet = diet, mealType = "Cena")
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                                shape = MaterialTheme.shapes.medium
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "Cena",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.cena.comida}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                    Text(
+                                                        text = " ${diet.cena.descr}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    )
+                                                }
+                                            }
+
+                                            // Comentarios
+                                            Button(
+                                                onClick = { showDialog = true },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = Color(0xFF4B3D6E)
+                                                )
+                                            ) {
+                                                Text("Comentarios", color = Color.White)
+                                            }
+
+                                            // Dialogo para agregar comentarios
+                                            if (showDialog) {
+                                                AlertDialog(
+                                                    onDismissRequest = { showDialog = false },
+                                                    title = { Text(text = "Nuevo Comentario") },
+                                                    text = {
+                                                        Column {
+                                                            // TextField para Asunto
+                                                            OutlinedTextField(
+                                                                value = subject,
+                                                                onValueChange = { subject = it },
+                                                                label = { Text("Asunto") },
+                                                                modifier = Modifier.fillMaxWidth()
+                                                            )
+                                                            Spacer(modifier = Modifier.height(8.dp))
+                                                            // TextField para Descripción
+                                                            OutlinedTextField(
+                                                                value = description,
+                                                                onValueChange = {
+                                                                    description = it
+                                                                },
+                                                                label = { Text("Descripción") },
+                                                                modifier = Modifier.fillMaxWidth()
+                                                            )
+                                                        }
+                                                    },
+                                                    confirmButton = {
+                                                        Button(
+                                                            onClick = {
+                                                                // Solo llama a la función si patientId y patientNid no son nulos
+                                                                patientId?.let { Rid ->
+                                                                    patientNid?.let { Did ->
+                                                                        addCommentToFirestore(
+                                                                            subject,
+                                                                            description,
+                                                                            Rid,
+                                                                            Did
+                                                                        )
+                                                                        showDialog = false
+                                                                        subject = ""
+                                                                        description = ""
+                                                                    }
+                                                                } ?: run {
+                                                                    // Manejo de error en caso de que alguno sea nulo
+                                                                    Log.e(
+                                                                        "ConfirmButton",
+                                                                        "Error: patientId o patientNid son nulos"
+                                                                    )
+                                                                }
+                                                            }
+                                                        ) {
+                                                            Text("Enviar")
+                                                        }
+                                                    },
+                                                    dismissButton = {
+                                                        Button(onClick = { showDialog = false }) {
+                                                            Text("Cancelar")
+                                                        }
+                                                    }
+                                                )
+                                            }
                                         }
                                     }
                                 } else {
@@ -226,77 +375,10 @@ fun PatientDetailScreenP(navController: NavController) {
                                         color = Color.LightGray
                                     )
                                 }
-
-
-                                Button(
-                                    onClick = { showDialog = true },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(
-                                            0xFF4B3D6E
-                                        )
-                                    )
-                                ) {
-                                    Text("Comentarios", color = Color.White)
-                                }
-
-                                // Dialogo para agregar comentarios
-                                if (showDialog) {
-                                    AlertDialog(
-                                        onDismissRequest = { showDialog = false },
-                                        title = { Text(text = "Nuevo Comentario") },
-                                        text = {
-                                            Column {
-                                                // TextField para Asunto
-                                                OutlinedTextField(
-                                                    value = subject,
-                                                    onValueChange = { subject = it },
-                                                    label = { Text("Asunto") },
-                                                    modifier = Modifier.fillMaxWidth()
-                                                )
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                                // TextField para Descripción
-                                                OutlinedTextField(
-                                                    value = description,
-                                                    onValueChange = { description = it },
-                                                    label = { Text("Descripción") },
-                                                    modifier = Modifier.fillMaxWidth()
-                                                )
-                                            }
-                                        },
-                                        confirmButton = {
-                                            Button(
-                                                onClick = {
-                                                    addCommentToFirestore(
-                                                        Pid!!,
-                                                        Nid!!,
-                                                        subject,
-                                                        description
-                                                    )
-                                                    showDialog = false
-                                                    subject = ""
-                                                    description = ""
-                                                }
-                                            ) {
-                                                Text("Enviar")
-                                            }
-                                        },
-                                        dismissButton = {
-                                            Button(onClick = { showDialog = false }) {
-                                                Text("Cancelar")
-                                            }
-                                        }
-                                    )
-                                }
-                            } else {
-                                Text(
-                                    "Aun no tienes una dieta asignada",
-                                    fontSize = 16.sp,
-                                    color = Color.LightGray
-                                )
                             }
                         } ?: run {
                             Text(
-                                "Aun no tienes una dieta asignada",
+                                "Aún no tienes una dieta asignada",
                                 fontSize = 16.sp,
                                 color = Color.LightGray
                             )
@@ -364,7 +446,7 @@ fun PatientDetailScreenP(navController: NavController) {
 //---------------------------------------------------------------------------------------------------
 @Composable
 fun DietCard1(
-    diet: Dieta,
+    diet: Dieta2,
     mealType: String,
 ) {
     val mealContent = when (mealType) {
@@ -393,12 +475,6 @@ fun DietCard1(
                 fontSize = 20.sp,
                 color = Color.LightGray,
                 modifier = Modifier.padding(bottom = 4.dp)
-            )
-            // Contenido de la comida
-            Text(
-                text = mealContent,
-                fontSize = 18.sp,
-                color = Color.White
             )
         }
     }
@@ -531,24 +607,7 @@ fun HistorialScreen1() {
 
 }
 // Función para agregar el comentario en Firestore
-fun addCommentToFirestore(Pid: Int, Nid: Int, subject: String, description: String) {
-    val db = FirebaseFirestore.getInstance()
-    val comment = hashMapOf(
-        "Pid" to Pid,
-        "Nid" to Nid,
-        "asunto" to subject,
-        "descripcion" to description
-    )
 
-    db.collection("notif")
-        .add(comment)
-        .addOnSuccessListener {
-            Log.d("Comment", "Comentario agregado exitosamente")
-        }
-        .addOnFailureListener { e ->
-            Log.w("Comment", "Error al agregar el comentario", e)
-        }
-}
 //---------------------------------------------------------------------------------------------------
 @Composable
 fun ListItemContent(title: String, value: String) {

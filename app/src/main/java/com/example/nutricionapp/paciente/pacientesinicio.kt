@@ -1,4 +1,4 @@
-package com.example.myapplication000
+package com.example.nutricionapp.paciente
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,15 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication000.FirestoreRepository.getRecordspac
-import com.example.myapplication000.db.Record
+import com.example.nutricionapp.db.FirestoreRepository.getRecords
+import com.example.nutricionapp.db.Record
 
 @Composable
 fun RecordatorioScreenpac(navController: NavController) {
     val records = remember { mutableStateListOf<Record>() }
 
     // Llama a la función getRecords para obtener los datos de Firestore
-    getRecordspac { newRecords ->
+    getRecords { newRecords ->
         records.clear()
         records.addAll(newRecords)
     }
@@ -49,7 +49,7 @@ fun RecordatorioScreenpac(navController: NavController) {
                     icon = { Icon(Icons.Filled.Person, contentDescription = "perfil") },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { navController.navigate("Pperfil") },
+                    onClick = { navController.navigate("patientDetailP") },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
                         unselectedIconColor = Color.Gray,
@@ -106,7 +106,7 @@ fun RecordCard1(record: Record) {
         ) {
             Text(text = record.titulo, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = record.descripcion, style = MaterialTheme.typography.bodyMedium)
+            Text(text = record.descr, style = MaterialTheme.typography.bodyMedium)
             IconButton(onClick = {  }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
