@@ -1,6 +1,5 @@
 package com.example.nutricionapp
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,21 +22,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
-import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
+import java.util.Calendar
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,14 +112,16 @@ fun convertMillisToDate(millis: Long): String {
 
 @Composable
 fun RegisterPatientScreen(navController: NavHostController) {
-    var dbPatient = Firebase.firestore
+    val dbPatient = Firebase.firestore
     var fullName by remember { mutableStateOf("") }
-    //var birthDate by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
-    //combo box
+
+    // Combo box para fecha de nacimiento
     var selectedDay by remember { mutableStateOf("") }
     var selectedMonth by remember { mutableStateOf("") }
     var selectedYear by remember { mutableStateOf("") }
@@ -131,7 +130,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
     val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
     val years = (1930..2010).map { it.toString() }
 
-// Diálogo
+    // Diálogo de mensaje
     if (showDialog.value) {
         DialogoRegistroPaciente(
             onDismissRequest = { showDialog.value = false },
@@ -139,39 +138,28 @@ fun RegisterPatientScreen(navController: NavHostController) {
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF65558F)
-
-            ),
-        contentAlignment = Alignment.Center
-    ){}
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp).background(Color(0xFF65558F)),
+            .background(Color(0xFF65558F))
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Registro de Paciente",fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall,color= Color.White)
+        Text(text = "Registro de Paciente", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall, color= Color.White)
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Campos de entrada
         TextField(
             value = fullName,
             onValueChange = { fullName = it },
             label = { Text("Nombre Completo") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 8.dp)
-                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                 .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -181,42 +169,68 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
+        // ComboBox para fecha de nacimiento
         Row(
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            horizontalArrangement = Arrangement.SpaceBetween, // Espacio entre cada ComboBox
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             ComboBox(
                 label = "Día",
                 items = days,
                 selectedItem = selectedDay,
-                onItemSelected = { selectedDay = it },
-                //modifier = Modifier.weight(1f)
+                onItemSelected = { selectedDay = it }
             )
-
-
             ComboBox(
                 label = "Mes",
                 items = months,
                 selectedItem = selectedMonth,
-                onItemSelected = { selectedMonth = it },
-               // modifier = Modifier.padding(4.dp)
+                onItemSelected = { selectedMonth = it }
             )
-
-
-
             ComboBox(
                 label = "Año",
                 items = years,
                 selectedItem = selectedYear,
-                onItemSelected = { selectedYear = it },
-                //modifier = Modifier.weight(1f)
+                onItemSelected = { selectedYear = it }
             )
         }
-        //DatePickerDocked()
-        //Text(text = "Fecha seleccionada: $selectedDay de $selectedMonth del $selectedYear",color = Color.White)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = phone,
+            onValueChange = { phone = it },
+            label = { Text("Teléfono") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .background(Color(0xFF4B3D6E)),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Dirección") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .background(Color(0xFF4B3D6E)),
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -224,15 +238,12 @@ fun RegisterPatientScreen(navController: NavHostController) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo Electrónico") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 8.dp)
-                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                 .background(Color(0xFF4B3D6E)),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -242,122 +253,86 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
         TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth()
-                //.padding(vertical = 8.dp)
-                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
                 unfocusedLabelColor = Color.White
-            ),
-            visualTransformation = PasswordVisualTransformation()
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-
+        // Botón de registro
         Button(
             onClick = {
-            /* Aquí hacer registro */
+                if (email.isNotEmpty() && password.isNotEmpty() && selectedDay.isNotEmpty() && selectedMonth.isNotEmpty() && selectedYear.isNotEmpty()) {
+                    // Calcula la edad a partir de la fecha de nacimiento
+                    val birthDate = GregorianCalendar(selectedYear.toInt(), months.indexOf(selectedMonth), selectedDay.toInt())
+                    val age = calculateAge(birthDate)
 
-                if(email.isNotEmpty() && password.isNotEmpty() && selectedDay.isNotEmpty() && selectedMonth.isNotEmpty() && selectedYear.isNotEmpty()){
-
-
-                // Formatear fecha ingresada
-                    val calendar = GregorianCalendar(
-                        selectedYear.toInt(),
-                        months.indexOf(selectedMonth), // El índice correcto del mes (0-11)
-                        selectedDay.toInt()
-                    )
-
-                    val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-                    val formattedDate = formatter.format(calendar.time) // Esto devuelve un String compatible con ISO 8601
-
-
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.toString(),
-                        password.toString()).addOnCompleteListener(){
-                            if(it.isSuccessful){
-
-                                dbPatient.collection("/pacientes").document(email.toString()).set(
-                                    hashMapOf(
-                                        "historial" to listOf<DocumentReference>(),
-                                        "medidas" to listOf<DocumentReference>(),
-                                        "fullName" to fullName.toString(),
-                                        "nutriAsign" to null,
-                                        "fechaNacimiento" to formattedDate
-                                    )
-                                ).addOnCompleteListener {
-                                    if(it.isSuccessful) {
-                                        // Implementar dialogo de exito aqui
-                                        dialogText.value = "Registro e init data exitoso."
-                                        showDialog.value = true
-                                        navController.navigate("Login")
-                                    } else {
-                                        // Implementar dialogo de error aqui
-                                        dialogText.value = "Error de registro."
-                                        showDialog.value = true
-                                    }
-
+                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            dbPatient.collection("pacientes").document(email).set(
+                                hashMapOf(
+                                    "historial" to listOf<DocumentReference>(),
+                                    "medidas" to listOf<DocumentReference>(),
+                                    "fullName" to fullName,
+                                    "nutriAsign" to null,
+                                    "fechaNacimiento" to birthDate.time,
+                                    "age" to age,
+                                    "phone" to phone,
+                                    "address" to address
+                                )
+                            ).addOnCompleteListener { result ->
+                                if (result.isSuccessful) {
+                                    dialogText.value = "Registro exitoso."
+                                    showDialog.value = true
+                                    navController.navigate("Login")
+                                } else {
+                                    dialogText.value = "Error de registro en Firestore."
+                                    showDialog.value = true
                                 }
-
-
-                                
-
-
-                            } else {// Implementar dialogo de error aqui
-                                dialogText.value = "Error de registro."
-                                showDialog.value = true
                             }
+                        } else {
+                            dialogText.value = "Error de autenticación."
+                            showDialog.value = true
+                        }
                     }
                 }
-
             },
-            modifier = Modifier.width(220.dp)
-                .padding(vertical = 16.dp),
+            modifier = Modifier.width(220.dp).padding(vertical = 16.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            )
-
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White)
         ) {
-            Text("Registrarse",color = Color(0xFF65558F), fontSize = 16.sp)
+            Text("Registrarse", color = Color(0xFF65558F), fontSize = 16.sp)
         }
-
-        //Spacer(modifier = Modifier.height(8.dp))
-
-
-        Button(
-            onClick = { /* Aquí hacer registro con Google */ },
-            modifier = Modifier
-                .width(220.dp)
-                .padding(vertical = 16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            )
-        ) {
-            Text("Registrarse con Google",color = Color(0xFF65558F), fontSize = 16.sp) // Cambia a colorScheme
-        }
-
-        //Spacer(modifier = Modifier.height(.dp))
-
 
         TextButton(onClick = { navController.navigate("login") }) {
-            Text("Ya tienes cuanta? Inicia sesion", color = Color.White)
+            Text("¿Ya tienes cuenta? Inicia sesión", color = Color.White)
         }
     }
 }
+
+// Función para calcular la edad
+fun calculateAge(birthDate: Calendar): Int {
+    val today = Calendar.getInstance()
+    var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+    if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
+        age--
+    }
+    return age
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComboBox(label: String, items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit, modifier: Modifier = Modifier) {

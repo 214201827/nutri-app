@@ -52,6 +52,7 @@ fun PatientInfoRow(label: String, info: String) {
         Text(text = info, color = Color(0xFF616161))
     }
 }
+
 @Composable
 fun HomePatient(navController: NavHostController) {
     // Acceder al ConnectivityObserver
@@ -89,6 +90,7 @@ fun HomePatient(navController: NavHostController) {
                 message = "Conexión restablecida",
                 duration = SnackbarDuration.Short
             )
+
         }
     }
 
@@ -203,7 +205,7 @@ fun PatientHomeScreen(navController: NavHostController) {
         try {
         userEmail?.let { email ->
             val db = FirebaseFirestore.getInstance()
-            val userRef = db.collection("usuarios").document(email)
+            val userRef = db.collection("pacientes").document(email)
             userRef.get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
@@ -289,7 +291,7 @@ fun PatientHomeScreen(navController: NavHostController) {
 
                 Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
 
-                PatientInfoRow(label = "Nutriólogo asignado", info = patientData?.assignedNutritionist ?: "No disponible")
+                PatientInfoRow(label = "Nutriólogo asignado", info = patientData?.nutriAsign ?: "No disponible")
 
                 val nextAppointment = patientData?.nextAppointment
                 Text(
@@ -368,7 +370,7 @@ suspend fun loadDietData(patientId: String, day: String, mealsData: MutableList<
 @Composable
 fun DietScreen(navController: NavHostController, onBackClick: () -> Unit, patientId: String, day: String) {
     var selectedTab by remember { mutableStateOf("Dieta") }
-    val mealsData = remember { mutableStateListOf<MealData>() }
+     val mealsData = remember { mutableStateListOf<MealData>() }
     var isLoading by remember { mutableStateOf(true) }
 
     // Llama a la función loadDietData al iniciar la pantalla
@@ -737,22 +739,16 @@ fun NotificationScreenPreviewPatient() {
         )
     }
 }
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewDietScreen() {
-//    val navController = rememberNavController() // Crear un NavController simulado
-//    DietScreen(
-//        navController = navController,
-//        onBackClick = { currentScreen = "home" }, // Navega a "home"
-//        patientId = "101",
-//        day = "domingo")
-//}
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun PreviewPatientHomeScreen() {
-    val navController = rememberNavController()
-    // Aquí se añade un tamaño explícito
-    HomePatient(navController = navController)
+fun PreviewDietScreen() {
+    val navController = rememberNavController() // Crear un NavController simulado
+    var currentScreen by remember { mutableStateOf("home") }
+    DietScreen(
+        navController = navController,
+        onBackClick = { currentScreen = "home" }, // Navega a "home"
+        patientId = "101",
+        day = "domingo")
 }
 
 

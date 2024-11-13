@@ -20,12 +20,14 @@ data class PatientData(
     var fullName: String? = null,
     var phone: String? = null,
     var address: String? = null,
-    var assignedNutritionist: String? = null,
-    var nextAppointment: String? = null
+    var nutriAsign: String? = null,
+    var nextAppointment: String? = null,
+    var age : Int? = null,
+    var diet: String? = null
     // Agrega los demás campos necesarios aquí
 ) {
     // Constructor sin argumentos requerido por Firebase
-    constructor() : this(null, null, null, null, null)
+    constructor() : this(null, null, null, null, null, null, null)
 }
 
 
@@ -65,15 +67,16 @@ fun AppNavHost(navController: NavHostController) {
 //        )  }
         composable("login") { LoginScreen(navController) }
         composable("patient_detail/{name}/{age}/{diet}") { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val fullName = backStackEntry.arguments?.getString("name") ?: ""
             val age = backStackEntry.arguments?.getString("age")?.toInt() ?: 0
             val diet = backStackEntry.arguments?.getString("diet") ?: ""
             PatientDetailScreen(
                 navController,
-                Patient(name, age, diet),
+                Patient(fullName, age, diet),
                 onBackClick = { navController.popBackStack() }
             )
         }
+        composable("AdminRequest") { AdminNutritionistRequestsScreen(navController) }
         //composable("HomePatient") { HomePatient(navController) }
 
 

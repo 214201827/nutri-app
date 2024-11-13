@@ -124,21 +124,27 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             Button(
-                //onClick = {navController.navigate("HomeNutritionist") },
                 onClick = {
 
                     if (email.isNotEmpty() && password.isNotEmpty()) {
-                        FirebaseAuth.getInstance()
-                            .signInWithEmailAndPassword(email.toString(), password.toString()).addOnCompleteListener(){
-                                if(it.isSuccessful){
-                                    navController.navigate("UserTypeSelector")
-                                }
-                                else {
-                                    showErrorLoginDialog = true
-                                }
-                            }
-                    }
+                        if (email == "admin@gmail.com" && password == "hola123") {
+                                        navController.navigate("AdminRequest") // Navega directamente a la pantalla de administrador
 
+                                }else {
+                            FirebaseAuth.getInstance()
+                                .signInWithEmailAndPassword(email, password)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        navController.navigate("UserTypeSelector") // Navega para usuarios regulares
+                                    } else {
+                                        showErrorLoginDialog =
+                                            true // Muestra diálogo de error en caso de fallo
+                                    }
+                                }
+                        }
+                        }else {
+                            showErrorLoginDialog = true
+                    }
 
                 },
                 modifier = Modifier

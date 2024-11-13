@@ -6,43 +6,49 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 // Data class for Nutritionist requests
-data class NutritionistRequest(val name: String, val email: String, val status: String, val id: String = "")
+data class NutritionistRequest(val fullName: String, val email: String, val procesoVerificacion: String){
+    // Constructor sin argumentos requerido por Firebase
+    constructor() : this("", "", "")
+}
+
 
 // Composable function for the admin requests screen
 @Composable
-fun AdminNutritionistRequestsScreen() {
+fun AdminNutritionistRequestsScreen(navController: NavHostController) {
     val db = FirebaseFirestore.getInstance()
     val requests = remember { mutableStateOf<List<NutritionistRequest>>(emptyList()) }
 
     // Escucha en tiempo real las solicitudes desde Firestore
     LaunchedEffect(Unit) {
-        db.collection("nutritionistRequests")
+        try {
+        db.collection("nutriologos")
             .addSnapshotListener { snapshot, e ->
                 if (e != null || snapshot == null) {
                     Log.w("Firestore", "Error al escuchar solicitudes", e)
                     return@addSnapshotListener
                 }
 
-                // Mapea los documentos de Firestore a objetos NutritionistRequest
-                val newRequests = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(NutritionistRequest::class.java)?.copy(id = doc.id)
-                }
+                val newRequests = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(NutritionistRequest::class.java)
+                } ?: emptyList()
                 requests.value = newRequests
             }
+        } catch (e: Exception) {
+            Log.e("AdminNutritionistRequestsScreen", "Error al cargar las solicitudes: ", e)
+        }
     }
 
     // Interfaz de la lista de solicitudes
@@ -64,10 +70,27 @@ fun AdminNutritionistRequestsScreen() {
             LazyColumn {
                 items(requests.value) { request ->
                     RequestCard(request = request, onStatusChange = { newStatus ->
-                        db.collection("nutritionistRequests").document(request.id)
-                            .update("status", newStatus)
-                            .addOnSuccessListener { Log.d("Firestore", "Estado actualizado") }
-                            .addOnFailureListener { e -> Log.w("Firestore", "Error al actualizar estado", e) }
+                        // Actualiza el campo "status" del documento usando el email
+                        db.collection("nutriologos")
+                            .whereEqualTo("email", request.email)
+                            .get()
+                            .addOnSuccessListener { documents ->
+                                if (!documents.isEmpty) {
+                                    val document = documents.first()
+                                    document.reference.update("procesoVerificacion", newStatus)
+                                        .addOnSuccessListener {
+                                            Log.d("Firestore", "Estado actualizado para ${request.email}")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w("Firestore", "Error al actualizar estado", e)
+                                        }
+                                } else {
+                                    Log.w("Firestore", "Documento no encontrado para el email ${request.email}")
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("Firestore", "Error al obtener el documento", e)
+                            }
                     })
                 }
             }
@@ -88,7 +111,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Nombre: ${request.name}",
+                text = "Nombre: ${request.fullName}",
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize // Tamaño de fuente adaptado
@@ -99,7 +122,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize
             )
             Text(
-                text = "Estado actual: ${request.status}",
+                text = "Estado actual: ${request.procesoVerificacion}",
                 color = Color.White,
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize
             )
@@ -112,7 +135,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
             ) {
                 // Botón para "En Proceso"
                 Button(
-                    onClick = { onStatusChange("en proceso") },
+                    onClick = { onStatusChange("En proceso") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
                     contentPadding = PaddingValues(horizontal = 4.dp) // Margen interno reducido
@@ -127,7 +150,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                 }
                 // Botón para "Verificado"
                 Button(
-                    onClick = { onStatusChange("verificado") },
+                    onClick = { onStatusChange("Verificado") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
                     contentPadding = PaddingValues(horizontal = 4.dp)
@@ -142,7 +165,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                 }
                 // Botón para "Denegado"
                 Button(
-                    onClick = { onStatusChange("denegado") },
+                    onClick = { onStatusChange("Denegado") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
                     contentPadding = PaddingValues(horizontal = 4.dp)
@@ -158,10 +181,8 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
             }
         }
     }
-
-
-
 }
+
 
 // Vista previa de la pantalla de solicitudes de nutriólogos
 @Preview(showBackground = true)
