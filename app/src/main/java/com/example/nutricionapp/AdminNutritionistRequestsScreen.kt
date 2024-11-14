@@ -141,7 +141,7 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                     contentPadding = PaddingValues(horizontal = 4.dp) // Margen interno reducido
                 ) {
                     Text(
-                        text = "En Proceso",
+                        text = "En proceso",
                         color = Color.White,
                         maxLines = 1,
                         fontSize = 10.sp, // Tamaño de texto reducido aún más
@@ -165,13 +165,13 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                 }
                 // Botón para "Denegado"
                 Button(
-                    onClick = { onStatusChange("Denegado") },
+                    onClick = { onStatusChange("No verificado") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
                     contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
                     Text(
-                        text = "Denegado",
+                        text = "No verificado",
                         color = Color.White,
                         maxLines = 1,
                         fontSize = 10.sp,

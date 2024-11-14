@@ -1,10 +1,12 @@
 package com.example.nutricionapp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -22,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -45,6 +48,7 @@ fun DatePickerDocked() {
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
+
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -120,6 +124,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
     var address by remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
 
     // Combo box para fecha de nacimiento
     var selectedDay by remember { mutableStateOf("") }
@@ -154,12 +159,14 @@ fun RegisterPatientScreen(navController: NavHostController) {
         TextField(
             value = fullName,
             onValueChange = { fullName = it },
-            label = { Text("Nombre Completo") },
+            label = { Text("Nombre completo") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+
                 .background(Color(0xFF4B3D6E)),
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -199,14 +206,14 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         TextField(
             value = phone,
-            onValueChange = { phone = it },
-            label = { Text("Teléfono") },
+            onValueChange = { phone= it },
+            label = { Text("Nombre completo") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
                 .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -218,13 +225,14 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         TextField(
             value = address,
-            onValueChange = { address = it },
-            label = { Text("Dirección") },
+            onValueChange = { address= it },
+            label = { Text("Nombre completo") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
                 .background(Color(0xFF4B3D6E)),
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -236,14 +244,14 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         TextField(
             value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo Electrónico") },
+            onValueChange = { email= it },
+            label = { Text("Nombre completo") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
                 .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
@@ -257,12 +265,24 @@ fun RegisterPatientScreen(navController: NavHostController) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
+            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { showPassword = !showPassword }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Toggle password visibility"
+                    )
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(vertical = 8.dp)
                 .background(Color(0xFF4B3D6E)),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,

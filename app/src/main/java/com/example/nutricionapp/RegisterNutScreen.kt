@@ -32,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
+import java.util.GregorianCalendar
 
 @Composable
 fun RegisterNutScreen(navController: NavHostController) {
@@ -40,16 +41,27 @@ fun RegisterNutScreen(navController: NavHostController) {
     val firestore = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance("gs://nutri-app-a90ca.appspot.com")
 
+    //fecha de nac
+    val days = (1..31).map { it.toString() }
+    val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+    val years = (1930..2010).map { it.toString() }
+    // Combo box para fecha de nacimiento
+    var selectedDay by remember { mutableStateOf("") }
+    var selectedMonth by remember { mutableStateOf("") }
+    var selectedYear by remember { mutableStateOf("") }
+
 
     // Estados para manejar la carga y el diálogo de éxito
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
-    var name by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") }
     var licenseNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
     // Variables de estado para los URIs seleccionados
@@ -105,8 +117,8 @@ fun RegisterNutScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
-                value = name,
-                onValueChange = { name = it },
+                value = fullName,
+                onValueChange = { fullName = it },
                 label = { Text("Nombre completo") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,7 +142,6 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
@@ -153,7 +164,6 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
@@ -185,7 +195,6 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
@@ -199,7 +208,79 @@ fun RegisterNutScreen(navController: NavHostController) {
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = address,
+                onValueChange = { address = it },
+                label = { Text("Direccion") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .background(Color(0xFF4B3D6E)),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Campo de teléfono
+            TextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Teléfono") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .background(Color(0xFF4B3D6E)),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // date picke
+            Row(
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ComboBox(
+                    label = "Día",
+                    items = days,
+                    selectedItem = selectedDay,
+                    onItemSelected = { selectedDay = it }
+                )
+                ComboBox(
+                    label = "Mes",
+                    items = months,
+                    selectedItem = selectedMonth,
+                    onItemSelected = { selectedMonth = it }
+                )
+                ComboBox(
+                    label = "Año",
+                    items = years,
+                    selectedItem = selectedYear,
+                    onItemSelected = { selectedYear = it }
+                )
+            }
+
 
             // Botón para "Agregar Foto del INE"
             Button(
@@ -247,7 +328,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                     errorMessage = null
 
                     // Validar campos requeridos
-                    if (email.isBlank() || password.isBlank() || name.isBlank() || licenseNumber.isBlank() || photoIneUri == null || professionalLicenseUri == null) {
+                    if (email.isBlank() || password.isBlank() || fullName.isBlank() || licenseNumber.isBlank() || photoIneUri == null || professionalLicenseUri == null) {
                         errorMessage = "Por favor, completa todos los campos y agrega los archivos requeridos."
                         isLoading = false
                         return@Button
@@ -258,6 +339,8 @@ fun RegisterNutScreen(navController: NavHostController) {
                         if (authTask.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
 
+                            val birthDate = GregorianCalendar(selectedYear.toInt(), months.indexOf(selectedMonth), selectedDay.toInt())
+                            val age = calculateAge(birthDate)
                             // Subir archivos a Firebase Storage
                             val ineRef = storage.reference.child("nutriologos/$userId/ine/${UUID.randomUUID()}")
                             val licenseRef = storage.reference.child("nutriologos/$userId/cedula/${UUID.randomUUID()}")
@@ -287,12 +370,24 @@ fun RegisterNutScreen(navController: NavHostController) {
 
                                             // Guardar datos en Firestore
                                             val nutriologoData = hashMapOf(
-                                                "fullName" to name,
+                                                "fullName" to fullName,
                                                 "licenseNumber" to licenseNumber,
                                                 "email" to email,
                                                 "ineUrl" to ineDownloadUrl,
+                                                "address" to address,
+                                                "phone" to phone,
+                                                "fechaNacimiento" to birthDate.time,
+                                                "age" to age,
                                                 "procesoVerificacion" to "En proceso",
                                                 "licenseUrl" to licenseDownloadUrl
+                                                // Agrega otros campos si es necesario
+                                            )
+                                            val modePaciente = hashMapOf(
+                                                "fullName" to fullName,
+                                                "email" to email,
+                                                "address" to address,
+                                                "phone" to phone,
+                                                "fechaNacimiento" to birthDate.time,
                                                 // Agrega otros campos si es necesario
                                             )
 
@@ -369,9 +464,9 @@ fun RegisterNutScreen(navController: NavHostController) {
                     TextButton(
                         onClick = {
                             showSuccessDialog = false
-                            // Navegar a otra pantalla si es necesario
+                            // Actualiza el estado para navegar después de cerrar el diálogo
                             navController.navigate("LoginScreen") {
-                                popUpTo("RegisterNutScreen") { inclusive = true }
+                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             }
                         }
                     ) {
@@ -383,6 +478,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
             )
         }
+
     }
 }
 
