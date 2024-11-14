@@ -41,12 +41,12 @@ fun PatientDetailScreenP(navController: NavController){
     val daysOfWeek = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
     var selectedDayIndex by remember { mutableStateOf(0) } // Índice del día seleccionado
     var showDialog by remember { mutableStateOf(false) }
-    var subject by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var Nid: String? = null
     var Pid: String? = null
     val patientId = paciente?.correo
     val patientNid = paciente?.Nid
+    var subject = paciente?.nombre.toString()
 
     LaunchedEffect(Unit) {
         // Convertir userId a Int
@@ -313,14 +313,6 @@ fun PatientDetailScreenP(navController: NavController){
                                                     text = {
                                                         Column {
                                                             // TextField para Asunto
-                                                            OutlinedTextField(
-                                                                value = subject,
-                                                                onValueChange = { subject = it },
-                                                                label = { Text("Asunto") },
-                                                                modifier = Modifier.fillMaxWidth()
-                                                            )
-                                                            Spacer(modifier = Modifier.height(8.dp))
-                                                            // TextField para Descripción
                                                             OutlinedTextField(
                                                                 value = description,
                                                                 onValueChange = {

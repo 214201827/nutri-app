@@ -151,7 +151,7 @@ fun LoginScreen(navController: NavHostController) {
                                                 if (verif != null) {
                                                     navController.navigate("UserTypeSelector") // Navega para nutriologos
                                                 } else {
-                                                    navController.navigate("PatientHomeScreen")
+                                                    navController.navigate("RecordatorioScreenpac")
                                                 }
                                             }
                                     }
