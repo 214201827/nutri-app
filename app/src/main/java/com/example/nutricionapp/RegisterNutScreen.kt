@@ -465,7 +465,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                         onClick = {
                             showSuccessDialog = false
                             // Actualiza el estado para navegar después de cerrar el diálogo
-                            navController.navigate("LoginScreen") {
+                            navController.navigate("login") {
                                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             }
                         }
