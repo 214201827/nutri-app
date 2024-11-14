@@ -2,6 +2,8 @@ package com.example.nutricionapp.paciente
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -16,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.nutricionapp.ReminderItem
 import com.example.nutricionapp.db.FirestoreRepository.getRecords
 import com.example.nutricionapp.db.Record
 
@@ -73,47 +76,29 @@ fun RecordatorioScreenpac(navController: NavController) {
         }
     ) { innerPadding ->
         // Muestra los registros en Cards
+        Box(modifier = Modifier.background(Color(0xFF65558F))){
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFF65558F))
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
             Text(
                 text = "Recordatorios",
                 fontSize = 24.sp,
                 color = Color.White,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            records.forEach { record ->
-                RecordCard1(record)
+
+            // Lista de recordatorios
+            LazyColumn {
+                items(records.toList()) { record ->
+                    ReminderItem(record)
+                }
             }
         }
     }
-}
-
-@Composable
-fun RecordCard1(record: Record) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(text = record.titulo, style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = record.descr, style = MaterialTheme.typography.bodyMedium)
-            IconButton(onClick = {  }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar",
-                    tint = Color.Red
-                )
-            }
-        }
     }
 }

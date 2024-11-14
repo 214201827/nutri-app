@@ -37,7 +37,7 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
     var isEditing by remember { mutableStateOf(false) }
-    var editedValues by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+    var editedValues by remember { mutableStateOf<Map<String, Map<String, String>>>(emptyMap()) } // Cambiar a un mapa anidado
     val daysOfWeek = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
     var selectedDayIndex by remember { mutableStateOf(0) } // Índice del día seleccionado
 
@@ -45,9 +45,9 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
         // Obtener datos del paciente
         FirestoreRepository.getPatientData(patientId) { data ->
             paciente = data
-            data?.id?.let { id ->
+            data?.correo?.let { email ->
                 // Obtener la dieta para el paciente
-                FirestoreRepository.getDietData(id.toString()) { dietData ->
+                FirestoreRepository.getDietData(email) { dietData ->
                     dieta = dietData
                 }
             }
@@ -102,17 +102,21 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             TextField(
-                                                value = editedValues["desayuno-${diet.id}"] ?: diet.desayuno.comida,
+                                                value = editedValues[selectedDay]?.get("desayuno-${diet.email}")
+                                                    ?: diet.desayuno.comida,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("desayuno-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("desayuno-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Desayuno") },
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                             TextField(
-                                                value = editedValues["descr-desayuno-${diet.id}"] ?: diet.desayuno.descr,
+                                                value = editedValues[selectedDay]?.get("descr-desayuno-${diet.email}")
+                                                    ?: diet.desayuno.descr,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("descr-desayuno-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("descr-desayuno-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Descripción") },
                                                 modifier = Modifier.fillMaxWidth()
@@ -130,17 +134,21 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             TextField(
-                                                value = editedValues["comida-${diet.id}"] ?: diet.comida.comida,
+                                                value = editedValues[selectedDay]?.get("comida-${diet.email}")
+                                                    ?: diet.comida.comida,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("comida-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("comida-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Comida") },
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                             TextField(
-                                                value = editedValues["descr-comida-${diet.id}"] ?: diet.comida.descr,
+                                                value = editedValues[selectedDay]?.get("descr-comida-${diet.email}")
+                                                    ?: diet.comida.descr,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("descr-comida-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("descr-comida-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Descripción") },
                                                 modifier = Modifier.fillMaxWidth()
@@ -158,17 +166,21 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
                                             TextField(
-                                                value = editedValues["cena-${diet.id}"] ?: diet.cena.comida,
+                                                value = editedValues[selectedDay]?.get("cena-${diet.email}")
+                                                    ?: diet.cena.comida,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("cena-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("cena-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Cena") },
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                             TextField(
-                                                value = editedValues["descr-cena-${diet.id}"] ?: diet.cena.descr,
+                                                value = editedValues[selectedDay]?.get("descr-cena-${diet.email}")
+                                                    ?: diet.cena.descr,
                                                 onValueChange = { newValue ->
-                                                    editedValues = editedValues + ("descr-cena-${diet.id}" to newValue)
+                                                    editedValues = editedValues + (selectedDay to
+                                                            (editedValues[selectedDay] ?: emptyMap()) + ("descr-cena-${diet.email}" to newValue))
                                                 },
                                                 label = { Text("Descripción") },
                                                 modifier = Modifier.fillMaxWidth()
@@ -181,30 +193,33 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
                             Text("No hay dieta disponible para el día seleccionado", fontSize = 16.sp, color = Color.LightGray)
                         }
 
-                        // Botón para actualizar la dieta solo para el día seleccionado
+                        // Botón para actualizar la dieta en todos los días de la semana
                         Button(
                             onClick = {
-                                // Aquí corregimos el uso de editedValues para cada comida
-                                dailyDiet.forEach { diet ->
-                                    // Asegurándonos de que los valores sean del tipo Any
-                                    val desayunoData: Map<String, Any> = mapOf(
-                                        "comida" to (editedValues["desayuno-${diet.id}"] ?: ""),
-                                        "descr" to (editedValues["descr-desayuno-${diet.id}"] ?: ""),
-                                        "hora" to 8 // Hora de ejemplo, asegurándonos de que sea del tipo adecuado (Int)
-                                    )
-                                    val comidaData: Map<String, Any> = mapOf(
-                                        "comida" to (editedValues["comida-${diet.id}"] ?: ""),
-                                        "descr" to (editedValues["descr-comida-${diet.id}"] ?: ""),
-                                        "hora" to 13 // Hora de ejemplo
-                                    )
-                                    val cenaData: Map<String, Any> = mapOf(
-                                        "comida" to (editedValues["cena-${diet.id}"] ?: ""),
-                                        "descr" to (editedValues["descr-cena-${diet.id}"] ?: ""),
-                                        "hora" to 20 // Hora de ejemplo
-                                    )
+                                // Actualizar dieta para todos los días de la semana
+                                daysOfWeek.forEach { day ->
+                                    val dayDiet = dietList.filter { it.dia == day }
+                                    dayDiet.forEach { diet ->
+                                        // Datos modificados o valores por defecto si no han sido editados
+                                        val desayunoData: Map<String, Any> = mapOf(
+                                            "comida" to (editedValues[day]?.get("desayuno-${diet.email}") ?: diet.desayuno.comida),
+                                            "descr" to (editedValues[day]?.get("descr-desayuno-${diet.email}") ?: diet.desayuno.descr),
+                                            "hora" to 8 // Ejemplo de hora
+                                        )
+                                        val comidaData: Map<String, Any> = mapOf(
+                                            "comida" to (editedValues[day]?.get("comida-${diet.email}") ?: diet.comida.comida),
+                                            "descr" to (editedValues[day]?.get("descr-comida-${diet.email}") ?: diet.comida.descr),
+                                            "hora" to 13
+                                        )
+                                        val cenaData: Map<String, Any> = mapOf(
+                                            "comida" to (editedValues[day]?.get("cena-${diet.email}") ?: diet.cena.comida),
+                                            "descr" to (editedValues[day]?.get("descr-cena-${diet.email}") ?: diet.cena.descr),
+                                            "hora" to 20
+                                        )
 
-                                    // Asegúrate de pasar todos los parámetros a la función upd
-                                    upd(patientId.toInt(), daysOfWeek[selectedDayIndex], desayunoData, comidaData, cenaData)
+                                        // Llama a la función `upd` para actualizar Firestore
+                                        upd(patientId, day, desayunoData, comidaData, cenaData)
+                                    }
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -217,7 +232,6 @@ fun PatientDetailScreen3(patientId: String, navController: NavController) {
         }
     }
 }
-
 
 
 //---------------------------------------------------------------------------------------------------

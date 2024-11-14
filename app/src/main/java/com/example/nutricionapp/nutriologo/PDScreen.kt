@@ -56,8 +56,9 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
     LaunchedEffect(patientId) {
         FirestoreRepository.getPatientData(patientId) { data ->
             paciente = data
-            data?.id?.let { id ->
-                FirestoreRepository.getDietData(id.toString()) { dietData ->
+            // Usa el correo del paciente (no el ID) para obtener los datos de la dieta
+            data?.correo?.let { correo ->
+                FirestoreRepository.getDietData(correo) { dietData ->
                     dieta = dietData
                 }
             }
@@ -497,7 +498,7 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                     Button(
                                         onClick = {
                                             upd2(
-                                                patientId.toInt(),
+                                                patientId,
                                                 pesoInicial.toDoubleOrNull(),
                                                 pesoActual.toDoubleOrNull(),
                                                 pesoMeta.toDoubleOrNull(),

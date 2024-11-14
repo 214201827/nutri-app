@@ -43,9 +43,9 @@ fun PatientDetailScreenP(navController: NavController){
     var showDialog by remember { mutableStateOf(false) }
     var subject by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var Nid: Int? = null
-    var Pid: Int? = null
-    val patientId = paciente?.id
+    var Nid: String? = null
+    var Pid: String? = null
+    val patientId = paciente?.correo
     val patientNid = paciente?.Nid
 
     LaunchedEffect(Unit) {
@@ -120,7 +120,7 @@ fun PatientDetailScreenP(navController: NavController){
                 // Información del paciente
                 paciente?.let {
                     Nid = it.Nid
-                    Pid = it.id
+                    Pid = it.correo
                     // Caja con información del paciente
                 } ?: run {
                     Text("No se encontraron tus datos", fontSize = 16.sp, color = Color.White)

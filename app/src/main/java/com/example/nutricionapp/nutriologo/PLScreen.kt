@@ -1,5 +1,6 @@
 package com.example.nutricionapp.nutriologo
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.userId
 import com.example.nutricionapp.db.Paciented
 
 @Composable
@@ -28,14 +30,20 @@ fun PatientListScreen(navController: NavController) {
     var pidInput by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) } // Para el diálogo de confirmación de eliminación
     var patientToDelete by remember { mutableStateOf<Paciented?>(null) } // Paciente seleccionado para eliminar
-
+    var isLoading by remember { mutableStateOf(true) }
     // Llama a la función para obtener los datos usando FirestoreRepository
     LaunchedEffect(Unit) {
         FirestoreRepository.getCityData { data ->
             patientDataList = data
+            Log.d("PatientData", "Datos obtenidos: $data")
+            isLoading = false
         }
     }
 
+    if (isLoading) {
+        // Mostrar un indicador de carga
+        CircularProgressIndicator()
+    }
 
     // Diálogo para ingresar el Pid
     if (showDialog) {
@@ -56,7 +64,7 @@ fun PatientListScreen(navController: NavController) {
                 Button(onClick = {
                     if (pidInput.isNotBlank()) {
                         // Cambiar el Nid del paciente a 12345
-                        FirestoreRepository.changeNid(pidInput, 12345) { success ->
+                        FirestoreRepository.changeNid(pidInput, "sdfsdf") { success ->
                             if (success) {
                                 // Recarga la lista de pacientes
                                 FirestoreRepository.getCityData { data ->
@@ -88,7 +96,7 @@ fun PatientListScreen(navController: NavController) {
             confirmButton = {
                 Button(onClick = {
                     // Lógica para eliminar el paciente
-                    FirestoreRepository.deleteNip(patientToDelete!!.id.toString()) { success ->
+                    FirestoreRepository.deleteNip(patientToDelete!!.email) { success ->
                         if (success) {
                             // Recarga la lista de pacientes
                             FirestoreRepository.getCityData { data ->
@@ -197,7 +205,8 @@ fun PatientListScreen(navController: NavController) {
                     PatientItem(
                         patient = patientDataList[index],
                         onClick = {
-                            navController.navigate("patientDetail/${patientDataList[index].id}")
+                            navController.navigate("patientDetail/${patientDataList[index].email}")
+                            Log.d("UserId", "o enviado: ${patientDataList[index].email}")
                         },
                         onDelete = {
                             // Establece el paciente a eliminar y muestra el diálogo de confirmación
@@ -223,23 +232,30 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
         elevation = CardDefaults.elevatedCardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(), // Asegura que la fila ocupe todo el ancho de la tarjeta
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween // Distribuye los elementos
         ) {
             Column {
                 Text(
                     text = patient.nombre,
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = Color.White,
                 )
                 Text(
-                    text = "ID: ${patient.id}",
+                    text = "Email: ${patient.email}",
                     fontSize = 14.sp,
                     color = Color.LightGray
                 )
             }
-            IconButton(onClick = { onDelete() }) {
+
+            // Esto empuja el IconButton hacia la derecha
+            IconButton(
+                onClick = { onDelete() },
+                modifier = Modifier.align(Alignment.CenterVertically) // Alineación vertical
+            ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar Paciente",
@@ -249,5 +265,3 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
         }
     }
 }
-
-
