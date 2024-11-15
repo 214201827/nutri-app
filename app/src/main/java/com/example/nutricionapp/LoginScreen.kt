@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -40,7 +41,9 @@ import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.example.nutricionapp.ProviderType
 import com.example.nutricionapp.HomeNutritionist
 import com.example.nutricionapp.UserTypeSelectorScreen
+import com.example.nutricionapp.db.FirestoreRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @Composable
@@ -110,6 +113,7 @@ fun LoginScreen(navController: NavHostController) {
 
             var password by remember { mutableStateOf("hola123") }
             TextField(
+
                 value = password,
                 onValueChange = {
                     if (it.length <= 16) password = it // Limita la contraseña a 16 caracteres
@@ -151,25 +155,46 @@ fun LoginScreen(navController: NavHostController) {
             Button(
                 onClick = {
 
+                    FirestoreRepository.getemail(email)
                     if (email.isNotEmpty() && password.isNotEmpty()) {
                         if (email == "admin@gmail.com" && password == "hola123") {
-                                        navController.navigate("AdminRequest") // Navega directamente a la pantalla de administrador
 
-                                }else {
+                            navController.navigate("AdminRequest") // Navega directamente a la pantalla de administrador
+
+                        }else {
+                            val db = FirebaseFirestore.getInstance()
                             FirebaseAuth.getInstance()
                                 .signInWithEmailAndPassword(email, password)
                                 .addOnCompleteListener { task ->
+                                    var verif: String? = null
                                     if (task.isSuccessful) {
-                                        navController.navigate("UserTypeSelector") // Navega para usuarios regulares
-                                    } else {
+                                        db.collection("nutriologos").whereEqualTo("email",email)
+                                            .get()
+                                            .addOnSuccessListener { result ->
+                                                for (document in result) {
+                                                    verif =
+                                                        document.getString("procesoVerificacion")
+                                                }
+                                                if (verif != null) {
+                                                    navController.navigate("UserTypeSelector") // Navega para nutriologos
+                                                } else {
+                                                    navController.navigate("RecordatorioScreenpac")
+                                                }
+                                            }
+                                    }
+                                    else {
+
                                         showErrorLoginDialog =
                                             true // Muestra diálogo de error en caso de fallo
                                     }
                                 }
                         }
-                        }else {
-                            showErrorLoginDialog = true
+
+
+                    }else {
+                        showErrorLoginDialog = true
                     }
+
 
                 },
                 modifier = Modifier

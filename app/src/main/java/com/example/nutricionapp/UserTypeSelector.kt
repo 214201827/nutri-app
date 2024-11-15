@@ -51,7 +51,6 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val userEmail = FirebaseAuth.getInstance().currentUser?.email
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -67,7 +66,7 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                 modifier = Modifier
                     .padding(bottom = 96.dp)
                     .clickable {
-                        navController.navigate("PatientHomeScreen")
+                        navController.navigate("RecordatorioScreenpac")
                     }
             ) {
                 Image(
@@ -102,7 +101,7 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                                     when (procesoVerificacion) {
                                         "No verificado" -> navController.navigate("NoVerificado")
                                         "En proceso" -> navController.navigate("ProcesoVerificacion")
-                                        "Verificado" -> navController.navigate("HomeNutritionist")
+                                        "Verificado" -> navController.navigate("reminders")
                                         else -> {
                                             Toast.makeText(
                                                 context,
