@@ -207,7 +207,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
         TextField(
             value = phone,
             onValueChange = { phone= it },
-            label = { Text("Nombre completo") },
+            label = { Text("Telefono") },
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF4B3D6E)),
@@ -226,7 +226,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
         TextField(
             value = address,
             onValueChange = { address= it },
-            label = { Text("Nombre completo") },
+            label = { Text("Direccion") },
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF4B3D6E)),
@@ -245,7 +245,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
         TextField(
             value = email,
             onValueChange = { email= it },
-            label = { Text("Nombre completo") },
+            label = { Text("Correo Electronico") },
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF4B3D6E)),
