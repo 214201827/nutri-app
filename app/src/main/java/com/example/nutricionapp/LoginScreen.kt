@@ -26,6 +26,14 @@ import androidx.navigation.NavHostController
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
@@ -41,8 +49,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    //var password by remember { mutableStateOf("") }
     var showErrorLoginDialog by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
 
     Box(
@@ -105,16 +115,28 @@ fun LoginScreen(navController: NavHostController) {
             TextField(
 
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    if (it.length <= 16) password = it // Limita la contraseña a 16 caracteres
+                },
                 label = { Text("Contraseña") },
+                placeholder = { Text("Ingrese su contraseña") },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), // Elimina KeyboardType.Email
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
                     //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
                     .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -122,9 +144,13 @@ fun LoginScreen(navController: NavHostController) {
                     unfocusedTextColor = Color.White,
                     focusedLabelColor = Color.White,
                     unfocusedLabelColor = Color.White
-                ),
-                shape = RoundedCornerShape(16.dp)
+                )
             )
+
+
+
+
+
 
             Button(
                 onClick = {
@@ -132,6 +158,7 @@ fun LoginScreen(navController: NavHostController) {
                     FirestoreRepository.getemail(email)
                     if (email.isNotEmpty() && password.isNotEmpty()) {
                         if (email == "admin@gmail.com" && password == "hola123") {
+
                             navController.navigate("AdminRequest") // Navega directamente a la pantalla de administrador
 
                         }else {
@@ -156,15 +183,18 @@ fun LoginScreen(navController: NavHostController) {
                                             }
                                     }
                                     else {
+
                                         showErrorLoginDialog =
                                             true // Muestra diálogo de error en caso de fallo
                                     }
                                 }
                         }
 
+
                     }else {
                         showErrorLoginDialog = true
                     }
+
 
                 },
                 modifier = Modifier
