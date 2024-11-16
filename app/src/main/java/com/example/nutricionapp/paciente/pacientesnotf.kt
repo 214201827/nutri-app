@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.nutricionapp.PatientInfoRow
 import com.example.nutricionapp.R
 import com.example.nutricionapp.db.FirestoreRepository.getmyData
 import com.example.nutricionapp.db.PacienteDb

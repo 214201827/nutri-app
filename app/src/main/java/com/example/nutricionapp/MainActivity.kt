@@ -62,7 +62,14 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable("reminders") { RecordatorioScreen(navController) }
         composable("login") { LoginScreen(navController) }
+        composable("patientDetail/{patientId}") { backStackEntry ->
+            com.example.nutricionapp.nutriologo.PatientDetailScreen(
+                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
+                navController = navController
+            )
+        }
     }
+
 }
 
 
