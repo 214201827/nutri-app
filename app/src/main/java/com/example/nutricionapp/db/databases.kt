@@ -212,7 +212,9 @@ object FirestoreRepository {
                         val pesoI = documentSnapshot.getDouble("pesoI")
                         val pm = documentSnapshot.getDouble("PesoMeta")
                         val dir = documentSnapshot.getString("address") ?: ""
-                        val cel = documentSnapshot.getLong("phone")?.toInt() ?: 0
+                        val cel = documentSnapshot.getLong("phone")?: 0
+                        val diet = documentSnapshot.getString("diet") ?: ""
+                        val nextAppointment = documentSnapshot.getString("nextAppointment") ?: ""
 
                         // Crea una instancia de PacienteDb
                         val pacienteDb = PacienteDb(
@@ -228,7 +230,9 @@ object FirestoreRepository {
                             pesoI = pesoI,
                             PesoMeta = pm,
                             dir = dir,
-                            cel = cel
+                            cel = cel,
+                            diet = diet,
+                            nextAppointment = nextAppointment
                         )
                         // Llama a la función de callback con los datos recibidos
                         onDataReceived(pacienteDb)
@@ -401,7 +405,7 @@ object FirestoreRepository {
                     val pesoI = document.getDouble("pesoI")
                     val pesometa = document.getDouble("pesoMeta")
                     val dir = document.getString("address") ?: ""
-                    val cel = document.getLong("phone")?.toInt() ?: 0
+                    val cel = document.getLong("phone") ?: 0
 
                     // Crea una instancia de PacienteDb
                     val pacienteDb = PacienteDb(
