@@ -32,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
+import com.google.firebase.firestore.DocumentReference
 import java.util.GregorianCalendar
 
 @Composable
@@ -44,7 +45,7 @@ fun RegisterNutScreen(navController: NavHostController) {
     //fecha de nac
     val days = (1..31).map { it.toString() }
     val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
-    val years = (1930..2010).map { it.toString() }
+    val years = (1950..2010).map { it.toString() }
     // Combo box para fecha de nacimiento
     var selectedDay by remember { mutableStateOf("") }
     var selectedMonth by remember { mutableStateOf("") }
@@ -63,6 +64,18 @@ fun RegisterNutScreen(navController: NavHostController) {
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+
+    // datos adicionales para modo paciente
+    var Nid by remember { mutableStateOf("") }
+    var diet by remember { mutableStateOf("") }
+    var nextAppointment by remember { mutableStateOf("") }
+    var imc by remember { mutableStateOf(0) }
+    var imcI by remember { mutableStateOf(0) }
+    var imm by remember { mutableStateOf(0) }
+    var immI by remember { mutableStateOf(0) }
+    var peso by remember { mutableStateOf(0) }
+    var pesoI by remember { mutableStateOf(0) }
+    var PesoMeta by remember { mutableStateOf(0) }
 
     // Variables de estado para los URIs seleccionados
     var photoIneUri by remember { mutableStateOf<Uri?>(null) }
@@ -375,7 +388,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "email" to email,
                                                 "ineUrl" to ineDownloadUrl,
                                                 "address" to address,
-                                                "phone" to phone,
+                                                "phone" to phone.toInt(),
                                                 "fechaNacimiento" to birthDate.time,
                                                 "age" to age,
                                                 "procesoVerificacion" to "En proceso",
@@ -383,14 +396,39 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 // Agrega otros campos si es necesario
                                             )
                                             val modePaciente = hashMapOf(
+                                                "historial" to listOf<DocumentReference>(),
+                                                "medidas" to listOf<DocumentReference>(),
                                                 "fullName" to fullName,
-                                                "email" to email,
-                                                "address" to address,
-                                                "phone" to phone,
+                                                "nutriAsign" to null,
                                                 "fechaNacimiento" to birthDate.time,
+                                                "age" to age,
+                                                "phone" to phone.toInt(),
+                                                "address" to address,
+                                                "email" to email,
+                                                "Nid" to Nid,
+                                                "diet" to diet,
+                                                "nextAppointment" to nextAppointment,
+                                                "imc" to imc,
+                                                "imcI" to imcI,
+                                                "imm" to imm,
+                                                "immI" to immI,
+                                                "peso" to peso,
+                                                "pesoI" to pesoI,
+                                                "PesoMeta" to PesoMeta
                                                 // Agrega otros campos si es necesario
                                             )
 
+                                            firestore.collection("/pacientes").document(email)
+                                                .set(modePaciente)
+                                                .addOnSuccessListener {
+                                                    isLoading = false
+                                                    // Mostrar el diálogo de éxito
+                                                    showSuccessDialog = true
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    isLoading = false
+                                                    errorMessage = "Error al guardar datos: ${e.message}"
+                                                }
                                             firestore.collection("/nutriologos").document(email)
                                                 .set(nutriologoData)
                                                 .addOnSuccessListener {

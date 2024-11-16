@@ -52,7 +52,7 @@ fun PatientInfoRow(label: String, info: String) {
         Text(text = info, color = Color(0xFF616161))
     }
 }
-
+/*
 @Composable
 fun HomePatient(navController: NavHostController) {
     // Acceder al ConnectivityObserver
@@ -192,124 +192,7 @@ fun HomePatient(navController: NavHostController) {
 }
 
 
-@Composable
-fun PatientHomeScreen(navController: NavHostController) {
-    val context = LocalContext.current
-    val userEmail = FirebaseAuth.getInstance().currentUser?.email
-
-    // State para almacenar los datos del paciente obtenidos de Firestore
-    var patientData by remember { mutableStateOf<PatientData?>(null) }
-
-    // Obtener los datos del paciente desde Firestore
-    LaunchedEffect(userEmail) {
-        try {
-        userEmail?.let { email ->
-            val db = FirebaseFirestore.getInstance()
-            val userRef = db.collection("pacientes").document(email)
-            userRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        patientData = document.toObject(PatientData::class.java)
-                    } else {
-                        // Manejo de caso donde el documento no existe
-                        Toast.makeText(
-                            context,
-                            "No se encontraron datos para el paciente.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        context,
-                        "Error al obtener los datos del paciente.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        }
-        } catch (e: Exception) {
-            // Registrar el error
-            Log.e("PatientHomeScreen", "Error al cargar datos: ${e.localizedMessage}")
-        }
-    }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF65558F))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = "Bienvenido, ${patientData?.fullName ?: "Usuario"}",
-            fontSize = 28.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        // Foto del paciente
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground), // Cambia este recurso según la imagen del paciente
-            contentDescription = "Foto del paciente",
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.Gray.copy(alpha = 0.3f))
-                .padding(4.dp),
-            contentScale = ContentScale.Crop
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Tarjeta de información del paciente
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
-            elevation = CardDefaults.elevatedCardElevation(6.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = "Datos del paciente",
-                    fontSize = 20.sp,
-                    color = Color(0xFF4B3D6E),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // Muestra información con valores por defecto si es nula
-                PatientInfoRow(label = "Nombre", info = patientData?.fullName ?: "No disponible")
-                PatientInfoRow(label = "Correo", info = userEmail ?: "No disponible")
-                PatientInfoRow(label = "Teléfono", info = patientData?.phone ?: "No disponible")
-                PatientInfoRow(label = "Dirección", info = patientData?.address ?: "No disponible")
-
-                Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
-
-                PatientInfoRow(label = "Nutriólogo asignado", info = patientData?.nutriAsign ?: "No disponible")
-
-                val nextAppointment = patientData?.nextAppointment
-                Text(
-                    text = if (nextAppointment != null) {
-                        "Próxima cita: $nextAppointment"
-                    } else {
-                        "No tiene citas programadas"
-                    },
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
-        }
-    }
-}
+*/
 
 @Composable
 fun NotificationScreenPatient(navController: NavHostController,notifications: List<Notification>, onBackClick: () -> Unit) {

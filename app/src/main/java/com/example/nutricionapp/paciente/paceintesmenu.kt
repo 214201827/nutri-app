@@ -30,6 +30,7 @@ import com.example.nutricionapp.db.FirestoreRepository.addCommentToFirestore
 import com.example.nutricionapp.db.FirestoreRepository.getMyDiet
 import com.example.nutricionapp.db.FirestoreRepository.getmyData
 import com.example.nutricionapp.db.PacienteDb
+import com.example.nutricionapp.db.Paciented
 import com.google.firebase.firestore.FirebaseFirestore
 
 

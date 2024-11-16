@@ -122,6 +122,21 @@ fun RegisterPatientScreen(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+    var Nid by remember { mutableStateOf("") }
+    var diet by remember { mutableStateOf("") }
+    var nextAppointment by remember { mutableStateOf("") }
+    var imc by remember { mutableStateOf(0) }
+    var imcI by remember { mutableStateOf(0) }
+    var imm by remember { mutableStateOf(0) }
+    var immI by remember { mutableStateOf(0) }
+    var peso by remember { mutableStateOf(0) }
+    var pesoI by remember { mutableStateOf(0) }
+    var PesoMeta by remember { mutableStateOf(0) }
+
+
+
+
+
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
@@ -310,8 +325,20 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                     "nutriAsign" to null,
                                     "fechaNacimiento" to birthDate.time,
                                     "age" to age,
-                                    "phone" to phone,
-                                    "address" to address
+                                    "phone" to phone.toInt(),
+                                    "address" to address,
+                                    "email" to email,
+                                    "Nid" to Nid,
+                                    "diet" to diet,
+                                    "nextAppointment" to nextAppointment,
+                                    "imc" to imc,
+                                    "imcI" to imcI,
+                                    "imm" to imm,
+                                    "immI" to immI,
+                                    "peso" to peso,
+                                    "pesoI" to pesoI,
+                                    "PesoMeta" to PesoMeta
+
                                 )
                             ).addOnCompleteListener { result ->
                                 if (result.isSuccessful) {
