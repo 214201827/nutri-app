@@ -398,4 +398,4 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
             }
         }
     }
-    }
+}

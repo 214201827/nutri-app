@@ -76,6 +76,7 @@ fun RegisterNutScreen(navController: NavHostController) {
     var peso by remember { mutableStateOf(0) }
     var pesoI by remember { mutableStateOf(0) }
     var PesoMeta by remember { mutableStateOf(0) }
+    var profileImage by remember { mutableStateOf<Uri?>(null) }
 
     // Variables de estado para los URIs seleccionados
     var photoIneUri by remember { mutableStateOf<Uri?>(null) }
@@ -414,7 +415,8 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "immI" to immI,
                                                 "peso" to peso,
                                                 "pesoI" to pesoI,
-                                                "PesoMeta" to PesoMeta
+                                                "PesoMeta" to PesoMeta,
+                                                "profileImage" to profileImage.toString()
                                                 // Agrega otros campos si es necesario
                                             )
 

@@ -1,11 +1,15 @@
 package com.example.nutricionapp.patient
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Output
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,16 +35,23 @@ import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.PacienteDb
 import androidx.compose.ui.platform.LocalContext
 import com.example.nutricionapp.NutricionApp
+import com.example.nutricionapp.ProfileImagen.ImageSelector
+import com.example.nutricionapp.ProfileImagen.uploadImageToFirebase
 import java.util.Date
+import coil.compose.rememberAsyncImagePainter
+import com.example.nutricionapp.ui.theme.signOut
 
 
 @Composable
 fun InicioPatient(patientId: String,navController: NavHostController) {
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
     var Nid: String? = null
     var Pid: String? = null
     val patientNid = paciente?.Nid
+    var showDialog by remember { mutableStateOf(false) }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember { mutableStateOf<Date?>(null) }
@@ -152,17 +163,63 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                 )
                 paciente?.let {
                     // Foto del paciente
+
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground), // Cambia este recurso según la imagen del paciente
+                        painter = when {
+                            selectedImageUri != null -> {
+                                // Si el usuario ha seleccionado una imagen
+                                rememberAsyncImagePainter(selectedImageUri)
+                            }
+                            paciente?.profileImage != null -> {
+                                // Si hay una imagen guardada en Firestore
+                                rememberAsyncImagePainter(paciente?.profileImage)
+                            }
+                            else -> {
+                                // Imagen predeterminada
+                                painterResource(id = R.drawable.ic_launcher_foreground)
+                            }
+                        },
                         contentDescription = "Foto del paciente",
                         modifier = Modifier
                             .size(120.dp)
+                            .clickable { showDialog = true }
                             .clip(CircleShape)
                             .background(Color.Gray.copy(alpha = 0.3f))
                             .padding(4.dp),
                         contentScale = ContentScale.Crop
                     )
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = { Text("Seleccionar acción") },
+                            text = {
+                                Column {
+                                    // Botón para seleccionar imagen
+                                    ImageSelector { uri ->
+                                        selectedImageUri = uri
+                                    }
+                                    // Botón para subir imagen
+                                    if (selectedImageUri != null) {
 
+                                                isUploading = true
+                                                uploadImageToFirebase(patientId, selectedImageUri!!) { success ->
+                                                    isUploading = false
+                                                    if (success) {
+                                                        Log.d("Firebase", "Imagen subida exitosamente")
+                                                        showDialog = false
+                                                    }
+                                                }
+                                        }
+                                    }
+
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { showDialog = false }) {
+                                    Text("Cancelar")
+                                }
+                            }
+                        )
+                    }
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Tarjeta de información del paciente
@@ -176,13 +233,38 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                             modifier = Modifier.padding(16.dp),
                             horizontalAlignment = Alignment.Start
                         ) {
-                            Text(
-                                text = "Datos del paciente",
-                                fontSize = 20.sp,
-                                color = Color(0xFF4B3D6E),
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
+                            Row {
+                                Text(
+                                    text = "Datos del paciente",
+                                    fontSize = 20.sp,
+                                    color = Color(0xFF4B3D6E),
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                // boton para cerrar sesion
+                                Button(
+                                    onClick = {
+                                        // Cerrar sesión de Firebase y limpiar preferencias
+                                        signOut(navController)
+                                    },
+                                    modifier = Modifier
+                                        .padding(start = 16.dp)
+                                        .wrapContentSize(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                                    contentPadding = PaddingValues(4.dp)
+                                ) {
+                                    //icono
+                                    Icon(
+                                        imageVector = Icons.Default.Output,
+                                        contentDescription = "Cerrar sesión",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+
+                            }
+
 
                             // Muestra información con valores por defecto si es nula
                             PatientInfoRow(label = "Nombre", info = paciente?.nombre ?: "No disponible")

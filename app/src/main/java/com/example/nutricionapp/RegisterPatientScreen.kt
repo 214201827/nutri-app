@@ -1,5 +1,6 @@
 package com.example.nutricionapp
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -132,10 +133,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
     var peso by remember { mutableStateOf(0) }
     var pesoI by remember { mutableStateOf(0) }
     var PesoMeta by remember { mutableStateOf(0) }
-
-
-
-
+    var profileImage by remember { mutableStateOf<Uri?>(null) }
 
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
@@ -337,7 +335,8 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                     "immI" to immI,
                                     "peso" to peso,
                                     "pesoI" to pesoI,
-                                    "PesoMeta" to PesoMeta
+                                    "PesoMeta" to PesoMeta,
+                                    "profileImage" to profileImage.toString()
 
                                 )
                             ).addOnCompleteListener { result ->

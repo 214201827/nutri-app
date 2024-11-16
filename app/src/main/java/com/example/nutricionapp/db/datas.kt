@@ -17,7 +17,9 @@ data class PacienteDb(
     val dir: String = "",
     val cel: Long? = null,
     val diet: String = "",
-    val nextAppointment: String = ""
+    val nextAppointment: String = "",
+    val profileImage: String = "",
+
 )
 data class Paciented(
     val email: String = "",

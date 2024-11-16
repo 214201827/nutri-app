@@ -81,6 +81,9 @@ dependencies {
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.5")
     implementation("com.google.android.gms:play-services-base:18.5.0")
+    //subuir imagenes
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+
 
 
 

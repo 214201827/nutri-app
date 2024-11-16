@@ -215,6 +215,7 @@ object FirestoreRepository {
                         val cel = documentSnapshot.getLong("phone")?: 0
                         val diet = documentSnapshot.getString("diet") ?: ""
                         val nextAppointment = documentSnapshot.getString("nextAppointment") ?: ""
+                        val profileImage = documentSnapshot.getString("profileImage") ?: ""
 
                         // Crea una instancia de PacienteDb
                         val pacienteDb = PacienteDb(
@@ -232,7 +233,8 @@ object FirestoreRepository {
                             dir = dir,
                             cel = cel,
                             diet = diet,
-                            nextAppointment = nextAppointment
+                            nextAppointment = nextAppointment,
+                            profileImage = profileImage
                         )
                         // Llama a la función de callback con los datos recibidos
                         onDataReceived(pacienteDb)

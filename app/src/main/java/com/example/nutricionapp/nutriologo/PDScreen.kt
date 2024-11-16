@@ -620,7 +620,7 @@ fun CustomTabRow(
                 Text(
                     "Dieta",
                     color = Color.White,
-                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                    modifier = Modifier.wrapContentWidth()
                 )
             }
         )
@@ -631,18 +631,19 @@ fun CustomTabRow(
                 Text(
                     "Progreso",
                     color = Color.White,
-                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                    modifier = Modifier.wrapContentWidth()
                 )
             }
         )
         CustomTab(
             selected = selectedTabIndex == 2,
             onClick = { onTabSelected(2) },
+
             text = {
                 Text(
                     "Historial",
                     color = Color.White,
-                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                    modifier = Modifier.wrapContentWidth()
                 )
             }
         )

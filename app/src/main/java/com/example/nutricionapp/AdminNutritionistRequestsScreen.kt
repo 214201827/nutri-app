@@ -13,15 +13,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.nutricionapp.ProfileImagen.ImageSelector
+import com.example.nutricionapp.ProfileImagen.uploadImageToFirebase
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 
 // Data class for Nutritionist requests
-data class NutritionistRequest(val fullName: String, val email: String, val procesoVerificacion: String){
+data class NutritionistRequest(val fullName: String, val email: String, val procesoVerificacion: String, val ineUrl: String) {
     // Constructor sin argumentos requerido por Firebase
-    constructor() : this("", "", "")
+    constructor() : this("", "", "", "")
 }
 
 
@@ -101,6 +106,18 @@ fun AdminNutritionistRequestsScreen(navController: NavHostController) {
 // Composable para cada solicitud individual
 @Composable
 fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) {
+
+    var showDialog by remember { mutableStateOf(false) }
+    var ineUrl by remember { mutableStateOf<String?>(null) }
+
+
+    LaunchedEffect(request) {
+        // Obtener la URL de la imagen INE desde Firestore
+        getImageUrlFromFirebase(request.email) { url ->
+            ineUrl = url
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -178,9 +195,74 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
                         modifier = Modifier.wrapContentWidth()
                     )
                 }
+                // boton para ver foto subida
+
+                Button(
+                    onClick = { showDialog = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = "Ver INE",
+                        color = Color.White,
+                        maxLines = 1,
+                        fontSize = 10.sp,
+                        modifier = Modifier.wrapContentWidth()
+                    )
+                }
+
+                // Mostrar el diálogo cuando el botón sea presionado
+                if (showDialog && ineUrl != null) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Imagen de INE") },
+                        text = {
+                            Column {
+                                // Mostrar la imagen de la INE
+                                if (ineUrl != null) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(ineUrl),
+                                        contentDescription = "Foto de INE",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Text("Cargando imagen...")
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("Cerrar")
+                            }
+                        }
+                    )
+                }
             }
         }
     }
+}
+fun getImageUrlFromFirebase(email: String, onResult: (String?) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+
+    // Buscar el documento del nutriologo usando el correo
+    db.collection("nutriologos")
+        .whereEqualTo("email", email)
+        .get()
+        .addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                onResult(null)
+            } else {
+                // Obtener la URL de la INE
+                val document = documents.first()
+                val ineUrl = document.getString("ineUrl")
+                onResult(ineUrl)
+            }
+        }
+        .addOnFailureListener {
+            onResult(null)
+        }
 }
 
 
@@ -190,9 +272,9 @@ fun RequestCard(request: NutritionistRequest, onStatusChange: (String) -> Unit) 
 fun AdminNutritionistRequestsScreenPreview() {
     // Crear una lista de solicitudes de nutriologos de ejemplo
     val sampleRequests = listOf(
-        NutritionistRequest("Nutriólogo A", "nutriologoA@example.com", "En proceso"),
-        NutritionistRequest("Nutriólogo B", "nutriologoB@example.com", "Verificado"),
-        NutritionistRequest("Nutriólogo C", "nutriologoC@example.com", "Denegado")
+        NutritionistRequest("Nutriólogo A", "nutriologoA@example.com", "En proceso",""),
+        NutritionistRequest("Nutriólogo B", "nutriologoB@example.com", "Verificado",""),
+        NutritionistRequest("Nutriólogo C", "nutriologoC@example.com", "Denegado",""),
     )
 
     // Usar tema de la aplicación
