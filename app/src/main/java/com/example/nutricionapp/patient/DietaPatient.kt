@@ -1,6 +1,8 @@
 package com.example.nutricionapp.patient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Person
@@ -181,7 +183,7 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
                                                 elevation = CardDefaults.elevatedCardElevation(4.dp),
                                                 shape = MaterialTheme.shapes.medium
                                             ) {
-                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
                                                     Text(
                                                         text = "Cena",
                                                         style = MaterialTheme.typography.titleMedium,

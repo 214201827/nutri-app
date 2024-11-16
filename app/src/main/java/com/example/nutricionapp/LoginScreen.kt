@@ -61,12 +61,12 @@ fun LoginScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = R.drawable.manzana_regla2),
                 contentDescription = null,
                 modifier = Modifier
                     .size(100.dp)
                     .padding(bottom = 32.dp)
-                    .border(1.dp, Color.White)
+                    //.border(1.dp, Color.White)
             )
 
             Text(

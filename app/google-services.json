@@ -1,0 +1,113 @@
+{
+  "project_info": {
+    "project_number": "859740912040",
+    "project_id": "nutri-app-a90ca",
+    "storage_bucket": "nutri-app-a90ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859740912040:android:35ab1e5d25b01c7105059d",
+        "android_client_info": {
+          "package_name": "com.example.nutriapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADVfiwm0xUmctahXVpiS9uzlIoYQNXI7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859740912040:android:927c009a50730fda05059d",
+        "android_client_info": {
+          "package_name": "com.example.nutriappprueba2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADVfiwm0xUmctahXVpiS9uzlIoYQNXI7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859740912040:android:294295b5e595ea8805059d",
+        "android_client_info": {
+          "package_name": "com.example.nutricionapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "859740912040-rgsjk1f82l55rrbua892bsfgptjchb34.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nutricionapp",
+            "certificate_hash": "e94c5424b9b13c584dcf217d8e0bececb51550ab"
+          }
+        },
+        {
+          "client_id": "859740912040-sb688h836dg2rpnfs0gcj9mfoqiiniof.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nutricionapp",
+            "certificate_hash": "f04f970c2c5a86dc9a2b918e51d7b4954e51e043"
+          }
+        },
+        {
+          "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADVfiwm0xUmctahXVpiS9uzlIoYQNXI7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859740912040-k6hj71fh55njtr63o1kdrhu2f79c6fa6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

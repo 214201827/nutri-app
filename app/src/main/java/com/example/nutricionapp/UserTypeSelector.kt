@@ -54,9 +54,9 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                     }
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.tazon_verduras),
                     contentDescription = "Paciente logo",
-                    modifier = Modifier.size(200.dp)
+                   // modifier = Modifier.size(100.dp)
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -119,9 +119,9 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                 }
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.vaso_agua_manzana),
                     contentDescription = "Nutriólogo logo",
-                    modifier = Modifier.size(200.dp)
+                    //modifier = Modifier.size(100.dp)
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(

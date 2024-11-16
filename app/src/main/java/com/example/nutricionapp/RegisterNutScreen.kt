@@ -6,8 +6,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,12 +34,15 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.firestore
 import java.util.GregorianCalendar
 
 @Composable
 fun RegisterNutScreen(navController: NavHostController) {
     // Inicializar Firebase
+    val dbPatient = Firebase.firestore
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance("gs://nutri-app-a90ca.appspot.com")
@@ -117,7 +122,8 @@ fun RegisterNutScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .alpha(if (isLoading) 0.5f else 1f), // Cambia la opacidad si está cargando
+                .alpha(if (isLoading) 0.5f else 1f) // Cambia la opacidad si está cargando
+            .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
