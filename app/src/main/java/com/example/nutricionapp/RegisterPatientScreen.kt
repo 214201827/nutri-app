@@ -320,13 +320,13 @@ fun RegisterPatientScreen(navController: NavHostController) {
                         if (it.isSuccessful) {
                             dbPatient.collection("pacientes").document(email).set(
                                 hashMapOf(
-                                    "historial" to listOf<DocumentReference>(),
-                                    "medidas" to listOf<DocumentReference>(),
+//                                    "historial" to listOf<DocumentReference>(),
+//                                    "medidas" to listOf<DocumentReference>(),
                                     "fullName" to fullName,
                                     "nutriAsign" to null,
                                     "fechaNacimiento" to birthDate.time,
                                     "age" to age,
-                                    "phone" to phone.toInt(),
+                                    "phone" to phone.toLong(),
                                     "address" to address,
                                     "email" to email,
                                     "Nid" to Nid,

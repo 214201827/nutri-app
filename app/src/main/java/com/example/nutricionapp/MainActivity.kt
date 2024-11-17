@@ -47,12 +47,7 @@ fun AppNavHost(navController: NavHostController) {
                 navController = navController
             )
         }
-        composable( "dietaPatient/{patientId}" ) { backStackEntry ->
-            com.example.nutricionapp.patient.DietaPatient(
-                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
-                navController = navController
-            )
-        }
+        composable( "dietaPatient/{patientId}" ) {  }
         composable("MainPatient/{patientId}") { backStackEntry ->
             com.example.nutricionapp.patient.MainPatient(
                 patientId = backStackEntry.arguments?.getString("patientId") ?: "",

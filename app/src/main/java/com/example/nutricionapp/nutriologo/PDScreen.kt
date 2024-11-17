@@ -184,6 +184,15 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                     fontSize = 16.sp,
                                     color = Color.LightGray
                                 )
+                                Button(
+                                    onClick = {
+                                        navController.navigate("updDiet/$patientId")
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
+                                ) {
+                                    Text("Modificar dieta", color = Color.White)
+
+                                }
                             }
                             Button(
                                 onClick = {
@@ -332,16 +341,9 @@ fun PatientDetailScreen(patientId: String, navController: NavController) {
                                                 }
                                             }
 
-                                        }
-                                        Button(
-                                            onClick = {
-                                                navController.navigate("updDiet/$patientId")
-                                            },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
-                                        ) {
-                                            Text("Modificar dieta", color = Color.White)
 
                                         }
+
                                     }
                                 }
                             }

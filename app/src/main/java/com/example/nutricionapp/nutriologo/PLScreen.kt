@@ -20,25 +20,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.getemail
 import com.example.nutricionapp.db.FirestoreRepository.userId
 import com.example.nutricionapp.db.Paciented
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun PatientListScreen(navController: NavController) {
+fun PatientListScreen( navController: NavController) {
     var patientDataList by remember { mutableStateOf(listOf<Paciented>()) }
     var showDialog by remember { mutableStateOf(false) }
     var pidInput by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) } // Para el diálogo de confirmación de eliminación
     var patientToDelete by remember { mutableStateOf<Paciented?>(null) } // Paciente seleccionado para eliminar
     var isLoading by remember { mutableStateOf(true) }
+    val userEmail = remember { mutableStateOf("") }
     // Llama a la función para obtener los datos usando FirestoreRepository
     LaunchedEffect(Unit) {
         FirestoreRepository.getCityData { data ->
             patientDataList = data
             Log.d("PatientData", "Datos obtenidos: $data")
             isLoading = false
+
         }
     }
+    //obtener mi correo
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val emailNut = currentUser?.email.toString()
+
 
     if (isLoading) {
         // Mostrar un indicador de carga
@@ -60,11 +69,14 @@ fun PatientListScreen(navController: NavController) {
                     )
                 }
             },
+            //obtener mi correo
+
+
             confirmButton = {
                 Button(onClick = {
                     if (pidInput.isNotBlank()) {
                         // Cambiar el Nid del paciente a 12345
-                        FirestoreRepository.changeNid(pidInput, "sdfsdf") { success ->
+                        FirestoreRepository.addPatient(pidInput, emailNut ) { success ->
                             if (success) {
                                 // Recarga la lista de pacientes
                                 FirestoreRepository.getCityData { data ->

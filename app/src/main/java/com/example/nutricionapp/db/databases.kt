@@ -353,7 +353,7 @@ object FirestoreRepository {
         val patientRef = db.collection("pacientes").document(patientId)
 
         // Actualizar el campo Nid a null
-        patientRef.update("email", null)
+        patientRef.update("Nid", "")
             .addOnSuccessListener {
                 // El cambio se realizó exitosamente
                 onComplete(true)
@@ -379,6 +379,42 @@ object FirestoreRepository {
             .addOnFailureListener { exception ->
                 Log.w("Firestore", "Error updating Nid", exception)
                 onComplete(false)
+            }
+    }
+    fun addPatient(patientId: String, email: String, onComplete: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val patientRef = db.collection("pacientes").document(patientId)
+        Log.d("UserId", "UserId: $patientId")
+        Log.d("UserId", "UserId: $userId")
+
+        patientRef.update("Nid", email)
+            .addOnSuccessListener {
+                onComplete(true)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error updating Nid", exception)
+                onComplete(false)
+            }
+    }
+    //get lista de pacientes con Nid null
+    fun getPatients(onDataReceived: (List<Paciented>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("pacientes")
+            .whereEqualTo("Nid", "") // Filtra los pacientes por Nid
+            .get()
+            .addOnSuccessListener { result ->
+                val pacientes = result.mapNotNull { document ->
+                    val nombre = document.getString("fullName") ?: return@mapNotNull null
+                    val id = document.getString("email") ?: return@mapNotNull null// Pid es nullable
+
+                    // Crea una instancia de PacienteDb
+                    Paciented(nombre = nombre, email = id)
+                }
+                onDataReceived(pacientes)
+            }
+            .addOnFailureListener { exception ->
+                Log.d("FirestoreRepository", "Error getting documents: ", exception)
+                onDataReceived(emptyList())
             }
     }
 
