@@ -17,14 +17,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.getemail
 import com.example.nutricionapp.db.FirestoreRepository.userId
 import com.example.nutricionapp.db.Paciented
 import com.google.firebase.auth.FirebaseAuth
 
+
 @Composable
-fun ListPatNutritionist( navController: NavController) {
+fun ListPatNutritionist(navController: NavHostController) {
     var patientDataList by remember { mutableStateOf(listOf<Paciented>()) }
     var showDialog by remember { mutableStateOf(false) }
     var pidInput by remember { mutableStateOf("") }
@@ -171,7 +173,7 @@ fun ListPatNutritionist( navController: NavController) {
                 PatientItem(
                     patient = patientDataList[index],
                     onClick = {
-                        navController.navigate("patientDetail/${patientDataList[index].email}")
+                        navController.navigate("dietaNutritionist/${patientDataList[index].email}")
                         Log.d("UserId", "o enviado: ${patientDataList[index].email}")
                     },
                     onDelete = {

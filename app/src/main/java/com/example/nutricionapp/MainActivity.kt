@@ -1,5 +1,6 @@
 package com.example.nutricionapp
 
+import ListPatNutritionist
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import com.example.nutricionapp.nutriologo.RecordatorioScreen
 import com.example.nutricionapp.nutriologo.PatientListScreen
+import com.example.nutricionapp.nutritionist.MainNutritionist
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,13 +34,19 @@ fun AppNavHost(navController: NavHostController) {
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
         //composable("PatientHomeScreen") { HomePatient(navController) }
-        composable("UserTypeSelector") { UserTypeSelectorScreen(navController) }
+        composable("UserTypeSelector/{NutId}") { backStackEntry ->
+            UserTypeSelectorScreen(
+                NutId = backStackEntry.arguments?.getString("NutId") ?: "",
+                navController = navController
+            ) }
         ///////////////////////////////////////////////////////////////
         // rama forte
 
+        composable("MainNutritionist") { com.example.nutricionapp.nutritionist.MainNutritionist(navController)
+        }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack() }) }
 
-        composable("pacien") { PatientListScreen(navController) }
+       // composable("pacien") { PatientListScreen(navController) }
 
         // Detalle del paciente por `patientId`
         composable("inicioPatient/{patientId}") { backStackEntry ->
@@ -69,7 +77,15 @@ fun AppNavHost(navController: NavHostController) {
                 navController = navController
             )
         }
+        composable("dietaNutritionist/{patientId}") { backStackEntry ->
+            com.example.nutricionapp.nutritionist.DietaNutritionist(
+                patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+                ,navController = navController)
+        }
+        composable("listPatNutritionist") { ListPatNutritionist(navController) }
+
     }
+
 
 }
 
