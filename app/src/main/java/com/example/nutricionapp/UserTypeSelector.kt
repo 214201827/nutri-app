@@ -31,10 +31,16 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun UserTypeSelectorScreen(navController: NavHostController) {
+fun UserTypeSelectorScreen(NutId: String,navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
+    // Si no hay usuario autenticado
+    if (NutId == null) {
+        Toast.makeText(context, "Usuario no autenticado.", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -44,19 +50,18 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Paciente Option (unchanged)
+            // Paciente Option
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(bottom = 96.dp)
                     .clickable {
-                        navController.navigate("MainPatient/$userEmail")
+                        navController.navigate("MainPatient/$NutId")
                     }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.tazon_verduras),
-                    contentDescription = "Paciente logo",
-                   // modifier = Modifier.size(100.dp)
+                    contentDescription = "Paciente logo"
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -67,61 +72,52 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
                 )
             }
 
-            // Nutriólogo Option with Validation
+            // Nutriólogo Option with Firestore Validation
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable {
-                    if (userEmail != null) {
-                        scope.launch {
-                            try {
-                                val db = FirebaseFirestore.getInstance()
-                                val documentSnapshot = db.collection("/nutriologos")
-                                    .document(userEmail.toString())
-                                    .get()
-                                    .await()
+                    scope.launch {
+                        try {
+                            val db = FirebaseFirestore.getInstance()
+                            val documentSnapshot = db.collection("nutriologos")
+                                .document(NutId)
+                                .get()
+                                .await()
 
-                                if (documentSnapshot.exists()) {
-                                    val procesoVerificacion = documentSnapshot.getString("procesoVerificacion")
-                                    when (procesoVerificacion) {
-                                        "No verificado" -> navController.navigate("NoVerificado")
-                                        "En proceso" -> navController.navigate("ProcesoVerificacion")
-                                        "Verificado" -> navController.navigate("reminders")
-                                        else -> {
-                                            Toast.makeText(
-                                                context,
-                                                "Estado de verificación desconocido.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
+                            if (documentSnapshot.exists()) {
+                                val procesoVerificacion = documentSnapshot.getString("procesoVerificacion")
+                                when (procesoVerificacion) {
+                                    "No verificado" -> navController.navigate("NoVerificado")
+                                    "En proceso" -> navController.navigate("ProcesoVerificacion")
+                                    "Verificado" -> navController.navigate("MainNutritionist")
+                                    else -> {
+                                        Toast.makeText(
+                                            context,
+                                            "Estado de verificación desconocido.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Documento no encontrado.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
                                 }
-                            } catch (e: Exception) {
+                            } else {
                                 Toast.makeText(
                                     context,
-                                    "Error al obtener datos: ${e.message}",
+                                    "Documento no encontrado.",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                context,
+                                "Error al obtener datos: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Usuario no autenticado.",
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
                 }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.vaso_agua_manzana),
-                    contentDescription = "Nutriólogo logo",
-                    //modifier = Modifier.size(100.dp)
+                    contentDescription = "Nutriólogo logo"
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -134,6 +130,7 @@ fun UserTypeSelectorScreen(navController: NavHostController) {
         }
     }
 }
+
 
 
 

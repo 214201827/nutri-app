@@ -77,7 +77,7 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            var email by remember { mutableStateOf("abad@gmail.com") }
+            var email by remember { mutableStateOf("saulrivera@gmail.com") }
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -163,8 +163,7 @@ fun LoginScreen(navController: NavHostController) {
                                             .get()
                                             .addOnSuccessListener { result ->
                                                 for (document in result) {
-                                                    verif =
-                                                        document.getString("procesoVerificacion")
+                                                    verif = document.getString("procesoVerificacion")
                                                 }
                                                 if (verif == null || verif!!.isEmpty()) {
                                                     // Redirige al flujo de pacientes solo si no hay verificación
@@ -173,14 +172,14 @@ fun LoginScreen(navController: NavHostController) {
                                                     navController.navigate("MainPatient/$email")
 
                                                 } else {
-                                                    navController.navigate("UserTypeSelector")
+                                                    navController.navigate("UserTypeSelector/$email")
                                                 }
                                             }
                                     }
                                     else {
 
-                                        showErrorLoginDialog =
-                                            true // Muestra diálogo de error en caso de fallo
+                                        showErrorLoginDialog = true
+                                    // Muestra diálogo de error en caso de fallo
                                     }
                                 }
                         }
