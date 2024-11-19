@@ -26,8 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
-import coil3.compose.ImagePainter
-import com.example.nutricionapp.R
 import com.example.nutricionapp.calcularEdad
 import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
@@ -40,7 +38,6 @@ import java.util.Calendar
 import java.util.Date
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-import coil.compose.rememberImagePainter
 
 
 
@@ -63,7 +60,6 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
     var imcActual by remember { mutableStateOf(paciente?.imc?.toString() ?: "") }
     var immInicial by remember { mutableStateOf(paciente?.immI?.toString() ?: "") }
     var immActual by remember { mutableStateOf(paciente?.imm?.toString() ?: "") }
-    // Si no hay paciente o no tiene imagen, mostrar la imagen por defecto
     val imageUrl = paciente?.profileImage  // La URL de la imagen en Firebase
 
 
