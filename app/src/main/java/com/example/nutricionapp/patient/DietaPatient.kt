@@ -1,31 +1,33 @@
 package com.example.nutricionapp.patient
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.nutricionapp.calcularEdad
 import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
-import com.example.nutricionapp.db.FirestoreRepository.upd2
 import com.example.nutricionapp.db.PacienteDb
 import com.example.nutricionapp.nutriologo.CustomTabRow
 import com.example.nutricionapp.nutriologo.DaySelector
 import com.example.nutricionapp.nutriologo.HistorialScreen
-import java.util.Date
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-fun DietaPatient(patientId: String,navController: NavHostController) {
+fun DietaPatient(patientId: String,navController: NavHostController, NutId: String) {
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -41,6 +43,9 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
     var imcActual by remember { mutableStateOf(paciente?.imc?.toString() ?: "") }
     var immInicial by remember { mutableStateOf(paciente?.immI?.toString() ?: "") }
     var immActual by remember { mutableStateOf(paciente?.imm?.toString() ?: "") }
+    var showLoading by remember { mutableStateOf(false) }
+    val appContext = LocalContext.current
+
 
     LaunchedEffect(patientId) {
         FirestoreRepository.getPatientData(patientId) { data ->
@@ -112,100 +117,193 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
                             selectedDayIndex = selectedDayIndex,
                             onDayChange = { index -> selectedDayIndex = index }
                         )
-                        // Lógica para mostrar la dieta según el día seleccionado
                         dieta?.let { dietList ->
-                            if (dietList.isNotEmpty()) {
-                                val selectedDay = daysOfWeek[selectedDayIndex]
-                                val dailyDiet = dietList.filter { it.dia == selectedDay }
+                        // Lógica para mostrar la dieta según el día seleccionado
+                        if (dietList.isNotEmpty()) {
+                            val selectedDay = daysOfWeek[selectedDayIndex]
+                            val dailyDiet = dietList.filter { it.dia == selectedDay }
 
-                                if (dailyDiet.isNotEmpty()) {
-                                    dailyDiet.forEach { diet ->
-                                        Column(modifier = Modifier.fillMaxWidth()) {
-                                            // Card para Desayuno
-                                            Card(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 8.dp),
-                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
-                                                shape = MaterialTheme.shapes.medium
-                                            ) {
-                                                Column(modifier = Modifier.padding(16.dp)) {
+                            if (dailyDiet.isNotEmpty()) {
+                                dailyDiet.forEach { diet ->
+                                    Column(modifier = Modifier.fillMaxWidth()
+                                        .verticalScroll(rememberScrollState())) {
+
+                                        // Variable para mostrar el cuadro de diálogo
+                                        var showCommentDialog by remember { mutableStateOf(false) }
+                                        var currentComment by remember { mutableStateOf("") }
+                                        var selectedMealType by remember { mutableStateOf("") } // Tipo de comida seleccionado
+
+                                        // Card para Desayuno
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
+                                            elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                            shape = MaterialTheme.shapes.medium
+                                        ) {
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
                                                     Text(
                                                         text = "Desayuno",
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        modifier = Modifier.fillMaxWidth()
+                                                        style = MaterialTheme.typography.titleMedium
                                                     )
-                                                    Text(
-                                                        text = " ${diet.desayuno.comida}",
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
-                                                    Text(
-                                                        text = " ${diet.desayuno.descr}",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
-                                                }
-                                            }
+                                                    IconButton(
+                                                        onClick = {
+                                                            selectedMealType = "Desayuno"
+                                                            currentComment = diet.desayuno.comentario ?: ""
+                                                            //pasar a la pantalla de comentario con patientId y NutId
 
-                                            // Card para Comida
-                                            Card(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 8.dp),
-                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
-                                                shape = MaterialTheme.shapes.medium
-                                            ) {
-                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                            navController.navigate("comentario/$patientId/$NutId")
+
+                                                            // showCommentDialog = true
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Message,
+                                                            contentDescription = "Comentar",
+                                                            tint = Color.Gray
+                                                        )
+                                                    }
+                                                }
+                                                Text(
+                                                    text = diet.desayuno.comida,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                                Text(
+                                                    text = diet.desayuno.descr,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                        }
+
+                                        // Card para Comida
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
+                                            elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                            shape = MaterialTheme.shapes.medium
+                                        ) {
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
                                                     Text(
                                                         text = "Comida",
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        modifier = Modifier.fillMaxWidth()
+                                                        style = MaterialTheme.typography.titleMedium
                                                     )
-                                                    Text(
-                                                        text = " ${diet.comida.comida}",
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
-                                                    Text(
-                                                        text = " ${diet.comida.descr}",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
+                                                    IconButton(
+                                                        onClick = {
+                                                            selectedMealType = "Comida"
+                                                            currentComment = diet.comida.comentario ?: ""
+                                                            navController.navigate("comentario/$patientId/$NutId")
+                                                           // showCommentDialog = true
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Message,
+                                                            contentDescription = "Comentar",
+                                                            tint = Color.Gray
+                                                        )
+                                                    }
                                                 }
+                                                Text(
+                                                    text = diet.comida.comida,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                                Text(
+                                                    text = diet.comida.descr,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
                                             }
+                                        }
 
-                                            // Card para Cena
-                                            Card(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 8.dp),
-                                                elevation = CardDefaults.elevatedCardElevation(4.dp),
-                                                shape = MaterialTheme.shapes.medium
-                                            ) {
-                                                Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+                                        // Card para Cena
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 8.dp),
+                                            elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                            shape = MaterialTheme.shapes.medium
+                                        ) {
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
                                                     Text(
                                                         text = "Cena",
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        modifier = Modifier.fillMaxWidth()
+                                                        style = MaterialTheme.typography.titleMedium
                                                     )
-                                                    Text(
-                                                        text = " ${diet.cena.comida}",
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
-                                                    Text(
-                                                        text = " ${diet.cena.descr}",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
+                                                    IconButton(
+                                                        onClick = {
+                                                            selectedMealType = "Cena"
+                                                            currentComment = diet.cena.comentario ?: ""
+                                                            navController.navigate("comentario/$patientId/$NutId")
+                                                           // showCommentDialog = true
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Message,
+                                                            contentDescription = "Comentar",
+                                                            tint = Color.Gray
+                                                        )
+                                                    }
                                                 }
+                                                Text(
+                                                    text = diet.cena.comida,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                                Text(
+                                                    text = diet.cena.descr,
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
                                             }
+                                        }
+
+                                        // Diálogo para agregar comentario
+                                        if (showCommentDialog) {
+                                            AlertDialog(
+                                                onDismissRequest = { showCommentDialog = false },
+                                                title = { Text("Agregar comentario a $selectedMealType") },
+                                                text = {
+                                                    TextField(
+                                                        value = currentComment,
+                                                        onValueChange = { currentComment = it },
+                                                        label = { Text("Comentario") },
+                                                        placeholder = { Text("Escribe tu comentario aquí") }
+                                                    )
+                                                },
+                                                confirmButton = {
+                                                    Button(
+                                                        onClick = {
+                                                            navController.navigate("comentario/$patientId")
+                                                        }
+                                                    ) {
+                                                        Text("Guardar")
+                                                    }//agregar boton de cancelar
+                                                },
+                                                dismissButton = {
+                                                    Button(
+                                                        onClick = { showCommentDialog = false }
+                                                    ) {
+                                                        Text("Cancelar")
+                                                    }
+                                                }
+
+
+
+                                            )
                                         }
                                     }
                                 }
                             }
                         }
+                    }
                     }
 
                     //---------------------------------------------------------------------------------------------------
@@ -282,9 +380,9 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        //Spacer(modifier = Modifier.height(16.dp))
 
-                        Button(
+                        /*Button(
                             onClick = {
                                 pesoInicial = paciente?.pesoI?.toString() ?: ""  // Si paciente es nulo o pesoI es nulo, asigna ""
                                 pesoActual = paciente?.peso?.toString() ?: ""
@@ -386,7 +484,7 @@ fun DietaPatient(patientId: String,navController: NavHostController) {
                                     }
                                 }
                             )
-                        }
+                        }*/
                     }
 
                     //---------------------------------------------------------------------------------------------------

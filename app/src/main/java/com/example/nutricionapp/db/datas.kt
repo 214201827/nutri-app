@@ -28,7 +28,8 @@ data class Paciented(
 data class Comida(
     val comida: String,
     val descr: String,
-    val hora: Int
+    val hora: Int,
+    var comentario: String
 )
 data class Dieta(
     val email: String,

@@ -1,5 +1,6 @@
 package com.example.nutricionapp.nutritionist
 
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -175,15 +177,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                 fontSize = 16.sp,
                                 color = Color.LightGray
                             )
-                            Button(
-                                onClick = {
-                                    navController.navigate("updDiet/$patientId")
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
-                            ) {
-                                Text("Modificar dieta", color = Color.White)
 
-                            }
                         }
                         Button(
                             onClick = {
@@ -331,8 +325,21 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                                 )
                                             }
                                         }
+                                        //botton flotante para editar dieta
 
+                                        FloatingActionButton(
+                                            onClick = { navController.navigate("updDiet/$patientId") }
+                                            ,modifier = Modifier.align(Alignment.CenterHorizontally),
+                                            containerColor = Color(0xFF4B3D6E)
 
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Editar dieta",
+                                                tint = Color.White
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
                                     }
 
                                 }

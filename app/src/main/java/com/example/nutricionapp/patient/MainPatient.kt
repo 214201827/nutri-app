@@ -13,6 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.getPatientData
+import com.example.nutricionapp.db.PacienteDb
+import com.example.nutricionapp.db.Paciented
 
 
 @Composable
@@ -21,6 +25,17 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
    // var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var selectedItem by remember { mutableStateOf(1) }
     var currentScreen by remember { mutableStateOf("dietas") }
+    var paciente by remember { mutableStateOf<PacienteDb?>(null) }
+    val NutId = paciente?.Nid ?: ""
+
+    //obtner datos de nutriologo asginado
+    LaunchedEffect(patientId) {
+        FirestoreRepository.getPatientData(patientId) { data ->
+            paciente = data
+        }
+    }
+
+
 
 
     // Utilizar Scaffold para integrar SnackbarHost y BottomBar
@@ -91,8 +106,7 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
                     InicioPatient(patientId, navController)
                 }
                 "dietas" -> { // pantalla de vista dieta
-
-                    DietaPatient(patientId, navController)
+                    DietaPatient(patientId, navController, NutId)
                 }
                 "notificaciones" -> {
                     // Pantalla de notificaciones
@@ -103,6 +117,7 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewPatientIncio() {
