@@ -9,6 +9,8 @@ import java.io.File
 import java.io.FileOutputStream
 import android.content.Context
 import android.graphics.Paint
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 object FirestoreRepository {
 
@@ -124,6 +126,210 @@ object FirestoreRepository {
             }
     }
 
+    fun updComen(
+        patientId: String,
+        diaSeleccionado: String,
+        desayunoData: Map<String, Any>,
+        comidaData: Map<String, Any>,
+        cenaData: Map<String, Any>,
+        nutId: String // id del nutritionist que recibira la notificacion
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Validar que el día seleccionado sea válido
+        val diasSemana = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+        if (diaSeleccionado !in diasSemana) {
+            Log.w("FireStore", "Día seleccionado no válido")
+            return
+        }
+
+        // Crear el HashMap para cada comida, con valores por defecto si no se pasan
+        val desayuno = hashMapOf<String, Any>(
+            "comida" to (desayunoData["comida"] ?: ""),
+            "descr" to (desayunoData["descr"] ?: ""),
+            "hora" to (desayunoData["hora"] ?: 8), // Hora de ejemplo
+            "comentario" to (desayunoData["comentario"] ?: "")
+        )
+
+        val comida = hashMapOf<String, Any>(
+            "comida" to (comidaData["comida"] ?: ""),
+            "descr" to (comidaData["descr"] ?: ""),
+            "hora" to (comidaData["hora"] ?: 8),
+            "comentario" to (comidaData["comentario"] ?: "")
+        )
+
+        val cena = hashMapOf<String, Any>(
+            "comida" to (cenaData["comida"] ?: ""),
+            "descr" to (cenaData["descr"] ?: ""),
+            "hora" to (cenaData["hora"] ?: 8),
+            "comentario" to (cenaData["comentario"] ?: "")
+        )
+
+        // Realizamos la actualización de todas las comidas de una vez
+        val batch = db.batch()
+
+        // Añadir desayuno al batch
+        val desayunoRef = db.collection("diets")
+            .document(patientId) // Documento con el pacienteId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("desayuno") // Documento para desayuno
+        batch.set(desayunoRef, desayuno)
+
+        // Añadir comida al batch
+        val comidaRef = db.collection("diets")
+            .document(patientId) // Documento con el pacienteId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("comida") // Documento para comida
+        batch.set(comidaRef, comida)
+
+        // Añadir cena al batch
+        val cenaRef = db.collection("diets")
+            .document(patientId) // Documento con el pacienteId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("cena") // Documento para cena
+        batch.set(cenaRef, cena)
+
+        // Ejecutar el batch de actualización
+        batch.commit()
+            .addOnSuccessListener {
+                Log.d("FireStore", "Comidas (desayuno, comida, cena) para $diaSeleccionado en paciente $patientId añadidas con éxito")
+                val notification = hashMapOf(
+                    "recipient" to nutId,
+                    "message" to "El paciente $patientId comentó en su dieta del día $diaSeleccionado.",
+                    "timestamp" to System.currentTimeMillis(),
+                    "read" to false
+                )
+
+                db.collection("notifications").add(notification)
+                    .addOnSuccessListener {
+                        Log.d("FireStore", "Notificación enviada al nutricionista con ID $nutId.")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FireStore", "Error al enviar notificación.", e)
+                    }
+            }
+
+            .addOnFailureListener { e ->
+                Log.w("FireStore", "Error actualizando comidas para $diaSeleccionado en paciente $patientId", e)
+            }
+    }
+    fun clearComen(
+        patientId: String,
+        diaSeleccionado: String,
+        desayunoData: Map<String, Any>,
+        comidaData: Map<String, Any>,
+        cenaData: Map<String, Any>,
+        nutId: String // id del nutritionist que recibira la notificacion
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Validar que el día seleccionado sea válido
+        val diasSemana = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+        if (diaSeleccionado !in diasSemana) {
+            Log.w("FireStore", "Día seleccionado no válido")
+            return
+        }
+
+        // Crear el HashMap para cada comida, con valores por defecto si no se pasan
+        val desayuno = hashMapOf<String, Any>(
+            "comentario" to (desayunoData["comentario"] ?: "")
+        )
+
+        val comida = hashMapOf<String, Any>(
+            "comentario" to (comidaData["comentario"] ?: "")
+        )
+
+        val cena = hashMapOf<String, Any>(
+            "comentario" to (cenaData["comentario"] ?: "")
+        )
+
+        // Realizamos la actualización de las comidas solo para los comentarios
+        val batch = db.batch()
+
+        // Añadir desayuno al batch (solo actualizando el comentario)
+        val desayunoRef = db.collection("diets")
+            .document(patientId) // Documento con el patientId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("desayuno") // Documento para desayuno
+        batch.update(desayunoRef, desayuno)
+
+        // Añadir comida al batch (solo actualizando el comentario)
+        val comidaRef = db.collection("diets")
+            .document(patientId) // Documento con el patientId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("comida") // Documento para comida
+        batch.update(comidaRef, comida)
+
+        // Añadir cena al batch (solo actualizando el comentario)
+        val cenaRef = db.collection("diets")
+            .document(patientId) // Documento con el patientId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document("cena") // Documento para cena
+        batch.update(cenaRef, cena)
+
+        // Ejecutar el batch de actualización
+        batch.commit()
+            .addOnSuccessListener {
+                Log.d("FireStore", "Comidas (desayuno, comida, cena) para $diaSeleccionado en paciente $patientId actualizadas con éxito")
+                val notification = hashMapOf(
+                    "recipient" to nutId,
+                    "message" to "El paciente $patientId comentó en su dieta del día $diaSeleccionado.",
+                    "timestamp" to System.currentTimeMillis(),
+                    "read" to false
+                )
+
+                db.collection("notifications").add(notification)
+                    .addOnSuccessListener {
+                        Log.d("FireStore", "Notificación enviada al nutricionista con ID $nutId.")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FireStore", "Error al enviar notificación.", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("FireStore", "Error actualizando comidas para $diaSeleccionado en paciente $patientId", e)
+            }
+    }
+
+    /*
+    fun updcomen(
+        patientId: String,
+        diaSeleccionado: String,
+        comidaTipo: String, // "desayuno", "comida" o "cena"
+        comentario: String
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Validar que el día seleccionado sea válido
+        val diasSemana = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+        if (diaSeleccionado !in diasSemana) {
+            Log.w("FireStore", "Día seleccionado no válido")
+            return
+        }
+
+        // Validar que el tipo de comida sea válido
+        val tiposComida = listOf("desayuno", "comida", "cena")
+        if (comidaTipo !in tiposComida) {
+            Log.w("FireStore", "Tipo de comida no válido")
+            return
+        }
+
+        // Referencia al documento específico de la comida
+        val comidaRef = db.collection("diets")
+            .document(patientId) // Documento con el pacienteId
+            .collection(diaSeleccionado) // Subcolección con el día seleccionado
+            .document(comidaTipo) // Documento para el tipo de comida (desayuno/comida/cena)
+
+        // Actualizar solo el campo "comentario"
+        comidaRef.update("comentario", comentario)
+            .addOnSuccessListener {
+                Log.d("FireStore", "Comentario actualizado correctamente para $comidaTipo del día $diaSeleccionado en paciente $patientId")
+            }
+            .addOnFailureListener { e ->
+                Log.w("FireStore", "Error actualizando comentario para $comidaTipo del día $diaSeleccionado en paciente $patientId", e)
+            }
+    }
+*/
 
     // Función para obtener la lista de pacientes con Nid igual a 12345
     fun getCityData(onDataReceived: (List<Paciented>) -> Unit) {
@@ -279,9 +485,9 @@ object FirestoreRepository {
                             daysRef.collection(day)
                                 .get()
                                 .addOnSuccessListener { daySnapshot ->
-                                    var desayuno = Comida("", "", 0)
-                                    var comida = Comida("", "", 0)
-                                    var cena = Comida("", "", 0)
+                                    var desayuno = Comida("", "", 0,"")
+                                    var comida = Comida("", "", 0, "")
+                                    var cena = Comida("", "", 0, "")
 
                                     daySnapshot.documents.forEach { dayDocument ->
                                         when (dayDocument.id) {
@@ -289,7 +495,8 @@ object FirestoreRepository {
                                                 desayuno = Comida(
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
-                                                    dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    dayDocument.getLong("hora")?.toInt() ?: 0 ,
+                                                    dayDocument.getString("comentario") ?: ""
                                                 )
                                             }
 
@@ -298,6 +505,7 @@ object FirestoreRepository {
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
                                                     dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    ,dayDocument.getString("comentario") ?: ""
                                                 )
                                             }
 
@@ -306,6 +514,7 @@ object FirestoreRepository {
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
                                                     dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    ,dayDocument.getString("comentario") ?: ""
                                                 )
                                             }
                                         }
@@ -343,6 +552,10 @@ object FirestoreRepository {
             }
 
     }
+    //crear nueva dieta para usuario nuevo
+
+
+
 
     //-------------------------------------------------------------------------------------------------------
 
@@ -501,9 +714,9 @@ object FirestoreRepository {
                             daysRef.collection(day)
                                 .get()
                                 .addOnSuccessListener { daySnapshot ->
-                                    var desayuno = Comida("", "", 0)
-                                    var comida = Comida("", "", 0)
-                                    var cena = Comida("", "", 0)
+                                    var desayuno = Comida("", "", 0, "")
+                                    var comida = Comida("", "", 0,  "")
+                                    var cena = Comida("", "", 0, "")
 
                                     daySnapshot.documents.forEach { dayDocument ->
                                         when (dayDocument.id) {
@@ -512,6 +725,8 @@ object FirestoreRepository {
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
                                                     dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    ,dayDocument.getString("comentario") ?: ""
+
                                                 )
                                             }
 
@@ -520,6 +735,7 @@ object FirestoreRepository {
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
                                                     dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    ,dayDocument.getString("comentario") ?: ""
                                                 )
                                             }
 
@@ -528,6 +744,7 @@ object FirestoreRepository {
                                                     dayDocument.getString("comida") ?: "",
                                                     dayDocument.getString("descr") ?: "",
                                                     dayDocument.getLong("hora")?.toInt() ?: 0
+                                                    ,dayDocument.getString("comentario") ?: ""
                                                 )
                                             }
                                         }
@@ -584,6 +801,10 @@ object FirestoreRepository {
             .addOnFailureListener { e ->
                 Log.w("Comment", "Error al agregar el comentario", e)
             }
+    }
+
+    fun updateDietData(newDiet: Dieta, any: Any) {
+
     }
 
 //Bases-------------------------------------------------------------------------------------------

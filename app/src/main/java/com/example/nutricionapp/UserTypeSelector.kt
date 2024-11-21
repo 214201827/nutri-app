@@ -89,7 +89,7 @@ fun UserTypeSelectorScreen(NutId: String,navController: NavHostController) {
                                 when (procesoVerificacion) {
                                     "No verificado" -> navController.navigate("NoVerificado")
                                     "En proceso" -> navController.navigate("ProcesoVerificacion")
-                                    "Verificado" -> navController.navigate("MainNutritionist")
+                                    "Verificado" -> navController.navigate("MainNutritionist/$NutId")
                                     else -> {
                                         Toast.makeText(
                                             context,

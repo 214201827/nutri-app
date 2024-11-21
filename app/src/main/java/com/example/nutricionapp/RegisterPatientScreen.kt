@@ -342,6 +342,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                     "profileImage" to profileImage.toString()
 
                                 )
+
                             ).addOnCompleteListener { result ->
                                 if (result.isSuccessful) {
                                     dialogText.value = "Registro exitoso."

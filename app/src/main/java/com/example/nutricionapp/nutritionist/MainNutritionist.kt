@@ -26,10 +26,10 @@ import com.example.nutricionapp.db.Paciented
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MainNutritionist (navController: NavHostController) {
+fun MainNutritionist (NutId : String, navController: NavHostController) {
 
     // var paciente by remember { mutableStateOf<PacienteDb?>(null) }
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableStateOf(1) }
     var currentScreen by remember { mutableStateOf("pacientes") }
 
 
@@ -41,12 +41,12 @@ fun MainNutritionist (navController: NavHostController) {
                 containerColor = Color(0xFF4B3D6E)
             ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Pacientes") },
-                    label = { Text("Pacientes") },
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Perfil") },
+                    label = { Text("Perfil") },
                     selected = selectedItem == 0,
                     onClick = {
                         selectedItem = 0
-                        currentScreen = "pacientes"
+                        currentScreen = "perfil"
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
@@ -56,12 +56,12 @@ fun MainNutritionist (navController: NavHostController) {
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Person, contentDescription = "Recordatorios") },
-                    label = { Text("Recordatorios") },
+                    icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") },
+                    label = { Text("Pacientes") },
                     selected = selectedItem == 1,
                     onClick = {
                         selectedItem = 1
-                        currentScreen = "recordatorios"
+                        currentScreen = "pacientes"
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color.Black,
@@ -97,15 +97,16 @@ fun MainNutritionist (navController: NavHostController) {
                 .background(Color(0xFF65558F))
         ) {
             when (currentScreen) {
-                "pacientes" -> { // pantalla de inicio
-                    ListPatNutritionist(navController)
+                "perfil" -> { // pantalla de inicio
+                    PerfilNutritionist(NutId,navController)
                 }
 
-                "recordatorios" -> { // pantalla de vista dieta
-
+                "pacientes" -> { // pantalla de vista dieta
+                    ListPatNutritionist(navController)
                 }
                 "notificaciones" -> {
                     // Pantalla de notificaciones
+                    NotificationsNutritionist(NutId,navController)
 
                 }
 

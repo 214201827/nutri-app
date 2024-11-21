@@ -1,49 +1,74 @@
-package com.example.nutricionapp.patient
+package com.example.nutricionapp.nutritionist
+
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Output
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.nutricionapp.calcularEdad
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.nutricionapp.R
-import com.example.nutricionapp.db.Dieta
-import com.example.nutricionapp.db.FirestoreRepository
-import com.example.nutricionapp.db.PacienteDb
-import androidx.compose.ui.platform.LocalContext
+import coil.compose.rememberAsyncImagePainter
 import com.example.nutricionapp.NutricionApp
 import com.example.nutricionapp.ProfileImagen.ImageSelector
 import com.example.nutricionapp.ProfileImagen.uploadImageToFirebase
-import java.util.Date
-import coil.compose.rememberAsyncImagePainter
+import com.example.nutricionapp.R
+import com.example.nutricionapp.calcularEdad
+import com.example.nutricionapp.db.Dieta
+import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.PacienteDb
 import com.example.nutricionapp.ui.theme.signOut
-
+import java.util.Date
 
 @Composable
-fun InicioPatient(patientId: String,navController: NavHostController) {
+fun PerfilNutritionist(patientId: String,navController: NavHostController) {
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -149,7 +174,7 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    //.padding(16.dp),
+                //.padding(16.dp),
                 ,horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp) // Aumentar espacio entre elementos
             ) {
@@ -201,16 +226,16 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                                     // Botón para subir imagen
                                     if (selectedImageUri != null) {
 
-                                                isUploading = true
-                                                uploadImageToFirebase(patientId, selectedImageUri!!) { success ->
-                                                    isUploading = false
-                                                    if (success) {
-                                                        Log.d("Firebase", "Imagen subida exitosamente")
-                                                        showDialog = false
-                                                    }
-                                                }
+                                        isUploading = true
+                                        uploadImageToFirebase(patientId, selectedImageUri!!) { success ->
+                                            isUploading = false
+                                            if (success) {
+                                                Log.d("Firebase", "Imagen subida exitosamente")
+                                                showDialog = false
+                                            }
                                         }
                                     }
+                                }
 
                             },
                             confirmButton = {
@@ -336,11 +361,3 @@ fun PatientInfoRow(label: String, info: String) {
         Text(text = info, color = Color(0xFF616161))
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewInicioPatient() {
-    val navController = rememberNavController()
-    InicioPatient(navController = navController as NavHostController, patientId = "abad@gmail.com")
-}
-

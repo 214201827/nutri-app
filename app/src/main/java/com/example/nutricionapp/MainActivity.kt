@@ -12,8 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import com.example.nutricionapp.nutriologo.RecordatorioScreen
-import com.example.nutricionapp.nutriologo.PatientListScreen
-import com.example.nutricionapp.nutritionist.MainNutritionist
+import com.example.nutricionapp.nutritionist.updaesScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +38,11 @@ fun AppNavHost(navController: NavHostController) {
                 NutId = backStackEntry.arguments?.getString("NutId") ?: "",
                 navController = navController
             ) }
-        ///////////////////////////////////////////////////////////////
-        // rama forte
-
-        composable("MainNutritionist") { com.example.nutricionapp.nutritionist.MainNutritionist(navController)
-        }
+        composable("MainNutritionist/{NutId}") { backStackEntry ->
+            com.example.nutricionapp.nutritionist.MainNutritionist(
+                NutId = backStackEntry.arguments?.getString("NutId") ?: "",
+                navController
+            ) }
         composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack() }) }
 
        // composable("pacien") { PatientListScreen(navController) }
@@ -64,9 +63,16 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable("AdminRequest") { AdminNutritionistRequestsScreen(navController) }
         composable("updDiet/{patientId}") { backStackEntry ->
-            com.example.nutricionapp.nutriologo.PatientDetailScreen3(
+            updaesScreen(
                 patientId = backStackEntry.arguments?.getString("patientId") ?: "",
                 navController = navController
+            )
+        }
+        composable("comentario/{patientId}/{NutId}") { backStackEntry ->
+            com.example.nutricionapp.patient.Comentario(
+                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
+                navController = navController,
+                NutId = backStackEntry.arguments?.getString("NutId") ?: ""
             )
         }
         composable("reminders") { RecordatorioScreen(navController) }
@@ -84,6 +90,12 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable("listPatNutritionist") { ListPatNutritionist(navController) }
 
+        composable("notificaciones/{NutId}") { backStackEntry ->
+            com.example.nutricionapp.nutritionist.NotificationsNutritionist(
+                nutId = backStackEntry.arguments?.getString("NutId") ?: "",
+                navController = navController
+            )
+        }
     }
 
 
