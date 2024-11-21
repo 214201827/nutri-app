@@ -32,9 +32,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -342,12 +344,58 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                     "profileImage" to profileImage.toString()
 
                                 )
-
                             ).addOnCompleteListener { result ->
                                 if (result.isSuccessful) {
                                     dialogText.value = "Registro exitoso."
                                     showDialog.value = true
                                     navController.navigate("Login")
+
+                                    val db = FirebaseFirestore.getInstance()
+
+// Crear la dieta principal
+                                    val diet = hashMapOf(
+                                        "id" to email
+                                    )
+                                    val dietRef = db.collection("diets").document(email)
+
+// Guardar el documento principal de la dieta
+                                    dietRef.set(diet)
+                                        .addOnSuccessListener {
+                                            // Datos por defecto para las comidas
+                                            val desayuno = hashMapOf(
+                                                "comida" to "Sin asignar",
+                                                "descr" to "Sin asignar",
+                                                "hora" to 8
+                                            )
+                                            val comida = hashMapOf(
+                                                "comida" to "Sin asignar",
+                                                "descr" to "Sin asignar",
+                                                "hora" to 14
+                                            )
+                                            val cena = hashMapOf(
+                                                "comida" to "Sin asignar",
+                                                "descr" to "Sin asignar",
+                                                "hora" to 20
+                                            )
+
+                                            // Días de la semana
+                                            val daysOfWeek = listOf(
+                                                "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
+                                            )
+
+                                            // Crear documentos para cada día
+                                            val tasks = mutableListOf<Task<Void>>()
+                                            daysOfWeek.forEach { day ->
+                                                val dayRef = dietRef.collection(day)
+
+                                                // Crear documentos para desayuno, comida y cena
+                                                tasks.add(dayRef.document("desayuno").set(desayuno))
+                                                tasks.add(dayRef.document("comida").set(comida))
+                                                tasks.add(dayRef.document("cena").set(cena))
+                                            }
+                                        }
+
+
                                 } else {
                                     dialogText.value = "Error de registro en Firestore."
                                     showDialog.value = true
@@ -417,7 +465,7 @@ fun ComboBox(label: String, items: List<String>, selectedItem: String, onItemSel
                 unfocusedTextColor = Color.White,
                 focusedLabelColor = Color.White,
                 unfocusedLabelColor = Color.White
-        )
+            )
         )
 
         ExposedDropdownMenu(

@@ -1,6 +1,7 @@
 package com.example.nutricionapp.nutritionist
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -19,14 +20,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.createAndUploadExcelFile
 import com.example.nutricionapp.db.FirestoreRepository.upd
 import com.example.nutricionapp.db.PacienteDb
 import java.util.Calendar
 import java.util.Date
+import androidx.compose.ui.platform.LocalContext
+import com.example.nutricionapp.db.FirestoreRepository.uploadHist
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun updaesScreen(patientId: String, navController: NavController) {
+    val context = LocalContext.current
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
     var isEditing by remember { mutableStateOf(false) }
@@ -186,9 +191,28 @@ fun updaesScreen(patientId: String, navController: NavController) {
                             Text("No hay dieta disponible para el día seleccionado", fontSize = 16.sp, color = Color.LightGray)
                         }
 
+
+                        Button(
+                            onClick = {
+                                uploadHist(context, patientId) { isSuccessful ->
+                                    if (isSuccessful) {
+                                        // Mostrar mensaje o realizar alguna acción en caso de éxito
+                                        Log.d("Upload", "El archivo fue subido correctamente.")
+                                    } else {
+                                        // Mostrar mensaje en caso de error
+                                        Log.e("Upload", "Hubo un error al subir el archivo.")
+                                    }
+                                }
+
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Nueva Dieta")
+                        }
                         // Botón para actualizar la dieta en todos los días de la semana
                         Button(
                             onClick = {
+
                                 // Actualizar dieta para todos los días de la semana
                                 daysOfWeek.forEach { day ->
                                     val dayDiet = dietList.filter { it.dia == day }
@@ -213,13 +237,23 @@ fun updaesScreen(patientId: String, navController: NavController) {
                                         // Llama a la función `upd` para actualizar Firestore
                                         upd(patientId, day, desayunoData, comidaData, cenaData)
                                     }
-
                                 }
-                                navController.popBackStack()
+
+                                // Crear y subir el archivo Excel después de actualizar las dietas
+                                createAndUploadExcelFile(context, patientId, dietList, editedValues) { success ->
+                                    if (success) {
+                                        Log.d("ExcelUpload", "Archivo Excel subido correctamente.")
+                                    } else {
+                                        Log.e("ExcelUpload", "Error al subir el archivo Excel.")
+                                    }
+
+                                    // Regresar al estado anterior después de intentar subir el archivo
+                                    navController.popBackStack()
+                                }
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Actualizar Dieta")
+                            Text("Guardar")
                         }
                     }
                 }

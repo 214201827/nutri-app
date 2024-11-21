@@ -146,7 +146,7 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
 
                 // Diálogo para seleccionar la fecha
                 if (showDatePicker) {
-                    com.example.nutricionapp.nutriologo.DatePickerDialog(
+                    com.example.nutricionapp.nutritionist.DatePickerDialog(
                         onDismissRequest = { showDatePicker = false },
                         onDateSelected = { date ->
                             selectedDate = date

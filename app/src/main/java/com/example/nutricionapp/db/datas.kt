@@ -19,6 +19,7 @@ data class PacienteDb(
     val diet: String = "",
     val nextAppointment: String = "",
     val profileImage: String = "",
+    val idhist: String = ""
 
 )
 data class Paciented(
@@ -52,3 +53,6 @@ data class Record(
     val titulo: String,
     val id: Int? = null
 )
+
+data class Hist(val name: String)
+data class Horas(val horas: Int)

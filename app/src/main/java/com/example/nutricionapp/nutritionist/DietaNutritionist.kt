@@ -1,6 +1,7 @@
 package com.example.nutricionapp.nutritionist
 
 import android.widget.Space
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +14,8 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,14 +36,14 @@ import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.upd2
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.nutriologo.CustomTabRow
-import com.example.nutricionapp.nutriologo.DaySelector
-import com.example.nutricionapp.nutriologo.HistorialScreen
 import java.util.Calendar
 import java.util.Date
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-
+import com.example.nutricionapp.HistorialScreen
+import com.example.nutricionapp.db.FirestoreRepository.downloadFile
+import com.example.nutricionapp.db.FirestoreRepository.getHistorialFiles
+import com.example.nutricionapp.db.Hist
 
 
 @Composable
@@ -200,7 +203,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
 
                         // Diálogo para seleccionar la fecha
                         if (showDatePicker) {
-                            com.example.nutricionapp.nutriologo.DatePickerDialog(
+                            com.example.nutricionapp.nutritionist.DatePickerDialog(
                                 onDismissRequest = { showDatePicker = false },
                                 onDateSelected = { date ->
                                     selectedDate = date
@@ -531,10 +534,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
 
                 //---------------------------------------------------------------------------------------------------
                 2 -> {
-                    // Lógica para mostrar el historial del paciente
-                    val patientId = "12345" // Obtén el patientId que necesites
                     HistorialScreen(patientId)
-
                 }
             }
         }
@@ -728,3 +728,5 @@ fun DatePickerDialog(onDismissRequest: () -> Unit, onDateSelected: (Date) -> Uni
         }
     )
 }
+//---------------------------------------------------------------------------------------------------
+

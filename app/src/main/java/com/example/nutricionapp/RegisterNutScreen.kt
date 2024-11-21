@@ -34,6 +34,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
@@ -443,6 +444,50 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                     isLoading = false
                                                     // Mostrar el diálogo de éxito
                                                     showSuccessDialog = true
+                                                    val db = FirebaseFirestore.getInstance()
+
+// Crear la dieta principal
+                                                    val diet = hashMapOf(
+                                                        "id" to email
+                                                    )
+                                                    val dietRef = db.collection("diets").document(email)
+
+// Guardar el documento principal de la dieta
+                                                    dietRef.set(diet)
+                                                        .addOnSuccessListener {
+                                                            // Datos por defecto para las comidas
+                                                            val desayuno = hashMapOf(
+                                                                "comida" to "Sin asignar",
+                                                                "descr" to "Sin asignar",
+                                                                "hora" to 8
+                                                            )
+                                                            val comida = hashMapOf(
+                                                                "comida" to "Sin asignar",
+                                                                "descr" to "Sin asignar",
+                                                                "hora" to 14
+                                                            )
+                                                            val cena = hashMapOf(
+                                                                "comida" to "Sin asignar",
+                                                                "descr" to "Sin asignar",
+                                                                "hora" to 20
+                                                            )
+
+                                                            // Días de la semana
+                                                            val daysOfWeek = listOf(
+                                                                "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
+                                                            )
+
+                                                            // Crear documentos para cada día
+                                                            val tasks = mutableListOf<Task<Void>>()
+                                                            daysOfWeek.forEach { day ->
+                                                                val dayRef = dietRef.collection(day)
+
+                                                                // Crear documentos para desayuno, comida y cena
+                                                                tasks.add(dayRef.document("desayuno").set(desayuno))
+                                                                tasks.add(dayRef.document("comida").set(comida))
+                                                                tasks.add(dayRef.document("cena").set(cena))
+                                                            }
+                                                        }
                                                 }
                                                 .addOnFailureListener { e ->
                                                     isLoading = false

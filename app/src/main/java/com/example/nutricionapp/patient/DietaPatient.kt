@@ -1,26 +1,35 @@
 package com.example.nutricionapp.patient
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.nutricionapp.db.Dieta
+import com.example.nutricionapp.db.Dieta2
 import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.db.FirestoreRepository.downloadFile
+import com.example.nutricionapp.db.FirestoreRepository.getHistorialFiles
+import com.example.nutricionapp.db.Hist
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.nutriologo.CustomTabRow
-import com.example.nutricionapp.nutriologo.DaySelector
-import com.example.nutricionapp.nutriologo.HistorialScreen
+import com.example.nutricionapp.HistorialScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,7 +112,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                 }
 
                 // TabRow para alternar entre información del paciente y dieta
-                CustomTabRow(
+                CustomTabRow1(
                     selectedTabIndex = selectedTabIndex,
                     onTabSelected = { index -> selectedTabIndex = index }
                 )
@@ -112,7 +121,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
 
                 when (selectedTabIndex) {
                     0 -> {
-                        DaySelector(
+                        DaySelector1(
                             daysOfWeek = daysOfWeek,
                             selectedDayIndex = selectedDayIndex,
                             onDayChange = { index -> selectedDayIndex = index }
@@ -490,12 +499,188 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                     //---------------------------------------------------------------------------------------------------
                     2 -> {
                         // Lógica para mostrar el historial del paciente
-                        val patientId = "12345" // Obtén el patientId que necesites
-                        HistorialScreen(patientId)
+                        HistorialScreen(patientId = paciente?.correo.toString())
 
                     }
                 }
             }
         }
+    }
+}
+@Composable
+fun DietCard1(
+    diet: Dieta2,
+    mealType: String,
+) {
+    val mealContent = when (mealType) {
+        "Desayuno" -> diet.desayuno
+        "Comida" -> diet.comida
+        "Cena" -> diet.cena
+        else -> "No disponible"
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .height(100.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF4B3D6E))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Título de la comida
+            Text(
+                text = mealType,
+                fontSize = 20.sp,
+                color = Color.LightGray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------------------
+
+// Navegador entre info del paciente y dieta
+@Composable
+fun CustomTab1(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    text: (@Composable () -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
+    selectedContentColor: Color = Color.White,
+    unselectedContentColor: Color = selectedContentColor,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    Tab(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        text = {
+            text?.invoke()
+        },
+        icon = {
+            icon?.invoke()
+        },
+        selectedContentColor = selectedContentColor,
+        unselectedContentColor = unselectedContentColor
+    )
+}
+
+@Composable
+fun CustomTabRow1(
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    TabRow(
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp)),
+        selectedTabIndex = selectedTabIndex,
+        containerColor = Color(0xFF4B3D6E),
+        contentColor = Color.White
+    ) {
+        CustomTab1(
+            selected = selectedTabIndex == 0,
+            onClick = { onTabSelected(0) },
+            text = {
+                Text(
+                    "Dieta",
+                    color = Color.White,
+                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                )
+            }
+        )
+        CustomTab1(
+            selected = selectedTabIndex == 1,
+            onClick = { onTabSelected(1) },
+            text = {
+                Text(
+                    "Progreso",
+                    color = Color.White,
+                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                )
+            }
+        )
+        CustomTab1(
+            selected = selectedTabIndex == 2,
+            onClick = { onTabSelected(2) },
+            text = {
+                Text(
+                    "Historial",
+                    color = Color.White,
+                    fontSize = 20.sp, // Ajusta el tamaño de la fuente
+                )
+            }
+        )
+    }
+}
+//---------------------------------------------------------------------------------------------------
+@Composable
+fun DaySelector1(
+    daysOfWeek: List<String>,
+    selectedDayIndex: Int,
+    onDayChange: (Int) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(
+            onClick = {
+                // Cambiar al día anterior, asegurándose de que no salga de los límites
+                val newIndex = if (selectedDayIndex > 0) selectedDayIndex - 1 else daysOfWeek.lastIndex
+                onDayChange(newIndex)
+            }
+        ) {
+            Icon(Icons.Filled.ArrowBack, contentDescription = "Día anterior", tint = Color.White)
+        }
+
+        // Mostrar el día seleccionado
+        Text(
+            text = daysOfWeek[selectedDayIndex],
+            color = Color.White,
+            fontSize = 16.sp
+        )
+
+        IconButton(
+            onClick = {
+                // Cambiar al siguiente día, asegurándose de que no salga de los límites
+                val newIndex = if (selectedDayIndex < daysOfWeek.lastIndex) selectedDayIndex + 1 else 0
+                onDayChange(newIndex)
+            }
+        ) {
+            Icon(Icons.Filled.ArrowForward, contentDescription = "Siguiente día", tint = Color.White)
+        }
+    }
+}
+
+@Composable
+fun HistorialScreen1() {
+
+}
+// Función para agregar el comentario en Firestore
+
+//---------------------------------------------------------------------------------------------------
+@Composable
+fun ListItemContent(title: String, value: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF4B3D6E), shape = RoundedCornerShape(8.dp)) // Color de fondo y bordes redondeados
+            .clip(RoundedCornerShape(8.dp)) // Aplica el redondeo de esquinas
+            .padding(16.dp)
+    ) {
+        Text(text = "$title: $value", fontSize = 16.sp, color = Color.White)
     }
 }

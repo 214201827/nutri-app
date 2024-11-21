@@ -232,3 +232,4 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
         }
     }
 }
+
