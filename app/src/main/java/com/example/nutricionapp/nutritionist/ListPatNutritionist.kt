@@ -25,33 +25,32 @@ import com.example.nutricionapp.db.Paciented
 import com.google.firebase.auth.FirebaseAuth
 
 
+
 @Composable
 fun ListPatNutritionist(navController: NavHostController) {
     var patientDataList by remember { mutableStateOf(listOf<Paciented>()) }
     var showDialog by remember { mutableStateOf(false) }
     var pidInput by remember { mutableStateOf("") }
-    var showDeleteDialog by remember { mutableStateOf(false) } // Para el diálogo de confirmación de eliminación
-    var patientToDelete by remember { mutableStateOf<Paciented?>(null) } // Paciente seleccionado para eliminar
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var patientToDelete by remember { mutableStateOf<Paciented?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    val userEmail = remember { mutableStateOf("") }
-    // Llama a la función para obtener los datos usando FirestoreRepository
-    LaunchedEffect(Unit) {
-        FirestoreRepository.getCityData { data ->
-            patientDataList = data
-            Log.d("PatientData", "Datos obtenidos: $data")
-            isLoading = false
-
-        }
-    }
-    //obtener mi correo
 
     val currentUser = FirebaseAuth.getInstance().currentUser
     val emailNut = currentUser?.email.toString()
 
+    // Cargar los pacientes asociados al nutriólogo
+    LaunchedEffect(emailNut) {
+        // Verificar que el emailNut no sea vacío
+        if (emailNut.isNotBlank()) {
+            FirestoreRepository.getCityDataForNutritionist(emailNut) { data ->
+                patientDataList = data
+                isLoading = false
+            }
+        }
+    }
 
     if (isLoading) {
-        // Mostrar un indicador de carga
-        CircularProgressIndicator()
+        CircularProgressIndicator()  // Indicador de carga mientras obtenemos los datos
     }
 
     // Diálogo para ingresar el Pid
@@ -69,17 +68,12 @@ fun ListPatNutritionist(navController: NavHostController) {
                     )
                 }
             },
-            //obtener mi correo
-
-
             confirmButton = {
                 Button(onClick = {
                     if (pidInput.isNotBlank()) {
-                        // Cambiar el Nid del paciente a 12345
-                        FirestoreRepository.addPatient(pidInput, emailNut ) { success ->
+                        FirestoreRepository.addPatient(pidInput, emailNut) { success ->
                             if (success) {
-                                // Recarga la lista de pacientes
-                                FirestoreRepository.getCityData { data ->
+                                FirestoreRepository.getCityDataForNutritionist(emailNut) { data ->
                                     patientDataList = data
                                 }
                             }
@@ -107,11 +101,9 @@ fun ListPatNutritionist(navController: NavHostController) {
             text = { Text("¿Está seguro de que desea eliminar a ${patientToDelete!!.nombre}?") },
             confirmButton = {
                 Button(onClick = {
-                    // Lógica para eliminar el paciente
                     FirestoreRepository.deleteNip(patientToDelete!!.email) { success ->
                         if (success) {
-                            // Recarga la lista de pacientes
-                            FirestoreRepository.getCityData { data ->
+                            FirestoreRepository.getCityDataForNutritionist(emailNut) { data ->
                                 patientDataList = data
                             }
                         }
@@ -145,10 +137,9 @@ fun ListPatNutritionist(navController: NavHostController) {
                 fontSize = 24.sp,
                 color = Color.White,
             )
-            // Botón para crear un nuevo paciente
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { showDialog = true } // Abre el diálogo
+                modifier = Modifier.clickable { showDialog = true }
             ) {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
@@ -157,14 +148,12 @@ fun ListPatNutritionist(navController: NavHostController) {
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    "Nuevo Paciente",
-                    color = Color.White,
-                    fontSize = 14.sp
-                )
+                Text("Nuevo Paciente", color = Color.White, fontSize = 14.sp)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Lista de pacientes
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -174,10 +163,8 @@ fun ListPatNutritionist(navController: NavHostController) {
                     patient = patientDataList[index],
                     onClick = {
                         navController.navigate("dietaNutritionist/${patientDataList[index].email}")
-                        Log.d("UserId", "o enviado: ${patientDataList[index].email}")
                     },
                     onDelete = {
-                        // Establece el paciente a eliminar y muestra el diálogo de confirmación
                         patientToDelete = patientDataList[index]
                         showDeleteDialog = true
                     }

@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileOutputStream
 import android.content.Context
 import android.graphics.Paint
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -334,16 +335,21 @@ object FirestoreRepository {
     // Función para obtener la lista de pacientes con Nid igual a 12345
     fun getCityData(onDataReceived: (List<Paciented>) -> Unit) {
         val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser
         db.collection("pacientes")
-            .whereEqualTo("Nid", userId) // Filtra los pacientes por Nid
+            .whereEqualTo("Nid", userId)  // Aquí se filtra por el correo del nutriólogo
             .get()
             .addOnSuccessListener { result ->
                 val pacientes = result.mapNotNull { document ->
-                    val nombre = document.getString("fullName") ?: return@mapNotNull null
-                    val id = document.getString("email") ?: return@mapNotNull null// Pid es nullable
+                    val nombre = document.getString("fullName")
+                    val id = document.getString("email")
+                    Log.d("FirestoreRepository", "Paciente obtenido: Nombre: $nombre, Email: $id") // Log de depuración
 
-                    // Crea una instancia de PacienteDb
-                    Paciented(nombre = nombre, email = id)
+                    if (nombre != null && id != null) {
+                        Paciented(nombre = nombre, email = id)
+                    } else {
+                        null
+                    }
                 }
                 onDataReceived(pacientes)
             }
@@ -351,7 +357,37 @@ object FirestoreRepository {
                 Log.d("FirestoreRepository", "Error getting documents: ", exception)
                 onDataReceived(emptyList())
             }
+
     }
+
+        // Esta función obtiene los pacientes asociados al nutriólogo por su correo
+        fun getCityDataForNutritionist(emailNut: String, callback: (List<Paciented>) -> Unit) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("pacientes")
+                .whereEqualTo("Nid", emailNut) // Filtra por el correo del nutriólogo
+                .get()
+                .addOnSuccessListener { result ->
+                    val patients = result.mapNotNull { document ->
+                        val nombre = document.getString("fullName")
+                        val id = document.getString("email")
+                        Log.d("FirestoreRepository", "Paciente obtenido: Nombre: $nombre, Email: $id") // Log de depuración
+
+                        if (nombre != null && id != null) {
+                            Paciented(nombre = nombre, email = id)
+                        } else {
+                            null
+                        }
+                        //document.toObject(Paciented::class.java)
+                    }
+                    callback(patients)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error getting patients: ", exception)
+                    callback(emptyList()) // Si hay un error, se devuelve una lista vacía
+                }
+        }
+
+
 
     //---------------------------------------------------------------------------------------------------------
     // Función para obtener la lista de recordatorios del nutriologo

@@ -13,19 +13,31 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import com.example.nutricionapp.nutriologo.RecordatorioScreen
 import com.example.nutricionapp.nutritionist.updaesScreen
+import com.example.nutricionapp.util.CheckUserTypeScreen
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            AppNavHost(navController = navController)
+            val currentUser = FirebaseAuth.getInstance().currentUser
+
+            // Determina la pantalla inicial dinámicamente
+            val startDestination = if (currentUser != null) {
+                "checkUserType" // Pantalla que verifica el tipo de usuario
+            } else {
+                "login" // Pantalla de inicio de sesión
+            }
+
+            // Pasa el destino inicial dinámico a AppNavHost
+            AppNavHost(navController = navController, startDestination = startDestination)
         }
     }
 }
 @Composable
-fun AppNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "login") {
+fun AppNavHost(navController: NavHostController, startDestination: String) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController) }
@@ -96,6 +108,7 @@ fun AppNavHost(navController: NavHostController) {
                 navController = navController
             )
         }
+        composable("checkUserType") { CheckUserTypeScreen(navController) }
     }
 
 
