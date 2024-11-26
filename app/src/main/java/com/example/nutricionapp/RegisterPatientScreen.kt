@@ -1,8 +1,9 @@
 package com.example.nutricionapp
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,9 +11,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,92 +30,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.Popup
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.GregorianCalendar
-import java.util.Locale
-import java.util.Calendar
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerDocked() {
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-    val selectedDate = datePickerState.selectedDateMillis?.let {
-        convertMillisToDate(it)
-    } ?: ""
-
-
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    )
-    {
-        OutlinedTextField(
-            value = selectedDate,
-            onValueChange = { },
-            label = { Text("Fecha de nacimiento") },
-            //colors = TextFieldDefaults(NutricionAppTheme { R.color }),
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { showDatePicker = !showDatePicker }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date"
-                    )
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
-            )
-        )
-
-        if (showDatePicker) {
-            Popup(
-                onDismissRequest = { showDatePicker = false },
-                alignment = Alignment.TopStart
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = 64.dp)
-                        .shadow(elevation = 4.dp)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp)
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        showModeToggle = false
-                    )
-                }
-            }
-        }
-    }
-}
-
-fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return formatter.format(Date(millis))
-}
-
-
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RegisterPatientScreen(navController: NavHostController) {
     val dbPatient = Firebase.firestore
@@ -140,6 +60,9 @@ fun RegisterPatientScreen(navController: NavHostController) {
     val showDialog = remember { mutableStateOf(false) }
     val dialogText = remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+
+    var selectedDate: Date? by remember { mutableStateOf(null) }   // Estado para la fecha seleccionada
+    val calendar = GregorianCalendar()
 
     // Combo box para fecha de nacimiento
     var selectedDay by remember { mutableStateOf("") }
@@ -172,112 +95,95 @@ fun RegisterPatientScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Campos de entrada
-        TextField(
+        OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
             label = { Text("Nombre completo") },
             modifier = Modifier
-                .fillMaxWidth()
-
-                .background(Color(0xFF4B3D6E)),
+                .fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                unfocusedTextColor = Color.LightGray,
                 focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray,
+                focusedIndicatorColor =  Color.White,
             )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ComboBox para fecha de nacimiento
-        Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ComboBox(
-                label = "Día",
-                items = days,
-                selectedItem = selectedDay,
-                onItemSelected = { selectedDay = it }
-            )
-            ComboBox(
-                label = "Mes",
-                items = months,
-                selectedItem = selectedMonth,
-                onItemSelected = { selectedMonth = it }
-            )
-            ComboBox(
-                label = "Año",
-                items = years,
-                selectedItem = selectedYear,
-                onItemSelected = { selectedYear = it }
-            )
-        }
+        //fechapicker
+
+        DatePickerComponent { selectedDate = it }
+
+        var fechaNacimiento = selectedDate
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
+        OutlinedTextField(
             value = phone,
             onValueChange = { phone= it },
             label = { Text("Telefono") },
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF4B3D6E)),
+                .fillMaxWidth() ,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                unfocusedTextColor = Color.LightGray,
                 focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray,
+                focusedIndicatorColor =  Color.White,
             )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
+        OutlinedTextField(
             value = address,
             onValueChange = { address= it },
             label = { Text("Direccion") },
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF4B3D6E)),
+                .fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                unfocusedTextColor = Color.LightGray,
                 focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray,
+                focusedIndicatorColor =  Color.White,
             )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
+        OutlinedTextField(
             value = email,
             onValueChange = { email= it },
             label = { Text("Correo Electronico") },
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF4B3D6E)),
+                .fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                unfocusedTextColor = Color.LightGray,
                 focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray,
+                focusedIndicatorColor =  Color.White,
             )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextField(
+        OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
@@ -285,24 +191,26 @@ fun RegisterPatientScreen(navController: NavHostController) {
             trailingIcon = {
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Toggle password visibility"
+                        imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (showPassword) "Ocultar contraseña" else "Mostrar contraseña",
+                        tint = Color.White
                     )
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
-                .background(Color(0xFF4B3D6E)),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                unfocusedTextColor = Color.LightGray,
                 focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
+                unfocusedLabelColor = Color.LightGray,
+                unfocusedIndicatorColor = Color.LightGray,
+                focusedIndicatorColor =  Color.White,
             )
         )
 
@@ -311,10 +219,10 @@ fun RegisterPatientScreen(navController: NavHostController) {
         // Botón de registro
         Button(
             onClick = {
-                if (email.isNotEmpty() && password.isNotEmpty() && selectedDay.isNotEmpty() && selectedMonth.isNotEmpty() && selectedYear.isNotEmpty()) {
+                if (email.isNotEmpty() && password.isNotEmpty()&& fullName.isNotEmpty() && phone.isNotEmpty() && address.isNotEmpty()) {
                     // Calcula la edad a partir de la fecha de nacimiento
-                    val birthDate = GregorianCalendar(selectedYear.toInt(), months.indexOf(selectedMonth), selectedDay.toInt())
-                    val age = calculateAge(birthDate)
+                    //val birthDate = GregorianCalendar(selectedYear.toInt(), months.indexOf(selectedMonth), selectedDay.toInt())
+                    val age = calculateAge(selectedDate)
 
                     FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                         if (it.isSuccessful) {
@@ -324,7 +232,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
 //                                    "medidas" to listOf<DocumentReference>(),
                                     "fullName" to fullName,
                                     "nutriAsign" to null,
-                                    "fechaNacimiento" to birthDate.time,
+                                    "fechaNacimiento" to fechaNacimiento,
                                     "age" to age,
                                     "phone" to phone.toLong(),
                                     "address" to address,
@@ -373,70 +281,6 @@ fun RegisterPatientScreen(navController: NavHostController) {
     }
 }
 
-// Función para calcular la edad
-fun calculateAge(birthDate: Calendar): Int {
-    val today = Calendar.getInstance()
-    var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
-    if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
-        age--
-    }
-    return age
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ComboBox(label: String, items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit, modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedItem,
-            onValueChange = { },
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = {
-                Icon( // Custom trailing icon
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Toggle Dropdown",
-                    tint = Color.White
-                )
-            },
-            modifier = modifier
-                .menuAnchor()
-                .background(Color(0xFF4B3D6E))
-                .width(110.dp) // Establecer un ancho fijo
-                .height(56.dp), // Establecer una altura fija
-            maxLines = 1, // Asegúrate de que no expanda a más de una línea
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.White
-        )
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            items.forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(item) },
-                    onClick = {
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 @Composable
 fun DialogoRegistroPaciente(onDismissRequest: () -> Unit, dialogText: String) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -460,6 +304,7 @@ fun DialogoRegistroPaciente(onDismissRequest: () -> Unit, dialogText: String) {
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegisterPatientScreen() {
