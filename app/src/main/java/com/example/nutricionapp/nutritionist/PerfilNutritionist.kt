@@ -184,7 +184,8 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                     text = "Bienvenido ${paciente?.nombre}",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
                 )
                 paciente?.let {
                     // Foto del paciente
@@ -260,7 +261,7 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                         ) {
                             Row {
                                 Text(
-                                    text = "Datos del paciente",
+                                    text = "Datos del nutriologo",
                                     fontSize = 20.sp,
                                     color = Color(0xFF4B3D6E),
                                     fontWeight = FontWeight.Bold,
@@ -301,8 +302,6 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
 
                             Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
 
-                            PatientInfoRow(label = "Nutriólogo asignado", info = paciente?.Nid ?: "No disponible")
-
                             val nextAppointment = paciente?.nextAppointment ?:"No disponible"
                             Text(
                                 text = if (nextAppointment != null) {
@@ -313,37 +312,15 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(top = 16.dp)
+                                    .padding( 16.dp)
                                     .align(Alignment.CenterHorizontally)
                             )
                         }
                     }
                 }
-                Button(
-                    onClick = {
-                        // Muestra el cuadro de diálogo para seleccionar fecha y hora
-                        showDatePicker = true
-                    },
-                    modifier = Modifier.wrapContentSize(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                    contentPadding = PaddingValues(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Solicitar cita",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Solicitar dieta", color = Color.White)
-
-                }
-
-
             }
         }
     }
-
 }
 @Composable
 fun PatientInfoRow(label: String, info: String) {

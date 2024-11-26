@@ -159,7 +159,8 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                     text = "Bienvenido ${paciente?.nombre}",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
                 )
                 paciente?.let {
                     // Foto del paciente
@@ -288,37 +289,36 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(top = 16.dp)
+                                    .padding(16.dp)
                                     .align(Alignment.CenterHorizontally)
                             )
+                            Button(
+                                onClick = {
+                                    // Muestra el cuadro de diálogo para seleccionar fecha y hora
+                                    showDatePicker = true
+                                },
+                                modifier = Modifier.wrapContentSize()
+                                    //.padding(8.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
+                                contentPadding = PaddingValues(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddCircle,
+                                    contentDescription = "Solicitar cita",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text("Solicitar dieta", color = Color.White)
+
+                            }
                         }
                     }
                 }
-                Button(
-                    onClick = {
-                        // Muestra el cuadro de diálogo para seleccionar fecha y hora
-                        showDatePicker = true
-                    },
-                    modifier = Modifier.wrapContentSize(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                    contentPadding = PaddingValues(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Solicitar cita",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Solicitar dieta", color = Color.White)
-
-                }
-
-
             }
         }
     }
-
 }
 @Composable
 fun PatientInfoRow(label: String, info: String) {

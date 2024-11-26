@@ -26,20 +26,28 @@ import com.example.nutricionapp.db.Paciented
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MainNutritionist (NutId : String, navController: NavHostController) {
-
-    // var paciente by remember { mutableStateOf<PacienteDb?>(null) }
+fun MainNutritionist(NutId: String, navController: NavHostController) {
     var selectedItem by remember { mutableStateOf(1) }
     var currentScreen by remember { mutableStateOf("pacientes") }
+    val notifications = remember { mutableStateListOf<Map<String, Any>>() }
 
+    // Escucha las notificaciones asociadas al nutricionista
+    LaunchedEffect(NutId) {
+        listenToNotifications(NutId) { newNotifications ->
+            notifications.clear()
+            notifications.addAll(newNotifications)
+        }
+    }
 
-    // Utilizar Scaffold para integrar SnackbarHost y BottomBar
+    // Conteo de notificaciones no leídas
+    val unreadCount = notifications.count { !(it["read"] as Boolean) }
+
     Scaffold(
-        // snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             NavigationBar(
                 containerColor = Color(0xFF4B3D6E)
             ) {
+                // Perfil Tab
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Home, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
@@ -55,6 +63,7 @@ fun MainNutritionist (NutId : String, navController: NavHostController) {
                         unselectedTextColor = Color.Gray
                     )
                 )
+                // Pacientes Tab
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Person, contentDescription = "Pacientes") },
                     label = { Text("Pacientes") },
@@ -70,8 +79,21 @@ fun MainNutritionist (NutId : String, navController: NavHostController) {
                         unselectedTextColor = Color.Gray
                     )
                 )
+                // Notificaciones Tab con Badge
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
+                    icon = {
+                        BadgedBox(
+                            badge = {
+                                if (unreadCount > 0) {
+                                    Badge {
+                                        Text(unreadCount.toString(), color = Color.White)
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
+                        }
+                    },
                     label = { Text("Notificaciones") },
                     selected = selectedItem == 2,
                     onClick = {
@@ -88,7 +110,6 @@ fun MainNutritionist (NutId : String, navController: NavHostController) {
             }
         }
     ) { innerPadding ->
-
         // Contenido principal
         Box(
             modifier = Modifier
@@ -97,19 +118,15 @@ fun MainNutritionist (NutId : String, navController: NavHostController) {
                 .background(Color(0xFF65558F))
         ) {
             when (currentScreen) {
-                "perfil" -> { // pantalla de inicio
-                    PerfilNutritionist(NutId,navController)
+                "perfil" -> { // pantalla de perfil
+                    PerfilNutritionist(NutId, navController)
                 }
-
-                "pacientes" -> { // pantalla de vista dieta
+                "pacientes" -> { // pantalla de pacientes
                     ListPatNutritionist(navController)
                 }
-                "notificaciones" -> {
-                    // Pantalla de notificaciones
-                    NotificationsNutritionist(NutId,navController)
-
+                "notificaciones" -> { // pantalla de notificaciones
+                    NotificationsNutritionist(NutId, navController)
                 }
-
             }
         }
     }

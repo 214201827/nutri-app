@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavHostController
 
 @Composable
-fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () -> Unit) {
+fun CreateAppointmentScreen(navController: NavHostController, patientId: String, onBackClick: () -> Unit) {
     var patientName by remember { mutableStateOf("") }
     var appointmentDate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
@@ -253,12 +253,4 @@ fun generateHourList(): List<String> {
         currentTime = currentTime.plusMinutes(30)
     }
     return hours
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun CreateAppointmentScreenPreview() {
-    // Si tu pantalla requiere el navController, puedes usar un dummy o un controlador de navegación vacío para la vista previa
-    CreateAppointmentScreen(navController = rememberNavController(), onBackClick = {})
 }

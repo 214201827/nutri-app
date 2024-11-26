@@ -46,7 +46,9 @@ fun AppNavHost(navController: NavHostController) {
                 NutId = backStackEntry.arguments?.getString("NutId") ?: "",
                 navController
             ) }
-        composable("CreateAppoitment") { CreateAppointmentScreen(navController, onBackClick = { navController.popBackStack() }) }
+        composable("CreateAppoitment/{patientId}") { backStackEntry -> CreateAppointmentScreen(navController,
+            patientId = backStackEntry.arguments?.getString("patientId") ?: "",
+            onBackClick = { navController.popBackStack() }) }
 
        // composable("pacien") { PatientListScreen(navController) }
 

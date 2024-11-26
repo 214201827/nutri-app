@@ -138,6 +138,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -184,6 +185,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -227,6 +229,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -315,8 +318,9 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Color(0xFFE0E0E0)),
-                                    elevation = CardDefaults.elevatedCardElevation(4.dp)
+                                        .padding(vertical = 8.dp),
+                                    elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                    shape = MaterialTheme.shapes.medium
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
@@ -338,8 +342,9 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Color(0xFFE0E0E0)),
-                                    elevation = CardDefaults.elevatedCardElevation(4.dp)
+                                        .padding(vertical = 8.dp),
+                                    elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                    shape = MaterialTheme.shapes.medium
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
@@ -361,8 +366,9 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Color(0xFFE0E0E0)),
-                                    elevation = CardDefaults.elevatedCardElevation(4.dp)
+                                        .padding(vertical = 8.dp),
+                                    elevation = CardDefaults.elevatedCardElevation(4.dp),
+                                    shape = MaterialTheme.shapes.medium
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
