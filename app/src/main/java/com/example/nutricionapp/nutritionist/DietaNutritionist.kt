@@ -37,7 +37,8 @@ import java.util.Calendar
 import java.util.Date
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-
+import com.example.nutricionapp.CreateAppointmentScreen
+import com.example.nutricionapp.nutriologo.HistorialScreen
 
 
 @Composable
@@ -179,7 +180,8 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                         Button(
                             onClick = {
                                 // Muestra el cuadro de diálogo para seleccionar fecha y hora
-                                showDatePicker = true
+                               // showDatePicker = true
+                                navController.navigate("CreateAppoitment/$patientId")
                             },
                             modifier = Modifier.wrapContentSize(),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),

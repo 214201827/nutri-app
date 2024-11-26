@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
@@ -34,8 +35,9 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notificaciones") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White),
+                title = { Text("Notificaciones",color = Color.White) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFF65558F)),
+
                 //modifier = Modifier.padding(8.dp)
             )
         },
@@ -60,7 +62,7 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF5F5F5))
+                    .background(Color(0xFF65558F))
             ) {
                 if (notifications.isEmpty()) {
                     Text(
@@ -89,9 +91,9 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
                                     .padding(vertical = 4.dp),
                                 elevation = CardDefaults.elevatedCardElevation(4.dp),
                                 colors = if (isRead) {
-                                    CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0))
+                                    CardDefaults.cardColors(containerColor = Color.DarkGray)
                                 } else {
-                                    CardDefaults.cardColors(containerColor = Color(0xFFFFF59D))
+                                    CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9))
                                 }
                             ) {
                                 Column(
@@ -116,12 +118,23 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
                                         color = Color.Gray
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Button(
-                                        onClick = { markNotificationAsRead(notificationId) },
-                                        modifier = Modifier.align(Alignment.End),
-                                        enabled = !isRead
+                                    Row(
+                                        horizontalArrangement = Arrangement.End,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(if (isRead) "Leída" else "Marcar como leída")
+                                        Button(
+                                            onClick = { markNotificationAsRead(notificationId) },
+                                            // modifier = Modifier.align(Alignment.End),
+                                            enabled = !isRead
+                                        ) {
+                                            Text(if (isRead) "Leída" else "Marcar como leída")
+                                        }
+                                        Button(
+                                            onClick = {  },
+
+                                            ) {
+                                            Text("Responder")
+                                        }
                                     }
                                 }
                             }
@@ -185,3 +198,20 @@ fun markNotificationAsRead(notificationId: String) {
             Log.w("Firestore", "Error al marcar notificación como leída.", e)
         }
 }
+//Elimnar notificaciones leidas
+
+fun DeleteNotificationes() {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("notificaciones")
+        .whereEqualTo("read", true)
+        .get()
+        .addOnSuccessListener { documents ->
+            for (document in documents) {
+                db.collection("notificaciones").document(document.id).delete()
+            }
+        }
+        .addOnFailureListener { exception ->
+            Log.w("Firestore", "Error getting documents: ", exception)
+        }
+}
+

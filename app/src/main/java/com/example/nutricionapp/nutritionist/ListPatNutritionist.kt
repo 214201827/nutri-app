@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -182,7 +183,7 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF4B3D6E)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
         elevation = CardDefaults.elevatedCardElevation(4.dp)
     ) {
         Row(
@@ -196,12 +197,13 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
                 Text(
                     text = patient.nombre,
                     fontSize = 18.sp,
-                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4B3D6E),
                 )
                 Text(
                     text = "Email: ${patient.email}",
                     fontSize = 14.sp,
-                    color = Color.LightGray
+                    color = Color(0xFF616161)
                 )
             }
 
@@ -213,7 +215,7 @@ fun PatientItem(patient: Paciented, onClick: () -> Unit, onDelete: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar Paciente",
-                    tint = Color.Red
+                    tint = Color(0xFF8B0000)
                 )
             }
         }
