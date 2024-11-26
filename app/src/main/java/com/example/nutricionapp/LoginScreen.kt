@@ -78,31 +78,30 @@ fun LoginScreen(navController: NavHostController) {
             )
 
             var email by remember { mutableStateOf("saulrivera@gmail.com") }
-            TextField(
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                ,keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
                 maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 ),
-                //shape = RoundedCornerShape(16.dp)
             )
 
             var password by remember { mutableStateOf("hola123") }
-            TextField(
+            OutlinedTextField(
 
                 value = password,
                 onValueChange = {
@@ -123,18 +122,18 @@ fun LoginScreen(navController: NavHostController) {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    //.border(1.dp, Color(0xFF4B3D6E), shape = RoundedCornerShape(16.dp))
-                    .background(Color(0xFF4B3D6E)),
+                    .padding(vertical = 8.dp),
                 singleLine = true,
                 maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 

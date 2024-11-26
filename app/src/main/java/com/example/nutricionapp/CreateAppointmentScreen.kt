@@ -47,19 +47,6 @@ import androidx.compose.ui.unit.toSize
 
 
 import androidx.navigation.NavHostController
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerAppoiment() {
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-    val selectedDate = datePickerState.selectedDateMillis?.let {
-        convertMillisToDate(it)
-    } ?: ""
-
-    //Fecha
-
-
-    }
 
 @Composable
 fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () -> Unit) {
@@ -155,35 +142,6 @@ fun CreateAppointmentScreen(navController: NavHostController, onBackClick: () ->
         val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
         val years = (1900..2024).map { it.toString() }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            horizontalArrangement = Arrangement.SpaceBetween, // Espacio entre cada ComboBox
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ComboBox(
-                label = "Día",
-                items = days,
-                selectedItem = selectedDay,
-                onItemSelected = { selectedDay = it },
-            )
-
-
-            ComboBox(
-                label = "Mes",
-                items = months,
-                selectedItem = selectedMonth,
-                onItemSelected = { selectedMonth = it },
-            )
-
-
-
-            ComboBox(
-                label = "Año",
-                items = years,
-                selectedItem = selectedYear,
-                onItemSelected = { selectedYear = it },
-            )
-        }
 
 
         TextField(

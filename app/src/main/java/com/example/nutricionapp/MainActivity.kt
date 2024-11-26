@@ -1,9 +1,11 @@
 package com.example.nutricionapp
 
 import ListPatNutritionist
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import androidx.compose.runtime.Composable
@@ -11,10 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
-import com.example.nutricionapp.nutriologo.RecordatorioScreen
 import com.example.nutricionapp.nutritionist.updaesScreen
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -23,6 +25,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "login") {
@@ -75,14 +78,7 @@ fun AppNavHost(navController: NavHostController) {
                 NutId = backStackEntry.arguments?.getString("NutId") ?: ""
             )
         }
-        composable("reminders") { RecordatorioScreen(navController) }
         composable("login") { LoginScreen(navController) }
-        composable("patientDetail/{patientId}") { backStackEntry ->
-            com.example.nutricionapp.nutriologo.PatientDetailScreen(
-                patientId = backStackEntry.arguments?.getString("patientId") ?: "",
-                navController = navController
-            )
-        }
         composable("dietaNutritionist/{patientId}") { backStackEntry ->
             com.example.nutricionapp.nutritionist.DietaNutritionist(
                 patientId = backStackEntry.arguments?.getString("patientId") ?: ""
@@ -101,8 +97,6 @@ fun AppNavHost(navController: NavHostController) {
 
 }
 
-
-// Preview de la aplicación
 @Preview(showBackground = true)
 @Composable
 fun MainActivityPreview() {

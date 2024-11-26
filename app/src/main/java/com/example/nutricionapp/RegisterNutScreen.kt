@@ -1,16 +1,20 @@
 package com.example.nutricionapp
 
+import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -35,10 +40,20 @@ import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.Calendar
+import java.util.Date
 import java.util.GregorianCalendar
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterNutScreen(navController: NavHostController) {
     // Inicializar Firebase
@@ -46,16 +61,9 @@ fun RegisterNutScreen(navController: NavHostController) {
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance("gs://nutri-app-a90ca.appspot.com")
+    var selectedDate: Date? by remember { mutableStateOf(null) }   // Estado para la fecha seleccionada
 
-    //fecha de nac
-    val days = (1..31).map { it.toString() }
-    val months = listOf("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
-    val years = (1950..2010).map { it.toString() }
-    // Combo box para fecha de nacimiento
-    var selectedDay by remember { mutableStateOf("") }
-    var selectedMonth by remember { mutableStateOf("") }
-    var selectedYear by remember { mutableStateOf("") }
-
+    val calendar = GregorianCalendar()
 
     // Estados para manejar la carga y el diálogo de éxito
     var isLoading by remember { mutableStateOf(false) }
@@ -136,70 +144,73 @@ fun RegisterNutScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = fullName,
                 onValueChange = { fullName = it },
                 label = { Text("Nombre completo") },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF4B3D6E)),
+                    .fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = licenseNumber,
                 onValueChange = { licenseNumber = it },
                 label = { Text("Número de cédula") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Contraseña") },
@@ -207,100 +218,82 @@ fun RegisterNutScreen(navController: NavHostController) {
                 trailingIcon = {
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Toggle password visibility"
+                            imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (showPassword) "Ocultar contraseña" else "Mostrar contraseña",
+                            tint = Color.White
                         )
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = address,
                 onValueChange = { address = it },
                 label = { Text("Direccion") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Campo de teléfono
-            TextField(
+            OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
                 label = { Text("Teléfono") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-                    .background(Color(0xFF4B3D6E)),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+                    unfocusedTextColor = Color.LightGray,
                     focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White
+                    unfocusedLabelColor = Color.LightGray,
+                    unfocusedIndicatorColor = Color.LightGray,
+                    focusedIndicatorColor =  Color.White,
                 )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // date picke
-            Row(
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ComboBox(
-                    label = "Día",
-                    items = days,
-                    selectedItem = selectedDay,
-                    onItemSelected = { selectedDay = it }
-                )
-                ComboBox(
-                    label = "Mes",
-                    items = months,
-                    selectedItem = selectedMonth,
-                    onItemSelected = { selectedMonth = it }
-                )
-                ComboBox(
-                    label = "Año",
-                    items = years,
-                    selectedItem = selectedYear,
-                    onItemSelected = { selectedYear = it }
-                )
-            }
+            DatePickerComponent { selectedDate = it }
 
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Botón para "Agregar Foto del INE"
             Button(
@@ -359,11 +352,12 @@ fun RegisterNutScreen(navController: NavHostController) {
                         if (authTask.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
 
-                            val birthDate = GregorianCalendar(selectedYear.toInt(), months.indexOf(selectedMonth), selectedDay.toInt())
-                            val age = calculateAge(birthDate)
+                            //val age = calculateAge(calendar.time)
                             // Subir archivos a Firebase Storage
                             val ineRef = storage.reference.child("nutriologos/$userId/ine/${UUID.randomUUID()}")
                             val licenseRef = storage.reference.child("nutriologos/$userId/cedula/${UUID.randomUUID()}")
+
+                            val age = calculateAge(selectedDate)
 
                             val ineUploadTask = ineRef.putFile(photoIneUri!!)
                             val licenseUploadTask = licenseRef.putFile(professionalLicenseUri!!)
@@ -396,7 +390,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "ineUrl" to ineDownloadUrl,
                                                 "address" to address,
                                                 "phone" to phone.toLong(),
-                                                "fechaNacimiento" to birthDate.time,
+                                                "fechaNacimiento" to calendar.time,
                                                 "age" to age,
                                                 "procesoVerificacion" to "En proceso",
                                                 "licenseUrl" to licenseDownloadUrl
@@ -407,7 +401,7 @@ fun RegisterNutScreen(navController: NavHostController) {
 //                                                "medidas" to listOf<DocumentReference>(),
                                                 "fullName" to fullName,
                                                 "nutriAsign" to null,
-                                                "fechaNacimiento" to birthDate.time,
+                                                "fechaNacimiento" to calendar.time,
                                                 "age" to age,
                                                 "phone" to phone.toLong(),
                                                 "address" to address,
@@ -527,8 +521,7 @@ fun RegisterNutScreen(navController: NavHostController) {
 
     }
 }
-
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegisterNutScreen() {

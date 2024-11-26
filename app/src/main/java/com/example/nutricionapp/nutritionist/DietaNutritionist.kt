@@ -33,9 +33,6 @@ import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.upd2
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.nutriologo.CustomTabRow
-import com.example.nutricionapp.nutriologo.DaySelector
-import com.example.nutricionapp.nutriologo.HistorialScreen
 import java.util.Calendar
 import java.util.Date
 import coil.compose.rememberImagePainter
