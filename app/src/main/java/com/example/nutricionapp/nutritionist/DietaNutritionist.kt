@@ -160,7 +160,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Nombre: ${it.nombre}",
+                                text = "${it.nombre}",
                                 fontSize = 20.sp,
                                 color = Color.White
                             )
@@ -222,9 +222,6 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                 selectedTabIndex = selectedTabIndex,
                 onTabSelected = { index -> selectedTabIndex = index }
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             when (selectedTabIndex) {
                 0 -> {
                     DaySelector(
@@ -249,6 +246,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -256,17 +254,20 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                                 Text(
                                                     text = "Desayuno",
                                                     style = MaterialTheme.typography.titleMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.desayuno.comida}",
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.desayuno.descr}",
                                                     style = MaterialTheme.typography.bodySmall,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF616161)
                                                 )
                                             }
                                         }
@@ -276,6 +277,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -283,17 +285,20 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                                 Text(
                                                     text = "Comida",
                                                     style = MaterialTheme.typography.titleMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.comida.comida}",
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.comida.descr}",
                                                     style = MaterialTheme.typography.bodySmall,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF616161)
                                                 )
                                             }
                                         }
@@ -303,6 +308,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                                             elevation = CardDefaults.elevatedCardElevation(4.dp),
                                             shape = MaterialTheme.shapes.medium
                                         ) {
@@ -310,17 +316,20 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                                 Text(
                                                     text = "Cena",
                                                     style = MaterialTheme.typography.titleMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.cena.comida}",
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF4B3D6E)
                                                 )
                                                 Text(
                                                     text = " ${diet.cena.descr}",
                                                     style = MaterialTheme.typography.bodySmall,
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    color = Color(0xFF616161)
                                                 )
                                             }
                                         }
@@ -581,7 +590,7 @@ fun CustomTab(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     text: (@Composable () -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    //icon: (@Composable () -> Unit)? = null,
     selectedContentColor: Color = Color.White,
     unselectedContentColor: Color = selectedContentColor,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
@@ -595,9 +604,7 @@ fun CustomTab(
         text = {
             text?.invoke()
         },
-        icon = {
-            icon?.invoke()
-        },
+//        j,
         selectedContentColor = selectedContentColor,
         unselectedContentColor = unselectedContentColor
     )
@@ -622,7 +629,7 @@ fun CustomTabRow(
                 Text(
                     "Dieta",
                     color = Color.White,
-                    modifier = Modifier.wrapContentWidth()
+
                 )
             }
         )
@@ -633,7 +640,7 @@ fun CustomTabRow(
                 Text(
                     "Progreso",
                     color = Color.White,
-                    modifier = Modifier.wrapContentWidth()
+                    //modifier = Modifier.wrapContentWidth()
                 )
             }
         )
@@ -645,7 +652,7 @@ fun CustomTabRow(
                 Text(
                     "Historial",
                     color = Color.White,
-                    modifier = Modifier.wrapContentWidth()
+                    //modifier = Modifier.wrapContentWidth()
                 )
             }
         )
@@ -692,38 +699,4 @@ fun DaySelector(
             Icon(Icons.Filled.ArrowForward, contentDescription = "Siguiente día", tint = Color.White)
         }
     }
-}
-
-@Composable
-fun DatePickerDialog(onDismissRequest: () -> Unit, onDateSelected: (Date) -> Unit) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    // Muestra el selector de fecha
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text("Seleccionar Fecha") },
-        text = {
-            TextField(
-                value = calendar.time.toString(), // Muestra la fecha actual
-                onValueChange = { },
-                readOnly = true
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    // Aquí puedes agregar la lógica para manejar la fecha seleccionada
-                    onDateSelected(calendar.time) // Pasa la fecha seleccionada
-                }
-            ) {
-                Text("Seleccionar")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismissRequest) {
-                Text("Cancelar")
-            }
-        }
-    )
 }

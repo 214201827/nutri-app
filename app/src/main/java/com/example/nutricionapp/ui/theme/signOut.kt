@@ -3,7 +3,7 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
-import com.example.nutricionapp.patient.InicioPatient
+import com.example.nutricionapp.patient.PerfilPatient
 import com.google.firebase.auth.FirebaseAuth
 
 fun signOut(navController: NavHostController) {

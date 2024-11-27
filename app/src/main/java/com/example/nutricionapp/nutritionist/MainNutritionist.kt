@@ -125,7 +125,7 @@ fun MainNutritionist(NutId: String, navController: NavHostController) {
                     ListPatNutritionist(navController)
                 }
                 "notificaciones" -> { // pantalla de notificaciones
-                    NotificationsNutritionist(NutId, navController)
+                    Notifications(NutId, navController)
                 }
             }
         }

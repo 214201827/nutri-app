@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import java.util.Date
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -21,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
+fun Notifications(nutId: String, navController: NavHostController) {
     val notifications = remember { mutableStateListOf<Map<String, Any>>() }
 
     // Escucha las notificaciones asociadas al nutricionista
@@ -31,6 +34,12 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
             notifications.addAll(newNotifications)
         }
     }
+
+    //dialogo para responder notificaciones
+    val openDialog = remember { mutableStateOf(false) }
+    var newMessage by remember { mutableStateOf("") }
+
+
 
     Scaffold(
         topBar = {
@@ -79,12 +88,48 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
                     ) {
                         items(notifications) { notification ->
                             val notificationId = notification["id"] as String
-                            val message = notification["message"] as String
+                            var message = notification["message"] as String
                             val remId = notification["RemId"] as String
                             val type = notification["type"] as String
                             val timestamp = Date(notification["timestamp"] as Long)
                             val isRead = notification["read"] as Boolean
+                            val dest = notification["DestId"] as String
 
+
+                            // responder notificaciones
+                            if (openDialog.value) {
+                                AlertDialog(
+
+                                    onDismissRequest = { openDialog.value = false },
+                                    title = { Text("Responder notificación") },
+                                    text = {
+                                        Column {
+
+
+                                            TextField(
+                                                value = newMessage,
+                                                onValueChange = { newMessage = it },
+                                                label = { Text("Mensaje") }
+                                            )
+                                        }
+                                    },
+                                    confirmButton = {
+                                        Button(
+                                            onClick = { respondNotification(destId = remId , remId = nutId, type = "Respuesta", message = newMessage, notificationId)
+                                                openDialog.value = false
+
+                                            }
+                                        ) {
+                                            Text("Responder")
+                                        }
+                                    },
+                                    dismissButton = {
+                                        Button(onClick = { openDialog.value = false }) {
+                                            Text("Cancelar")
+                                        }
+                                    }
+                                )
+                            }
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -130,7 +175,8 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
                                             Text(if (isRead) "Leída" else "Marcar como leída")
                                         }
                                         Button(
-                                            onClick = {  },
+                                            //abrir dialogo para responder
+                                            onClick = {  openDialog.value = true },
 
                                             ) {
                                             Text("Responder")
@@ -144,9 +190,33 @@ fun NotificationsNutritionist(nutId: String, navController: NavHostController) {
             }
         }
     )
+
+} //mandar notificacion de vuelta
+fun respondNotification(destId: String, remId: String, type: String, message: String, notificationId: String) {
+    val db = FirebaseFirestore.getInstance()
+    markNotificationAsRead(notificationId)
+    val notification = hashMapOf(
+        "DestId" to destId,
+        "RemId" to remId,
+        "type" to type,
+        "message" to message,
+        "timestamp" to System.currentTimeMillis(),
+        "read" to false
+    )
+
+    db.collection("notificaciones")
+        .add(notification)
+        .addOnSuccessListener {
+            Log.d("Firestore", "Notificación creada correctamente.")
+        }
+        .addOnFailureListener { e ->
+            Log.w("Firestore", "Error al crear la notificación.", e)
+        }
 }
 fun addNotificationForNutritionist(destId: String, remId: String, type: String, message: String) {
     val db = FirebaseFirestore.getInstance()
+
+
 
     val notification = hashMapOf(
         "DestId" to destId,

@@ -66,7 +66,7 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
 
         // Detalle del paciente por `patientId`
         composable("inicioPatient/{patientId}") { backStackEntry ->
-            com.example.nutricionapp.patient.InicioPatient(
+            com.example.nutricionapp.patient.PerfilPatient(
                 patientId = backStackEntry.arguments?.getString("patientId") ?: "",
                 navController = navController
             )
@@ -101,7 +101,7 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
         composable("listPatNutritionist") { ListPatNutritionist(navController) }
 
         composable("notificaciones/{NutId}") { backStackEntry ->
-            com.example.nutricionapp.nutritionist.NotificationsNutritionist(
+            com.example.nutricionapp.nutritionist.Notifications(
                 nutId = backStackEntry.arguments?.getString("NutId") ?: "",
                 navController = navController
             )

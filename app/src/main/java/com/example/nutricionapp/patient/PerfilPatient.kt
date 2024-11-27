@@ -5,8 +5,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Output
@@ -43,7 +45,7 @@ import com.example.nutricionapp.ui.theme.signOut
 
 
 @Composable
-fun InicioPatient(patientId: String,navController: NavHostController) {
+fun PerfilPatient(patientId: String,navController: NavHostController) {
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     var dieta by remember { mutableStateOf<List<Dieta>?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -143,13 +145,13 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(Color(0xFF65558F))
-                .padding(10.dp)
+                .padding(0.dp)
                 .systemBarsPadding()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    //.padding(16.dp),
+                    .padding(0.dp).verticalScroll(rememberScrollState())
                 ,horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp) // Aumentar espacio entre elementos
             ) {
@@ -221,11 +223,11 @@ fun InicioPatient(patientId: String,navController: NavHostController) {
                             }
                         )
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    //Spacer(modifier = Modifier.height(24.dp))
 
                     // Tarjeta de información del paciente
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFB8A8D9)),
                         elevation = CardDefaults.elevatedCardElevation(6.dp),
                         shape = RoundedCornerShape(16.dp)
@@ -341,6 +343,6 @@ fun PatientInfoRow(label: String, info: String) {
 @Composable
 fun PreviewInicioPatient() {
     val navController = rememberNavController()
-    InicioPatient(navController = navController as NavHostController, patientId = "abad@gmail.com")
+    PerfilPatient(navController = navController as NavHostController, patientId = "abad@gmail.com")
 }
 

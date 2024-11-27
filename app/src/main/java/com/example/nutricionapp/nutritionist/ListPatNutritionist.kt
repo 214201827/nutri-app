@@ -126,7 +126,7 @@ fun ListPatNutritionist(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF65558F))
-            .padding(16.dp)
+            .padding(32.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

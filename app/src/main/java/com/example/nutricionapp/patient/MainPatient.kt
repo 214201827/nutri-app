@@ -17,6 +17,8 @@ import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.getPatientData
 import com.example.nutricionapp.db.PacienteDb
 import com.example.nutricionapp.db.Paciented
+import com.example.nutricionapp.nutritionist.Notifications
+import com.example.nutricionapp.nutritionist.listenToNotifications
 
 
 @Composable
@@ -27,6 +29,7 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
     var currentScreen by remember { mutableStateOf("dietas") }
     var paciente by remember { mutableStateOf<PacienteDb?>(null) }
     val NutId = paciente?.Nid ?: ""
+    val notifications = remember { mutableStateListOf<Map<String, Any>>() }
 
     //obtner datos de nutriologo asginado
     LaunchedEffect(patientId) {
@@ -34,9 +37,14 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
             paciente = data
         }
     }
-
-
-
+    LaunchedEffect(patientId) {
+        listenToNotifications(patientId) { newNotifications ->
+            notifications.clear()
+            notifications.addAll(newNotifications)
+        }
+    }
+    // Conteo de notificaciones no leídas
+    val unreadCount = notifications.count { !(it["read"] as Boolean) }
 
     // Utilizar Scaffold para integrar SnackbarHost y BottomBar
     Scaffold(
@@ -76,7 +84,19 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
                     )
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones") },
+                    icon = {
+                        BadgedBox(
+                            badge = {
+                                if (unreadCount > 0) {
+                                    Badge {
+                                        Text(unreadCount.toString(), color = Color.White)
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
+                        }
+                    },
                     label = { Text("Notificaciones") },
                     selected = selectedItem == 2,
                     onClick = {
@@ -103,13 +123,14 @@ fun MainPatient (patientId: String ,navController: NavHostController) {
         ) {
             when (currentScreen) {
                 "inicio" -> { // pantalla de inicio
-                    InicioPatient(patientId, navController)
+                    PerfilPatient(patientId, navController)
                 }
                 "dietas" -> { // pantalla de vista dieta
                     DietaPatient(patientId, navController, NutId)
                 }
                 "notificaciones" -> {
                     // Pantalla de notificaciones
+                    Notifications(patientId, navController)
 
                 }
                 // Otras pantallas...

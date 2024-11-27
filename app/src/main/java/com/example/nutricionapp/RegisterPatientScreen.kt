@@ -86,7 +86,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(Color(0xFF65558F))
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

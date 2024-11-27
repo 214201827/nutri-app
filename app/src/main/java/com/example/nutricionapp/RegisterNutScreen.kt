@@ -129,7 +129,7 @@ fun RegisterNutScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(32.dp)
                 .alpha(if (isLoading) 0.5f else 1f) // Cambia la opacidad si está cargando
             .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
