@@ -18,9 +18,8 @@ import androidx.navigation.NavHostController
 import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.nutriologo.CustomTabRow
-import com.example.nutricionapp.nutriologo.DaySelector
-import com.example.nutricionapp.nutriologo.HistorialScreen
+import com.example.nutricionapp.nutritionist.CustomTabRow
+import com.example.nutricionapp.nutritionist.DaySelector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -496,8 +495,6 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                     //---------------------------------------------------------------------------------------------------
                     2 -> {
                         // Lógica para mostrar el historial del paciente
-                        val patientId = "12345" // Obtén el patientId que necesites
-                        HistorialScreen(patientId)
 
                     }
                 }

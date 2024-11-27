@@ -22,7 +22,8 @@ import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.clearComen
 import com.example.nutricionapp.db.FirestoreRepository.updComen
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.nutritionist.addNotificationForNutritionist
+import com.example.nutricionapp.notificaciones.addNotificationForNutritionist
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +34,10 @@ fun Comentario(patientId: String, navController: NavHostController, NutId: Strin
     var editedValues by remember { mutableStateOf<Map<String, Map<String, String>>>(emptyMap()) } // Cambiar a un mapa anidado
     val daysOfWeek = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
     var selectedDayIndex by remember { mutableStateOf(0) } // Índice del día seleccionado
+
+    //crear snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(patientId) {
         // Obtener datos del paciente
@@ -250,8 +255,10 @@ fun Comentario(patientId: String, navController: NavHostController, NutId: Strin
 
                                         }*/Button(
                                     onClick = {
+                                        //obtener nombre del paciente
+                                        val patientName = paciente?.nombre ?: "Paciente"
                                         // Variables para controlar el mensaje de la notificación
-                                        var notificationMessage = "El paciente $patientId ha realizado un comentario sobre la dieta de los siguientes días: "
+                                        var notificationMessage = "El paciente $patientName ha realizado un comentario sobre la dieta de los siguientes días: "
                                         val updatedDetails = mutableListOf<String>()  // Lista para almacenar detalles de los días y comidas
 
                                         // Actualizar dieta para todos los días de la semana
@@ -325,6 +332,9 @@ fun Comentario(patientId: String, navController: NavHostController, NutId: Strin
 
                                             // Llama a la función `upd` para limpiar solo los comentarios en Firestore
                                             clearComen(patientId, diet.dia, desayunoData, comidaData, cenaData, NutId)
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar("Comentario enviado.")
+                                            }
                                         }
                                         navController.popBackStack()
                                     },

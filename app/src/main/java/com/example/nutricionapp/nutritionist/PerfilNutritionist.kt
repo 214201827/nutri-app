@@ -136,32 +136,6 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
             }
         }
     }
-    paciente?.let {
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                // Diálogo para seleccionar la fecha
-                if (showDatePicker) {
-                    com.example.nutricionapp.nutriologo.DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        onDateSelected = { date ->
-                            selectedDate = date
-                            showDatePicker = false
-                            // Aquí puedes agregar la lógica para manejar la hora, si es necesario
-                        }
-                    )
-                }
-            }
-        }
-    } ?: run {
-        Text("No se encontraron datos del paciente", fontSize = 16.sp, color = Color.White)
-    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ){innerPadding ->
@@ -293,8 +267,6 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                                 }
 
                             }
-
-
                             // Muestra información con valores por defecto si es nula
                             PatientInfoRow(label = "Nombre", info = paciente?.nombre ?: "No disponible")
                             val edad = calcularEdad(paciente?.fecha)
@@ -302,22 +274,6 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                             PatientInfoRow(label = "Correo", info = patientId?: "No disponible")
                             PatientInfoRow(label = "Teléfono", info = paciente?.cel.toString()?: "No disponible")
                             PatientInfoRow(label = "Dirección", info = paciente?.dir ?: "No disponible")
-
-                            Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
-
-                            val nextAppointment = paciente?.nextAppointment ?:"No disponible"
-                            Text(
-                                text = if (nextAppointment != null) {
-                                    "Próxima cita: $nextAppointment"
-                                } else {
-                                    "No tiene citas programadas"
-                                },
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .padding( 16.dp)
-                                    .align(Alignment.CenterHorizontally)
-                            )
                         }
                     }
                 }

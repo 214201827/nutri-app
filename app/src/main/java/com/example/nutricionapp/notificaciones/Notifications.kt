@@ -1,4 +1,4 @@
-package com.example.nutricionapp.nutritionist
+package com.example.nutricionapp.notificaciones
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -15,17 +15,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Notifications(nutId: String, navController: NavHostController) {
     val notifications = remember { mutableStateListOf<Map<String, Any>>() }
+
+    //crear snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     // Escucha las notificaciones asociadas al nutricionista
     LaunchedEffect(nutId) {
@@ -86,7 +92,7 @@ fun Notifications(nutId: String, navController: NavHostController) {
                             .fillMaxSize()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        items(notifications) { notification ->
+                        items(notifications.sortedByDescending { it["timestamp"] as Long }) { notification ->
                             val notificationId = notification["id"] as String
                             var message = notification["message"] as String
                             val remId = notification["RemId"] as String
@@ -116,15 +122,18 @@ fun Notifications(nutId: String, navController: NavHostController) {
                                     confirmButton = {
                                         Button(
                                             onClick = { respondNotification(destId = remId , remId = nutId, type = "Respuesta", message = newMessage, notificationId)
+                                                coroutineScope.launch {
+                                                    snackbarHostState.showSnackbar("Respuesta enviada.")
+                                                }
                                                 openDialog.value = false
 
                                             }
-                                        ) {
+                                        ){
                                             Text("Responder")
                                         }
                                     },
                                     dismissButton = {
-                                        Button(onClick = { openDialog.value = false }) {
+                                        Button(onClick = { openDialog.value = false },) {
                                             Text("Cancelar")
                                         }
                                     }
@@ -190,8 +199,8 @@ fun Notifications(nutId: String, navController: NavHostController) {
             }
         }
     )
-
-} //mandar notificacion de vuelta
+}
+//mandar notificacion de vuelta
 fun respondNotification(destId: String, remId: String, type: String, message: String, notificationId: String) {
     val db = FirebaseFirestore.getInstance()
     markNotificationAsRead(notificationId)
@@ -282,6 +291,29 @@ fun DeleteNotificationes() {
         }
         .addOnFailureListener { exception ->
             Log.w("Firestore", "Error getting documents: ", exception)
+        }
+}
+//solicitar dieta
+fun requestDiet(nutId: String, remId: String) {
+    //obtener nombre del paciente
+    val db = FirebaseFirestore.getInstance()
+    db.collection("pacientes").document(remId)
+        .get()
+        .addOnSuccessListener { document ->
+            if (document != null) {
+                val name = document["fullName"] as String
+                addNotificationForNutritionist(
+                    destId = nutId,
+                    remId = remId,
+                    type = "Solicitud de dieta",
+                    message = "El paciente $name ha solicitado una dieta."
+                )
+            } else {
+                Log.d("Firestore", "No such document")
+            }
+        }
+        .addOnFailureListener { exception ->
+            Log.d("Firestore", "get failed with ", exception)
         }
 }
 

@@ -33,12 +33,9 @@ import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.FirestoreRepository.upd2
 import com.example.nutricionapp.db.PacienteDb
-import java.util.Calendar
 import java.util.Date
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-import com.example.nutricionapp.CreateAppointmentScreen
-import com.example.nutricionapp.nutriologo.HistorialScreen
 
 
 @Composable
@@ -198,16 +195,16 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                         }
 
                         // Diálogo para seleccionar la fecha
-                        if (showDatePicker) {
-                            com.example.nutricionapp.nutriologo.DatePickerDialog(
-                                onDismissRequest = { showDatePicker = false },
-                                onDateSelected = { date ->
-                                    selectedDate = date
-                                    showDatePicker = false
-                                    // Aquí puedes agregar la lógica para manejar la hora, si es necesario
-                                }
-                            )
-                        }
+//                        if (showDatePicker) {
+//                            com.example.nutricionapp.nutriologo.DatePickerDialog(
+//                                onDismissRequest = { showDatePicker = false },
+//                                onDateSelected = { date ->
+//                                    selectedDate = date
+//                                    showDatePicker = false
+//                                    // Aquí puedes agregar la lógica para manejar la hora, si es necesario
+//                                }
+//                            )
+//                        }
                     }
                 }
             } ?: run {
@@ -541,7 +538,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                 2 -> {
                     // Lógica para mostrar el historial del paciente
                     val patientId = "12345" // Obtén el patientId que necesites
-                    HistorialScreen(patientId)
+                    //HistorialScreen(patientId)
 
                 }
             }

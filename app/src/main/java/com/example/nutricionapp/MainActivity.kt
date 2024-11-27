@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
+import com.example.nutricionapp.notificaciones.Notifications
 import com.example.nutricionapp.nutritionist.updaesScreen
 import com.example.nutricionapp.util.CheckUserTypeScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -44,7 +45,6 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController) }
-        composable("HomeNutritionist") { HomeNutritionist(navController) }
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
         //composable("PatientHomeScreen") { HomePatient(navController) }
@@ -101,7 +101,7 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
         composable("listPatNutritionist") { ListPatNutritionist(navController) }
 
         composable("notificaciones/{NutId}") { backStackEntry ->
-            com.example.nutricionapp.nutritionist.Notifications(
+            Notifications(
                 nutId = backStackEntry.arguments?.getString("NutId") ?: "",
                 navController = navController
             )

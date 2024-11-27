@@ -41,7 +41,9 @@ import com.example.nutricionapp.ProfileImagen.ImageSelector
 import com.example.nutricionapp.ProfileImagen.uploadImageToFirebase
 import java.util.Date
 import coil.compose.rememberAsyncImagePainter
+import com.example.nutricionapp.notificaciones.requestDiet
 import com.example.nutricionapp.ui.theme.signOut
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -66,12 +68,12 @@ fun PerfilPatient(patientId: String,navController: NavHostController) {
     // Coleccionar el estado de conectividad
     val isConnected by connectivityObserver.isConnected.collectAsState(initial = true)
 
-    // Crear SnackbarHostState
-    val snackbarHostState = remember { SnackbarHostState() }
-
     // Estado para rastrear si ya se ha recibido la primera emisión
     var isFirstEmission by remember { mutableStateOf(true) }
 
+    //crear snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     // Mostrar Snackbar cuando cambie la conectividad, ignorando la primera emisión
 
 
@@ -122,22 +124,23 @@ fun PerfilPatient(patientId: String,navController: NavHostController) {
             ) {
 
                 // Diálogo para seleccionar la fecha
-                if (showDatePicker) {
-                    com.example.nutricionapp.nutriologo.DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        onDateSelected = { date ->
-                            selectedDate = date
-                            showDatePicker = false
-                            // Aquí puedes agregar la lógica para manejar la hora, si es necesario
-                        }
-                    )
-                }
+//                if (showDatePicker) {
+//                    com.example.nutricionapp.nutriologo.DatePickerDialog(
+//                        onDismissRequest = { showDatePicker = false },
+//                        onDateSelected = { date ->
+//                            selectedDate = date
+//                            showDatePicker = false
+//                            // Aquí puedes agregar la lógica para manejar la hora, si es necesario
+//                        }
+//                    )
+//                }
             }
         }
     } ?: run {
         Text("No se encontraron datos del paciente", fontSize = 16.sp, color = Color.White)
     }
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier.fillMaxSize(),
     ){innerPadding ->
         Box(
@@ -297,7 +300,11 @@ fun PerfilPatient(patientId: String,navController: NavHostController) {
                             Button(
                                 onClick = {
                                     // Muestra el cuadro de diálogo para seleccionar fecha y hora
-                                    showDatePicker = true
+                                    var destId = paciente?.Nid.toString()
+                                    requestDiet(destId, patientId )
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Solicitud de dieta enviada.")
+                                    }
                                 },
                                 modifier = Modifier.wrapContentSize()
                                     //.padding(8.dp)

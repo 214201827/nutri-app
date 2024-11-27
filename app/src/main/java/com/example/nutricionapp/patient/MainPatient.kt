@@ -14,11 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.nutricionapp.db.FirestoreRepository
-import com.example.nutricionapp.db.FirestoreRepository.getPatientData
 import com.example.nutricionapp.db.PacienteDb
-import com.example.nutricionapp.db.Paciented
-import com.example.nutricionapp.nutritionist.Notifications
-import com.example.nutricionapp.nutritionist.listenToNotifications
+import com.example.nutricionapp.notificaciones.Notifications
+import com.example.nutricionapp.notificaciones.listenToNotifications
 
 
 @Composable

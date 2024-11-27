@@ -1,17 +1,8 @@
 package com.example.nutricionapp.db
 
-import android.graphics.pdf.PdfDocument
 import android.util.Log
-
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import java.io.File
-import java.io.FileOutputStream
-import android.content.Context
-import android.graphics.Paint
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 object FirestoreRepository {
 
@@ -136,6 +127,8 @@ object FirestoreRepository {
         nutId: String // id del nutritionist que recibira la notificacion
     ) {
         val db = FirebaseFirestore.getInstance()
+            //obtener  nombre del paciente
+
 
         // Validar que el día seleccionado sea válido
         val diasSemana = listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
@@ -193,10 +186,12 @@ object FirestoreRepository {
         // Ejecutar el batch de actualización
         batch.commit()
             .addOnSuccessListener {
+                //obtener nombre del paciente
+                val nombre = db.collection("pacientes").document(patientId).collection("fullName").toString()
                 Log.d("FireStore", "Comidas (desayuno, comida, cena) para $diaSeleccionado en paciente $patientId añadidas con éxito")
                 val notification = hashMapOf(
                     "recipient" to nutId,
-                    "message" to "El paciente $patientId comentó en su dieta del día $diaSeleccionado.",
+                    "message" to "El paciente $nombre comentó en su dieta del día $diaSeleccionado.",
                     "timestamp" to System.currentTimeMillis(),
                     "read" to false
                 )
