@@ -23,6 +23,7 @@ import com.example.nutricionapp.db.FirestoreRepository.clearComen
 import com.example.nutricionapp.db.FirestoreRepository.updComen
 import com.example.nutricionapp.db.PacienteDb
 import com.example.nutricionapp.notificaciones.addNotificationForNutritionist
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -332,9 +333,8 @@ fun Comentario(patientId: String, navController: NavHostController, NutId: Strin
 
                                             // Llama a la función `upd` para limpiar solo los comentarios en Firestore
                                             clearComen(patientId, diet.dia, desayunoData, comidaData, cenaData, NutId)
-                                            coroutineScope.launch {
-                                                snackbarHostState.showSnackbar("Comentario enviado.")
-                                            }
+
+
                                         }
                                         navController.popBackStack()
                                     },

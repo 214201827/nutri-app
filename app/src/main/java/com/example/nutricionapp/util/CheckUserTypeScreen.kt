@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
+
 @Composable
+
 fun CheckUserTypeScreen(navController: NavHostController) {
     val currentUser = FirebaseAuth.getInstance().currentUser
     val db = FirebaseFirestore.getInstance()
@@ -73,4 +75,14 @@ fun CheckUserTypeScreen(navController: NavHostController) {
         CircularProgressIndicator()
     }
 }
+
+//recuperar constraseña
+fun recuperarContrasena(correo: String, onComplete: (Boolean) -> Unit) {
+    FirebaseAuth.getInstance().sendPasswordResetEmail(correo)
+        .addOnCompleteListener { task ->
+            onComplete(task.isSuccessful)
+        }
+}
+
+
 

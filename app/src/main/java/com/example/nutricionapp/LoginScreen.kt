@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import com.example.nutricionapp.db.FirestoreRepository
+import com.example.nutricionapp.util.recuperarContrasena
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -205,6 +206,14 @@ fun LoginScreen(navController: NavHostController) {
             TextButton(onClick = { navController.navigate("RegisterOptions")}) {
                 Text(
                     text = "¿No tienes cuenta? Regístrate",
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            TextButton(onClick = { navController.navigate("resetPassword")}){
+                Text(
+                    text = "Olvide mi contraseña",
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()

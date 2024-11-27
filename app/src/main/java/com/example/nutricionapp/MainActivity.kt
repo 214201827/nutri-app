@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
+import com.example.nutricionapp.ResetPassword.RecuperarContrasenaScreen
 import com.example.nutricionapp.notificaciones.Notifications
 import com.example.nutricionapp.nutritionist.updaesScreen
 import com.example.nutricionapp.util.CheckUserTypeScreen
@@ -107,6 +108,7 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
             )
         }
         composable("checkUserType") { CheckUserTypeScreen(navController) }
+        composable("resetPassword") { RecuperarContrasenaScreen(navController) }
     }
 
 
