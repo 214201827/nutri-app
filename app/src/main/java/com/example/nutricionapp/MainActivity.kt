@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(navController: NavHostController, startDestination: String) {
-    NavHost(navController = navController, startDestination = "login",enterTransition = {
+    NavHost(navController = navController, startDestination = startDestination,enterTransition = {
         slideIntoContainer(
             AnimatedContentTransitionScope.SlideDirection.Right,
             tween(durationMillis = 500)
