@@ -3,12 +3,9 @@ package com.example.nutricionapp
 import ListPatNutritionist
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.nutricionapp.ui.theme.NutricionAppTheme
 import androidx.compose.runtime.Composable
@@ -16,13 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.example.nutricionapp.ResetPassword.RecuperarContrasenaScreen
-import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.notificaciones.Notifications
-import com.example.nutricionapp.nutritionist.CitasScreen
-import com.example.nutricionapp.nutritionist.EditCitaScreen
 import com.example.nutricionapp.nutritionist.updaesScreen
 import com.example.nutricionapp.util.CheckUserTypeScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -50,24 +42,13 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(navController: NavHostController, startDestination: String) {
-    NavHost(navController = navController, startDestination = "login",enterTransition = {
-        slideIntoContainer(
-            AnimatedContentTransitionScope.SlideDirection.Right,
-            tween(durationMillis = 500)
-        )
-    },
-        exitTransition = {
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                tween(durationMillis = 500)
-            )
-        }) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("registerOptions") { RegisterOptionsScreen(navController) }
         composable("registerPatient") { RegisterPatientScreen(navController) }
         composable("registerNutritionist") { RegisterNutScreen(navController) }
         composable("NoVerificado") { NoAutorizado(navController) }
         composable("ProcesoVerificacion") { ProcesoVerificacionScreen(navController) }
-        composable("citas") { CitasScreen(navController) }
+        //composable("PatientHomeScreen") { HomePatient(navController) }
         composable("UserTypeSelector/{NutId}") { backStackEntry ->
             UserTypeSelectorScreen(
                 NutId = backStackEntry.arguments?.getString("NutId") ?: "",
@@ -128,29 +109,6 @@ fun AppNavHost(navController: NavHostController, startDestination: String) {
         }
         composable("checkUserType") { CheckUserTypeScreen(navController) }
         composable("resetPassword") { RecuperarContrasenaScreen(navController) }
-        composable(
-            "editCita/{email}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            EditCitaScreen(
-                email = email,
-                onConfirm = { date, hour ->
-                    FirestoreRepository.createCitaAndUpdateAppointment(
-                        pid = email, // Email del paciente
-                        day = date,
-                        hour = hour
-                    ) { success ->
-                        if (success) {
-                            navController.popBackStack()
-                        } else {
-                            Log.e("CitasScreen", "Error al crear la cita")
-                        }
-                    }
-                },
-                onCancel = { navController.popBackStack() }
-            )
-        }
     }
 
 

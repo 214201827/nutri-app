@@ -338,7 +338,33 @@ object FirestoreRepository {
     }
 */
 
+    // Función para obtener la lista de pacientes con Nid igual a 12345
+    fun getCityData(onDataReceived: (List<Paciented>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        db.collection("pacientes")
+            .whereEqualTo("Nid", userId)  // Aquí se filtra por el correo del nutriólogo
+            .get()
+            .addOnSuccessListener { result ->
+                val pacientes = result.mapNotNull { document ->
+                    val nombre = document.getString("fullName")
+                    val id = document.getString("email")
+                    Log.d("FirestoreRepository", "Paciente obtenido: Nombre: $nombre, Email: $id") // Log de depuración
 
+                    if (nombre != null && id != null) {
+                        Paciented(nombre = nombre, email = id)
+                    } else {
+                        null
+                    }
+                }
+                onDataReceived(pacientes)
+            }
+            .addOnFailureListener { exception ->
+                Log.d("FirestoreRepository", "Error getting documents: ", exception)
+                onDataReceived(emptyList())
+            }
+
+    }
 
         // Esta función obtiene los pacientes asociados al nutriólogo por su correo
         fun getCityDataForNutritionist(emailNut: String, callback: (List<Paciented>) -> Unit) {
@@ -350,10 +376,10 @@ object FirestoreRepository {
                     val patients = result.mapNotNull { document ->
                         val nombre = document.getString("fullName")
                         val id = document.getString("email")
-                        val cita = document.getString("nextAppointment")
+                        Log.d("FirestoreRepository", "Paciente obtenido: Nombre: $nombre, Email: $id") // Log de depuración
 
                         if (nombre != null && id != null) {
-                            Paciented(nombre = nombre, email = id, nextAppointment = cita)
+                            Paciented(nombre = nombre, email = id)
                         } else {
                             null
                         }
@@ -610,7 +636,21 @@ object FirestoreRepository {
                 onComplete(false)
             }
     }
+    fun addPatient(patientId: String, email: String, onComplete: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val patientRef = db.collection("pacientes").document(patientId)
+        Log.d("UserId", "UserId: $patientId")
+        Log.d("UserId", "UserId: $userId")
 
+        patientRef.update("Nid", email)
+            .addOnSuccessListener {
+                onComplete(true)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error updating Nid", exception)
+                onComplete(false)
+            }
+    }
     //get lista de pacientes con Nid null
     fun getPatients(onDataReceived: (List<Paciented>) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -1043,99 +1083,4 @@ fun uploadHist(
                 println("Error al obtener las horas: $exception")
             }
     }
-    fun createCitaAndUpdateAppointment(
-        pid: String,
-        day: String,
-        hour: Int,
-        onComplete: (Boolean) -> Unit
-    ) {
-        val citaData = mapOf(
-            "pid" to pid,  // Email o identificador del paciente
-            "nid" to userId,  // Email o ID del nutriólogo
-            "dia" to day,  // Día de la cita
-            "hora" to hour // Hora de la cita
-        )
-
-        val db = FirebaseFirestore.getInstance()
-
-        // Crear una nueva cita en la colección `citas`, utilizando el `pid` como ID del documento
-        db.collection("citas")
-            .document(pid) // Usar el `pid` como ID del documento
-            .set(citaData)
-            .addOnSuccessListener {
-                // Buscar al paciente en la colección `pacientes` con `email` igual a `pid`
-                db.collection("pacientes")
-                    .whereEqualTo("email", pid)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        if (!querySnapshot.isEmpty) {
-                            // Si se encuentra el paciente, actualizar los campos `nextAppointment` y `hour`
-                            for (document in querySnapshot.documents) {
-                                document.reference.update(
-                                    mapOf(
-                                        "nextAppointment" to day, // Actualizar con solo la fecha
-                                        "hour" to hour // Guardar solo la hora
-                                    )
-                                ).addOnSuccessListener {
-                                    onComplete(true)
-                                }.addOnFailureListener {
-                                    onComplete(false)
-                                }
-                            }
-                        } else {
-                            // Si no se encuentra el paciente, fallar la operación
-                            onComplete(false)
-                        }
-                    }
-                    .addOnFailureListener {
-                        onComplete(false)
-                    }
-            }
-            .addOnFailureListener {
-                onComplete(false)
-            }
-    }
-
-    // Función para obtener las horas ocupadas para una fecha y nid
-    fun getOccupiedHours(date: String, onComplete: (List<Int>) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        Log.d("FechaConsulta", "Consultando citas para la fecha: $date")
-        Log.d("FechaConsulta", "Consultando citas para la fecha: $userId")
-        // Realizar la consulta usando el formato de fecha como string
-        db.collection("citas")
-            .whereEqualTo("dia", date)  // Comparar la fecha como string
-            .whereEqualTo("nid", userId)     // Comparar el nid
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val occupied = mutableListOf<Int>()
-                // Recorrer los documentos para obtener las horas ocupadas
-                for (document in querySnapshot.documents) {
-                    val hour = document.getLong("hora")?.toInt()
-                    if (hour != null) {
-                        occupied.add(hour) // Agregar hora ocupada a la lista
-                    }
-                }
-                onComplete(occupied) // Retornar las horas ocupadas
-            }
-            .addOnFailureListener {
-                onComplete(emptyList()) // Si ocurre un error, retornar lista vacía
-            }
-    }
-
-    fun addPatient(patientId: String, email: String, onComplete: (Boolean) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val patientRef = db.collection("solicitud").document(patientId)
-        Log.d("UserId", "UserId: $patientId")
-        Log.d("UserId", "UserId: $userId")
-
-        patientRef.update("Nid", email)
-            .addOnSuccessListener {
-                onComplete(true)
-            }
-            .addOnFailureListener { exception ->
-                Log.w("Firestore", "Error updating Nid", exception)
-                onComplete(false)
-            }
-    }
-
 }
