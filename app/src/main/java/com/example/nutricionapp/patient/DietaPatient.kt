@@ -333,6 +333,26 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                                             fontSize = 16.sp,
                                             color = Color.Black
                                         )
+                                        Text(
+                                            text = "Peso Meta: ${paciente.PesoMeta}",
+                                            fontSize = 16.sp,
+                                            color = Color.Black
+                                        )
+                                        val pesoActual = paciente.peso ?: 0.0
+                                        val pesoMeta = paciente.PesoMeta ?: 0.0
+
+                                        val diferenciaPeso = pesoActual - pesoMeta
+                                        val mensajePeso = if (diferenciaPeso > 0) {
+                                            "Estás a ${"%.2f".format(diferenciaPeso)} kilos de tu peso ideal."
+                                        } else if (diferenciaPeso == 0.0) {
+                                            "¡Has alcanzado tu peso ideal!"
+                                        } else {
+                                            "Estás a ${"%.2f".format(-diferenciaPeso)} kilos por debajo de tu peso ideal."
+                                        }
+                                        Text(
+                                            text = mensajePeso,
+                                            fontSize = 16.sp
+                                        )
                                     }
                                 }
 
