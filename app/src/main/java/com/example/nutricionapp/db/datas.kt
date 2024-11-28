@@ -23,7 +23,8 @@ data class PacienteDb(
 )
 data class Paciented(
     val email: String = "",
-    val nombre: String = ""
+    val nombre: String = "",
+    val nextAppointment: String? = null
 )
 data class Comida(
     val comida: String,
@@ -46,6 +47,7 @@ data class Dieta2(
 )
 data class Hist(val name: String)
 data class Horas(val horas: Int)
+
 data class Record(
     val destId: String? = null,
     val remId: String? = null,

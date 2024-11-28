@@ -36,6 +36,7 @@ import com.example.nutricionapp.db.PacienteDb
 import java.util.Date
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import com.example.nutricionapp.HistorialScreen
 
 
 @Composable
@@ -537,8 +538,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                 //---------------------------------------------------------------------------------------------------
                 2 -> {
                     // Lógica para mostrar el historial del paciente
-                    val patientId = "12345" // Obtén el patientId que necesites
-                    //HistorialScreen(patientId)
+                    HistorialScreen(patientId)
 
                 }
             }
