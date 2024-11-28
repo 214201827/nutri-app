@@ -424,7 +424,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                             showDialog = true },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
                     ) {
-                        Text("Editar Dieta", color = Color.White)
+                        Text("Registrar avance", color = Color.White)
                     }
 
                     if (showDialog) {
