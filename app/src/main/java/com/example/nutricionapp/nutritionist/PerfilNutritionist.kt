@@ -257,12 +257,11 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
                                     contentPadding = PaddingValues(4.dp)
                                 ) {
-                                    //icono
                                     Icon(
                                         imageVector = Icons.Default.Output,
                                         contentDescription = "Cerrar sesión",
                                         tint = Color.White,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(24.dp) // Tamaño del ícono
                                     )
                                 }
 
