@@ -61,7 +61,7 @@ fun ListPatNutritionist(navController: NavHostController) {
             title = { Text("Cambiar Nid") },
             text = {
                 Column {
-                    Text("Ingrese el Pid del paciente:")
+                    Text("Ingrese el email del paciente:")
                     TextField(
                         value = pidInput,
                         onValueChange = { pidInput = it },
