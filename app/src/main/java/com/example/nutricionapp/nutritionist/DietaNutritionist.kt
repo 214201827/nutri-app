@@ -338,7 +338,9 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
 
                 //---------------------------------------------------------------------------------------------------
                 1 -> {
-                    paciente?.let { paciente ->
+                    var pacienteState by remember { mutableStateOf(paciente) }
+
+                    pacienteState?.let { paciente ->
                         Column {
                             // Mostrar la información del paciente en Cards
                             // Card para el Peso
@@ -358,6 +360,26 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                         text = "Peso Actual: ${paciente.peso}",
                                         fontSize = 16.sp,
                                         color = Color.Black
+                                    )
+                                    Text(
+                                        text = "Peso Meta: ${paciente.PesoMeta}",
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    )
+                                    val pesoActual = paciente.peso ?: 0.0
+                                    val pesoMeta = paciente.PesoMeta ?: 0.0
+
+                                    val diferenciaPeso = pesoActual - pesoMeta
+                                    val mensajePeso = if (diferenciaPeso > 0) {
+                                        "Estás a ${"%.2f".format(diferenciaPeso)} kilos de tu peso ideal."
+                                    } else if (diferenciaPeso == 0.0) {
+                                        "¡Has alcanzado tu peso ideal!"
+                                    } else {
+                                        "Estás a ${"%.2f".format(-diferenciaPeso)} kilos por debajo de tu peso ideal."
+                                    }
+                                    Text(
+                                        text = mensajePeso,
+                                        fontSize = 16.sp
                                     )
                                 }
                             }
@@ -414,17 +436,19 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
 
                     Button(
                         onClick = {
-                            pesoInicial = paciente?.pesoI?.toString() ?: ""  // Si paciente es nulo o pesoI es nulo, asigna ""
-                            pesoActual = paciente?.peso?.toString() ?: ""
-                            pesoMeta = paciente?.PesoMeta?.toString() ?: ""
-                            imcInicial = paciente?.imcI?.toString() ?: ""
-                            imcActual = paciente?.imc?.toString() ?: ""
-                            immInicial = paciente?.immI?.toString() ?: ""
-                            immActual = paciente?.imm?.toString() ?: ""
-                            showDialog = true },
+                            pesoInicial = pacienteState?.pesoI?.toString()
+                                ?: "" // Si paciente es nulo o pesoI es nulo, asigna ""
+                            pesoActual = pacienteState?.peso?.toString() ?: ""
+                            pesoMeta = pacienteState?.PesoMeta?.toString() ?: ""
+                            imcInicial = pacienteState?.imcI?.toString() ?: ""
+                            imcActual = pacienteState?.imc?.toString() ?: ""
+                            immInicial = pacienteState?.immI?.toString() ?: ""
+                            immActual = pacienteState?.imm?.toString() ?: ""
+                            showDialog = true
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E))
                     ) {
-                        Text("Registrar avance", color = Color.White)
+                        Text("Editar Dieta", color = Color.White)
                     }
 
                     if (showDialog) {
@@ -435,48 +459,75 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                 Column {
                                     OutlinedTextField(
                                         value = pesoInicial,
-                                        onValueChange = { handleValueChange(it, { pesoInicial = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { pesoInicial = it })
+                                        },
                                         label = { Text("Peso Inicial") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = pesoActual,
-                                        onValueChange = { handleValueChange(it, { pesoActual = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { pesoActual = it })
+                                        },
                                         label = { Text("Peso Actual") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = pesoMeta,
-                                        onValueChange = { handleValueChange(it, { pesoMeta = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { pesoMeta = it })
+                                        },
                                         label = { Text("Peso Meta") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = imcInicial,
-                                        onValueChange = { handleValueChange(it, { imcInicial = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { imcInicial = it })
+                                        },
                                         label = { Text("IMC Inicial") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = imcActual,
-                                        onValueChange = { handleValueChange(it, { imcActual = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { imcActual = it })
+                                        },
                                         label = { Text("IMC Actual") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = immInicial,
-                                        onValueChange = { handleValueChange(it, { immInicial = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { immInicial = it })
+                                        },
                                         label = { Text("IMM Inicial") },
                                         isError = errorMessage != null
                                     )
                                     OutlinedTextField(
                                         value = immActual,
-                                        onValueChange = { handleValueChange(it, { immActual = it }) },
+                                        onValueChange = {
+                                            handleValueChange(
+                                                it,
+                                                { immActual = it })
+                                        },
                                         label = { Text("IMM Actual") },
                                         isError = errorMessage != null
                                     )
 
-                                    // Mostrar el mensaje de error debajo del campo si es necesario
                                     errorMessage?.let {
                                         Text(
                                             text = it,
@@ -500,6 +551,16 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                             immInicial.toDoubleOrNull(),
                                             immActual.toDoubleOrNull()
                                         )
+                                        // Actualizar pacienteState con los nuevos datos
+                                        pacienteState = pacienteState?.copy(
+                                            pesoI = pesoInicial.toDoubleOrNull(),
+                                            peso = pesoActual.toDoubleOrNull(),
+                                            PesoMeta = pesoMeta.toDoubleOrNull(),
+                                            imcI = imcInicial.toDoubleOrNull(),
+                                            imc = imcActual.toDoubleOrNull(),
+                                            immI = immInicial.toDoubleOrNull(),
+                                            imm = immActual.toDoubleOrNull()
+                                        )
                                         showDialog = false
                                     }
                                 ) {
@@ -507,9 +568,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                                 }
                             },
                             dismissButton = {
-                                Button(
-                                    onClick = { showDialog = false }
-                                ) {
+                                Button(onClick = { showDialog = false }) {
                                     Text("Cancelar")
                                 }
                             }
