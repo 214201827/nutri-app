@@ -119,7 +119,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
 
         DatePickerComponent { selectedDate = it }
 
-        var fechaNacimiento = selectedDate
+        val fechaNacimiento = selectedDate
 
         Spacer(modifier = Modifier.height(16.dp))
 
