@@ -254,18 +254,19 @@ fun PerfilPatient(patientId: String,navController: NavHostController) {
                                         // Cerrar sesión de Firebase y limpiar preferencias
                                         signOut(navController)
                                     },
-                                    modifier = Modifier
-                                        .padding(start = 16.dp)
-                                        .wrapContentSize(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                                    contentPadding = PaddingValues(4.dp)
+                                    modifier = Modifier.size(26.dp), // Ajusta el tamaño del botón
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+
+
+                                    , // Fondo transparente
+                                    contentPadding = PaddingValues(0.dp), // Elimina padding interno
+                                    shape = CircleShape // Hace el botón circular
                                 ) {
-                                    //icono
                                     Icon(
                                         imageVector = Icons.Default.Output,
                                         contentDescription = "Cerrar sesión",
                                         tint = Color.White,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(24.dp) // Tamaño del ícono
                                     )
                                 }
 
@@ -301,10 +302,17 @@ fun PerfilPatient(patientId: String,navController: NavHostController) {
                                 onClick = {
                                     // Muestra el cuadro de diálogo para seleccionar fecha y hora
                                     var destId = paciente?.Nid.toString()
-                                    requestDiet(destId, patientId )
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar("Solicitud de dieta enviada.")
+                                    if (destId == "") {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar("No tienes nutriologo asignado.")
+                                        }
+                                    }else {
+                                        requestDiet(destId, patientId)
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar("Solicitud de dieta enviada.")
+                                        }
                                     }
+
                                 },
                                 modifier = Modifier.wrapContentSize()
                                     //.padding(8.dp)
