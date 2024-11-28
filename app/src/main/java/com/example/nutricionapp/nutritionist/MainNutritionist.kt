@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -98,6 +99,21 @@ fun MainNutritionist(NutId: String, navController: NavHostController) {
                         unselectedTextColor = Color.Gray
                     )
                 )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.NoteAlt, contentDescription = "Citas") },
+                    label = { Text("Citas") },
+                    selected = selectedItem == 3,
+                    onClick = {
+                        selectedItem = 3
+                        currentScreen = "Citas"
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.Black,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = Color.White,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
             }
         }
     ) { innerPadding ->
@@ -117,6 +133,10 @@ fun MainNutritionist(NutId: String, navController: NavHostController) {
                 }
                 "notificaciones" -> { // pantalla de notificaciones
                     Notifications(NutId, navController)
+                }
+                "Citas" -> {
+                    // Pantalla de citas
+                    CitasScreen(navController)
                 }
             }
         }
