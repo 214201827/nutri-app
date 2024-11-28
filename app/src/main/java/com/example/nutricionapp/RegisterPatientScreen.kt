@@ -257,7 +257,7 @@ fun RegisterPatientScreen(navController: NavHostController) {
                                 if (result.isSuccessful) {
                                     dialogText.value = "Registro exitoso."
                                     showDialog.value = true
-                                    navController.navigate("Login")
+                                    navController.navigate("login")
                                     val db = FirebaseFirestore.getInstance()
 
 // Crear la dieta principal
