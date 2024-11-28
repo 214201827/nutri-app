@@ -175,25 +175,7 @@ fun DietaNutritionist(patientId: String, navController: NavHostController){
                             )
 
                         }
-                        Button(
-                            onClick = {
-                                // Muestra el cuadro de diálogo para seleccionar fecha y hora
-                               // showDatePicker = true
-                                navController.navigate("CreateAppoitment/$patientId")
-                            },
-                            modifier = Modifier.wrapContentSize(),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                            contentPadding = PaddingValues(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AddCircle,
-                                contentDescription = "Crear cita",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("Cita", color = Color.White, fontSize = 12.sp)
-                        }
+                        
 
                         // Diálogo para seleccionar la fecha
 //                        if (showDatePicker) {
