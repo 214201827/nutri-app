@@ -40,6 +40,7 @@ import java.util.UUID
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.input.pointer.pointerInput
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import java.text.ParseException
@@ -132,7 +133,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(32.dp)
                 .alpha(if (isLoading) 0.5f else 1f) // Cambia la opacidad si está cargando
-            .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -172,7 +173,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -195,7 +196,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -228,7 +229,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -251,7 +252,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -275,7 +276,7 @@ fun RegisterNutScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                ,                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -353,7 +354,6 @@ fun RegisterNutScreen(navController: NavHostController) {
                         if (authTask.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
 
-                            //val age = calculateAge(calendar.time)
                             // Subir archivos a Firebase Storage
                             val ineRef = storage.reference.child("nutriologos/$userId/ine/${UUID.randomUUID()}")
                             val licenseRef = storage.reference.child("nutriologos/$userId/cedula/${UUID.randomUUID()}")
@@ -395,11 +395,8 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "age" to age,
                                                 "procesoVerificacion" to "En proceso",
                                                 "licenseUrl" to licenseDownloadUrl
-                                                // Agrega otros campos si es necesario
                                             )
                                             val modePaciente = hashMapOf(
-//                                                "historial" to listOf<DocumentReference>(),
-//                                                "medidas" to listOf<DocumentReference>(),
                                                 "fullName" to fullName,
                                                 "nutriAsign" to null,
                                                 "fechaNacimiento" to calendar.time,
@@ -418,89 +415,66 @@ fun RegisterNutScreen(navController: NavHostController) {
                                                 "pesoI" to pesoI,
                                                 "PesoMeta" to PesoMeta,
                                                 "profileImage" to profileImage.toString()
-                                                // Agrega otros campos si es necesario
                                             )
 
                                             firestore.collection("/pacientes").document(email)
                                                 .set(modePaciente)
                                                 .addOnSuccessListener {
-                                                    isLoading = false
-                                                    // Mostrar el diálogo de éxito
-                                                    showSuccessDialog = true
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    isLoading = false
-                                                    errorMessage = "Error al guardar datos: ${e.message}"
-                                                }
-                                            firestore.collection("/nutriologos").document(email)
-                                                .set(nutriologoData)
-                                                .addOnSuccessListener {
-                                                    isLoading = false
-                                                    // Mostrar el diálogo de éxito
-                                                    showSuccessDialog = true
+                                                    // Crear dieta principal en Firestore
                                                     val db = FirebaseFirestore.getInstance()
-
-// Crear la dieta principal
-                                                    val diet = hashMapOf(
-                                                        "id" to email
-                                                    )
+                                                    val diet = hashMapOf("id" to email)
                                                     val dietRef = db.collection("diets").document(email)
 
-// Guardar el documento principal de la dieta
-                                                    dietRef.set(diet)
-                                                        .addOnSuccessListener {
-                                                            // Datos por defecto para las comidas
-                                                            val desayuno = hashMapOf(
-                                                                "comida" to "Sin asignar",
-                                                                "descr" to "Sin asignar",
-                                                                "hora" to 8
-                                                            )
-                                                            val comida = hashMapOf(
-                                                                "comida" to "Sin asignar",
-                                                                "descr" to "Sin asignar",
-                                                                "hora" to 14
-                                                            )
-                                                            val cena = hashMapOf(
-                                                                "comida" to "Sin asignar",
-                                                                "descr" to "Sin asignar",
-                                                                "hora" to 20
-                                                            )
+                                                    dietRef.set(diet).addOnSuccessListener {
+                                                        val desayuno = hashMapOf(
+                                                            "comida" to "Sin asignar",
+                                                            "descr" to "Sin asignar",
+                                                            "hora" to 8
+                                                        )
+                                                        val comida = hashMapOf(
+                                                            "comida" to "Sin asignar",
+                                                            "descr" to "Sin asignar",
+                                                            "hora" to 14
+                                                        )
+                                                        val cena = hashMapOf(
+                                                            "comida" to "Sin asignar",
+                                                            "descr" to "Sin asignar",
+                                                            "hora" to 20
+                                                        )
+                                                        val daysOfWeek = listOf(
+                                                            "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"
+                                                        )
 
-                                                            // Días de la semana
-                                                            val daysOfWeek = listOf(
-                                                                "lunes",
-                                                                "martes",
-                                                                "miércoles",
-                                                                "jueves",
-                                                                "viernes",
-                                                                "sábado",
-                                                                "domingo"
-                                                            )
-
-                                                            // Crear documentos para cada día
-                                                            val tasks = mutableListOf<Task<Void>>()
-                                                            daysOfWeek.forEach { day ->
-                                                                val dayRef = dietRef.collection(day)
-
-                                                                // Crear documentos para desayuno, comida y cena
-                                                                tasks.add(
-                                                                    dayRef.document("desayuno")
-                                                                        .set(desayuno)
-                                                                )
-                                                                tasks.add(
-                                                                    dayRef.document("comida")
-                                                                        .set(comida)
-                                                                )
-                                                                tasks.add(
-                                                                    dayRef.document("cena")
-                                                                        .set(cena)
-                                                                )
-                                                            }
+                                                        val tasks = mutableListOf<Task<Void>>()
+                                                        daysOfWeek.forEach { day ->
+                                                            val dayRef = dietRef.collection(day)
+                                                            tasks.add(dayRef.document("desayuno").set(desayuno))
+                                                            tasks.add(dayRef.document("comida").set(comida))
+                                                            tasks.add(dayRef.document("cena").set(cena))
                                                         }
+
+                                                        Tasks.whenAll(tasks).addOnSuccessListener {
+                                                            isLoading = false
+                                                            showSuccessDialog = true
+                                                        }.addOnFailureListener { e ->
+                                                            isLoading = false
+                                                            errorMessage = "Error al crear dieta: ${e.message}"
+                                                        }
+                                                    }.addOnFailureListener { e ->
+                                                        isLoading = false
+                                                        errorMessage = "Error al crear dieta principal: ${e.message}"
+                                                    }
                                                 }
                                                 .addOnFailureListener { e ->
                                                     isLoading = false
-                                                    errorMessage = "Error al guardar datos: ${e.message}"
+                                                    errorMessage = "Error al guardar datos del paciente: ${e.message}"
+                                                }
+
+                                            firestore.collection("/nutriologos").document(email)
+                                                .set(nutriologoData)
+                                                .addOnFailureListener { e ->
+                                                    isLoading = false
+                                                    errorMessage = "Error al guardar datos del nutriólogo: ${e.message}"
                                                 }
                                         } else {
                                             isLoading = false
