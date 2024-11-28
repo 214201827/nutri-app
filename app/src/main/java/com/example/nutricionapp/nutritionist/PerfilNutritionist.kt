@@ -251,11 +251,13 @@ fun PerfilNutritionist(patientId: String,navController: NavHostController) {
                                         // Cerrar sesión de Firebase y limpiar preferencias
                                         signOut(navController)
                                     },
-                                    modifier = Modifier
-                                        .padding(start = 16.dp)
-                                        .wrapContentSize(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B3D6E)),
-                                    contentPadding = PaddingValues(4.dp)
+                                    modifier = Modifier.size(26.dp), // Ajusta el tamaño del botón
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+
+
+                                    , // Fondo transparente
+                                    contentPadding = PaddingValues(0.dp), // Elimina padding interno
+                                    shape = CircleShape // Hace el botón circular
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Output,
