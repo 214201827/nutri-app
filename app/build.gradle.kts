@@ -11,7 +11,7 @@ android {
     compileSdk = 34
     defaultConfig {
         applicationId = "com.example.nutricionapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -85,6 +85,9 @@ dependencies {
     //subuir imagenes
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
     implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation ("org.apache.poi:poi:5.2.0")
+    implementation ("org.apache.poi:poi-ooxml:5.2.0")
+
 
 
 
