@@ -1124,7 +1124,7 @@ fun uploadHist(
 
     fun addPatient(patientId: String, email: String, onComplete: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
-        val patientRef = db.collection("solicitud").document(patientId)
+        val patientRef = db.collection("pacientes").document(patientId)
         Log.d("UserId", "UserId: $patientId")
         Log.d("UserId", "UserId: $userId")
 
