@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.nutricionapp.HistorialScreen
 import com.example.nutricionapp.db.Dieta
 import com.example.nutricionapp.db.FirestoreRepository
 import com.example.nutricionapp.db.PacienteDb
@@ -495,6 +496,7 @@ fun DietaPatient(patientId: String,navController: NavHostController, NutId: Stri
                     //---------------------------------------------------------------------------------------------------
                     2 -> {
                         // Lógica para mostrar el historial del paciente
+                        HistorialScreen(patientId)
 
                     }
                 }
