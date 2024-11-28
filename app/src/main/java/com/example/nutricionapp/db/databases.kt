@@ -432,7 +432,7 @@ object FirestoreRepository {
                         val Nid = documentSnapshot.getString("Nid") ?: ""
                         val peso = documentSnapshot.getDouble("peso")
                         val pesoI = documentSnapshot.getDouble("pesoI")
-                        val pm = documentSnapshot.getDouble("PesoMeta")
+                        val pm = documentSnapshot.getDouble("pesoMeta")
                         val dir = documentSnapshot.getString("address") ?: ""
                         val cel = documentSnapshot.getLong("phone")?: 0
                         val diet = documentSnapshot.getString("diet") ?: ""
